@@ -1,0 +1,9 @@
+include: "/growth_dm/views/top_partners.view.lkml"
+
+explore: top_partners {
+  persist_with: top_partners_datagroup #cache policy - check datagroup definition in the model.
+
+  description: "Top Partners table wants to show top partners in terms of weekly number
+    of orders and % of NSO vertical,country, weekly granularity"
+
+}
