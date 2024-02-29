@@ -1,0 +1,30 @@
+
+datagroup: top_cities_datagroup {
+  sql_trigger:
+    SELECT max(order_creation_week)
+    FROM delta.central__non_seamless_orders__odp.non_seamless_gen2_orders_top_cities ;;
+
+  max_cache_age: "24 hours"
+  label: "New order_creation_date added"
+  description: "Triggered when promotions ETL is finished. Persists for max 24h"
+}
+
+datagroup: top_countries_datagroup {
+  sql_trigger:
+    SELECT max(order_creation_week)
+    FROM delta.central__non_seamless_orders__odp.non_seamless_gen2_orders_top_countries ;;
+
+  max_cache_age: "24 hours"
+  label: "New order_creation_date added"
+  description: "Triggered when promotions ETL is finished. Persists for max 24h"
+}
+
+datagroup: top_partners_datagroup {
+  sql_trigger:
+    SELECT max(order_creation_week)
+    FROM delta.central__non_seamless_orders__odp.non_seamless_gen2_orders_top_partners ;;
+
+  max_cache_age: "24 hours"
+  label: "New order_creation_date added"
+  description: "Triggered when promotions ETL is finished. Persists for max 24h"
+}
