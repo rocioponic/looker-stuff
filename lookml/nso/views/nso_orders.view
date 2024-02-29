@@ -1,0 +1,388 @@
+view: nso_orders {
+  sql_table_name: delta.central__non_seamless_orders__odp.non_seamless_orders;;
+
+  dimension: pk_order_id {
+    description: "Partition key - Unique ID for each order"
+    type: number
+    hidden: yes
+    primary_key: yes
+    sql: ${TABLE}.order_id ;;
+  }
+
+  dimension: order_final_status {
+    description: "Order final status"
+    type: string
+    hidden: yes
+    sql: ${TABLE}.order_final_status ;;
+  }
+
+  parameter: week_ago_to_report {
+    alias: [complete_weeks_ago_2]
+    type: number
+    description: "Filters the field 'Order Creation Week to Report' by substracting 'X' weeks from the current date"
+    default_value: "2"
+  }
+
+  dimension_group: order_creation_previous_week_to_report {
+    alias: [p_creation_week_previous_week]
+    description: "Creation week to be used for tiles with
+      evolution of last complete week -1 vs previous week"
+    type: time
+    timeframes: [week]
+    sql:  CASE WHEN date_trunc('week', ${TABLE}.order_creation_date) >=
+          date_trunc('week', date_add('week', -{% parameter complete_weeks_ago_2 %}-1,
+          current_date))
+          AND date_trunc('week', ${TABLE}.order_creation_date) <=
+          date_trunc('week', date_add('week', -{% parameter complete_weeks_ago_2 %},
+          current_date))
+          THEN date_trunc('week', ${TABLE}.order_creation_date)
+          ELSE NULL END ;;
+  }
+
+  dimension_group: order_creation_week_to_report {
+    alias: [p_creation_week_to_report]
+    description: "Creation week to be used to report last complete week -1"
+    type: time
+    timeframes: [week]
+    sql:  CASE WHEN date_trunc('week', ${TABLE}.order_creation_date) =
+          date_trunc('week', date_add('week', -{% parameter complete_weeks_ago_2 %},
+          current_date))
+          AND date_trunc('week', ${TABLE}.order_creation_date) <
+          date_trunc('week', date_add('week', -({% parameter complete_weeks_ago_2 %}-1),
+          current_date))
+          THEN date_trunc('week', date_add('week', -{% parameter complete_weeks_ago_2 %},
+          current_date))
+          ELSE NULL END ;;
+  }
+
+  dimension_group: order_creation_date {
+    alias: [p_creation_date]
+    description: "The date when each user last ordered"
+    type: time
+    timeframes: [date, week, month, year]
+    sql: ${TABLE}.order_creation_date ;;
+  }
+
+  dimension: order_cancel_reason {
+    description: "Order cancel reason"
+    type: string
+    sql: ${TABLE}.order_cancel_reason ;;
+  }
+
+  dimension: delivery_time_minutes {
+    description: "Delivery time in minutes, from activation to delivery"
+    type: number
+    sql: ${TABLE}.order_delivery_time_in_minutes ;;
+  }
+
+  dimension: order_total_time {
+    description: "Time in minutes from order start date to when courier arrives delivery zone"
+    type: number
+    sql: ${TABLE}.order_total_time_in_minutes ;;
+  }
+
+  dimension: order_global_region {
+    description: "Global region for the order, based on the country code"
+    type: string
+    hidden: yes
+    sql: ${TABLE}.order_global_region ;;
+  }
+
+  dimension: order_country_code {
+    description: "2-letter code indicating the country where the order took place"
+    type: string
+    hidden: yes
+    sql: ${TABLE}.order_country_code ;;
+  }
+
+  dimension: order_city_code {
+    description: "3-letter city code (IATA-3) indicating the city where the order was executed"
+    type: string
+    hidden: yes
+    sql: ${TABLE}.order_city_code ;;
+  }
+
+  dimension: city_population_tier {
+    description: "Indicator of the size of a city in terms of its population covered.
+      Taken from user_defined_geography_data spreadsheet"
+    type: string
+    hidden: yes
+    sql: ${TABLE}.city_population_tier ;;
+  }
+
+  dimension: order_handling_strategy {
+    description: "Possible values: GEN1, GEN2, IN_STORE or PICKUP.
+      Tells us whether the order is delivered and is GEN1 (marketplace)
+      or GEN2(delivered by Glovo)
+      or the order was picked by the customer at the store IN_STORE or PICKUP"
+    type: string
+    hidden: yes
+    sql: ${TABLE}.order_handling_strategy ;;
+  }
+
+  dimension: store_name {
+    description: "Name for the store, it comes from the Partner Stores DP"
+    type: string
+    hidden: yes
+    sql: ${TABLE}.store_name ;;
+  }
+
+  dimension: order_vertical {
+    description: "Vertical to which the order was assigned to.
+      There are 3 types of verticals: LaaS, Food and QCommerce"
+    type: string
+    hidden: yes
+    sql: ${TABLE}.order_vertical ;;
+  }
+
+  dimension: order_subvertical {
+    description: "Subvertical for the vertical to be able to categorize the order even further.
+      It can take values: eLogistics, On-Demand, Courier (Laas), Quiero, MFC,
+      QCPartners (QCommerce) and Food - Food and Food - Other (Food)"
+    type: string
+    hidden: yes
+    sql: ${TABLE}.order_subvertical ;;
+  }
+
+  dimension: order_subvertical2 {
+    description: "Used to classify even further On-Demand subvertical in
+      Food and Other and QCPartners in Retail and Groceries"
+    type: string
+    hidden: yes
+    sql: ${TABLE}.order_subvertical2 ;;
+  }
+
+  dimension: order_subvertical3 {
+    description: "Used to classify even further Retail orders into Health and Shops"
+    type: string
+    hidden: yes
+    sql: ${TABLE}.order_subvertical3 ;;
+  }
+
+  dimension: order_eta_lower_bound_in_minutes {
+    description: "lower bound of the eta communicated"
+    type: number
+    sql: ${TABLE}.order_eta_lower_bound_in_minutes ;;
+  }
+
+  dimension: order_eta_upper_bound_in_minutes {
+    description: "upper bound of the eta communicated"
+    type: number
+    sql: ${TABLE}.order_eta_upper_bound_in_minutes ;;
+  }
+
+  dimension: courier_rating_reasons {
+    description: "The reason why the customer chose this rating for the courier.
+      E.g. (COMMUNICATION, RUDE, FOLLOWED_DELIVERY_INSTRUCTIONS, etc)"
+    type: string
+    sql: ${TABLE}.courier_rating_reasons ;;
+  }
+
+  dimension: partner_rating_reasons {
+    description: "The reason why the customer chose this rating for the partner.
+      E.g. (DELIVERY_PRICE, PRICE, COLD_FOOD, TOO_SLOW, etc)"
+    type: string
+    sql: ${TABLE}.partner_rating_reasons ;;
+  }
+
+  dimension: feedback_selected_options {
+    description: "Selected feedback option in a list"
+    type: string
+    sql: ${TABLE}.feedback_selected_options ;;
+  }
+
+  dimension: order_is_pna_cancellation {
+    description: "if order is considered to have PNA due to cancellations
+      from a product not available"
+    type: yesno
+  }
+
+  dimension: order_is_nso_dt {
+    description: "Boolean to identify order as not seamless due to dt.
+      Meaning, if dt is above 45 minutes"
+    type: yesno
+    sql: ${TABLE}.order_is_nso_delivery_time ;;
+  }
+
+  dimension: order_is_pna_wm_feedback {
+    description: "If order is considered to have PNA due to feedback
+      on (MISSING_PRODUCTS) or (WRONG_PRODUCTS)"
+    type: yesno
+  }
+
+  dimension: order_is_pna_refund {
+    description: "If order is considered to have PNA, from a refunds"
+    type: yesno
+  }
+
+  dimension: order_is_pna_replacement {
+    description: "If order is considered to have PNA, from a replacement"
+    type: yesno
+  }
+
+  dimension: order_is_pna_partial_removal {
+    description: "If order is considered to have PNA, from a partial removal"
+    type: yesno
+  }
+
+  dimension: order_is_pna_total_removal {
+    description: "If order is considered to have PNA, from a total removal"
+    type: yesno
+  }
+
+  dimension: order_is_nso_bad_ratings {
+    description: "Boolean to identify order as not seamless due to a bad ratings.
+      Meaning, if order has any bad ratings either for courier or partner"
+    type: yesno
+    sql: ${TABLE}.order_has_bad_ratings ;;
+  }
+
+  dimension: order_is_nso_feedback {
+    description: "Boolean to identify order as not seamless due to a feedback.
+      Meaning, if order has any feedback from contact"
+    type: yesno
+    sql: ${TABLE}.order_has_bad_feedbacks ;;
+  }
+
+  dimension: order_is_nso_pna {
+    description: "Boolean to identify order as not seamless due to a PNA.
+      Meaning, if order had a PNA"
+    type: yesno
+    sql: ${TABLE}.order_is_pna ;;
+  }
+
+  dimension: eta_difference_min {
+    description: "Difference in minutes between lower/upper bound of ETA
+      and the actual time courier enters delivery zone"
+    type: number
+    sql: ${TABLE}.eta_difference_with_boundaries_in_minutes ;;
+  }
+
+  dimension: order_is_nso_eta {
+    description: "Boolean to identify order as not seamless due to eta.
+      Meaning, if  ETA is 15 min before or after the upper bound"
+    type: yesno
+    sql: ${TABLE}.order_is_nso_eta ;;
+  }
+
+  dimension: order_is_nso {
+    description: "Boolean to identify order as not seamless.
+      This happens when delivery time is:
+      above 45 minutes
+      or ETA is 15 min before or after the upper bound
+      or there is a bad rating
+      or there is a feedback
+      or there is a cancellations
+      or there is a PNA"
+    type: yesno
+    sql: ${TABLE}.order_is_nso ;;
+  }
+
+  dimension: order_is_nso_cancelation {
+    description: "Boolean to identify order as not seamless due to a cancellation.
+      Meaning, if order is canceled"
+    type: yesno
+    sql: CASE WHEN ${TABLE}.order_final_status='CanceledStatus' THEN TRUE ELSE FALSE END ;;
+  }
+
+  measure: number_of_orders {
+    description: "Total orders"
+    type: count_distinct
+    hidden: yes
+    sql: ${TABLE}.order_id ;;
+  }
+
+  measure: number_nso_orders {
+    description: "Number of NSO orders"
+    type: number
+    sql: count( distinct case when ${order_is_nso} = true then ${pk_order_id} end) ;;
+  }
+
+  measure: number_nso_dt_orders {
+    description: "Number of NSO orders due to DT>45"
+    type: number
+    sql: count( distinct case when ${order_is_nso_dt} = true then ${pk_order_id} end) ;;
+  }
+
+  measure: number_nso_eta_orders {
+    description: "Number of NSO orders due to ETA -+15"
+    type: number
+    sql: count( distinct case when ${order_is_nso_eta} = true then ${pk_order_id} end) ;;
+  }
+
+  measure: number_nso_cancellation_orders {
+    description: "Number of NSO orders due to cancellations"
+    type: number
+    sql: count( distinct case when ${order_is_nso_cancelation} = true
+      then ${pk_order_id} end) ;;
+  }
+
+  measure: number_nso_feedback_orders {
+    description: "Number of NSO orders due to feedback"
+    type: number
+    sql: count( distinct case when ${order_is_nso_feedback} = true
+      then ${pk_order_id} end) ;;
+  }
+
+  measure: number_nso_bad_ratings_orders {
+    description: "Number of NSO orders due to bad ratings"
+    type: number
+    sql: count( distinct case when ${order_is_nso_bad_ratings} = true
+      then ${pk_order_id} end) ;;
+  }
+
+  measure: number_nso_pna_orders {
+    description: "Number of NSO orders due to PNA"
+    type: number
+    sql: count( distinct case when ${order_is_nso_pna} = true then ${pk_order_id} end) ;;
+  }
+
+  measure: percentage_of_nso_orders {
+    description: "Percentage of NSO orders"
+    type: number
+    value_format_name: percent_2
+    sql: 1.0000 *  ${number_nso_orders} / nullif(${number_of_orders}, 0) ;;
+  }
+
+  measure: percentage_of_nso_dt_orders {
+    description: "Percentage of NSO orders due to DT>45"
+    type: number
+    value_format_name: percent_2
+    sql: 1.0000 *  ${number_nso_dt_orders} / nullif(${number_of_orders}, 0) ;;
+  }
+
+  measure: percentage_of_nso_eta_orders {
+    description: "Percentage of NSO orders due to ETA-+15"
+    type: number
+    value_format_name: percent_2
+    sql: 1.0000 *  ${number_nso_eta_orders} / nullif(${number_of_orders}, 0) ;;
+  }
+
+  measure: percentage_of_nso_cancellation_orders {
+    description: "Percentage of NSO orders due to cancellations"
+    type: number
+    value_format_name: percent_2
+    sql: 1.0000 *  ${number_nso_cancellation_orders} / nullif(${number_of_orders}, 0) ;;
+  }
+
+  measure: percentage_of_nso_feedback_orders {
+    description: "Percentage of NSO orders due to feedback"
+    type: number
+    value_format_name: percent_2
+    sql: 1.0000 *  ${number_nso_feedback_orders} / nullif(${number_of_orders}, 0) ;;
+  }
+
+  measure: percentage_of_nso_bad_ratings_orders {
+    description: "Percentage of NSO orders due to bad ratings"
+    type: number
+    value_format_name: percent_2
+    sql: 1.0000 *  ${number_nso_bad_ratings_orders} / nullif(${number_of_orders}, 0) ;;
+  }
+
+  measure: percentage_of_nso_pna_orders {
+    description: "Percentage of NSO orders due to PNA"
+    type: number
+    value_format_name: percent_2
+    sql: 1.0000 *  ${number_nso_pna_orders} / nullif(${number_of_orders}, 0) ;;
+  }
+}
