@@ -1,0 +1,22 @@
+# Steps for the migration of the dDP in Looker
+
+# First: Top Countries Creation & Validation
+  
+  1. Create top_countries view
+  2. Create top_countries explore
+  3. Add to growth_dm.model top_countries datagroup
+  4. Update charts previously using top_cities.explore with top_countries.explore
+        > 1 chart in NSO main dashboard 
+        > 6 charts in NSO breakdown dashboard (linked in the NSO main dashboard)
+  5. Validate data with previous explore
+
+# Second: NSO, Top Partners and Top Cities update
+
+  1. Update lookml nso_orders.view
+  2. Update lookml top_partners.view
+  3. Update lookml top_cities.view
+  4. Update lookml top_partners.explore
+  5. Update lookml top_cities.explore
+  6. Update growth_dm.model top_cities and top_partners datagroups
+  7. Validate data with NSO main dashboard and NSO breakdown dashboard
+  
