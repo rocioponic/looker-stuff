@@ -1,0 +1,133 @@
+view: top_countries {
+  sql_table_name: delta.central__non_seamless_orders__odp.non_seamless_gen2_orders_top_countries;;
+
+
+  dimension: pk_order_country_code {
+    description: "2-letter code (ISO 3166-1 alpha-2)
+    indicating the country where the order took place"
+    type: string
+    primary_key: yes
+    hidden: yes
+    sql: ${TABLE}.order_country_code ;;
+  }
+
+  parameter: week_ago_to_report {
+    alias: [complete_weeks_ago_2]
+    type: number
+    description: "Filters the field 'Order Creation Week to Report' by substracting 'X' weeks from the current date"
+    default_value: "2"
+  }
+
+  dimension_group: order_creation_week_to_report {
+    alias: [p_creation_week_to_report]
+    description: "Creation week to be used to report last complete week -1"
+    type: time
+    timeframes: [week]
+    sql:  CASE WHEN date_trunc('week', ${TABLE}.order_creation_week) = date_trunc('week',
+          date_add('week', -{% parameter week_ago_to_report %}, current_date))
+          THEN date_trunc('week', date_add('week', -{% parameter week_ago_to_report %},
+          current_date))
+          ELSE NULL END ;;
+  }
+
+  dimension_group: p_creation_week {
+    description: "Week date when each user last ordered"
+    type: time
+    timeframes: [week]
+    sql: ${TABLE}.order_creation_week ;;
+  }
+
+  dimension: order_country_code {
+    description: "2-letter code (ISO 3166-1 alpha-2)
+    indicating the country where the order took place"
+    type: string
+    sql: ${TABLE}.order_country_code ;;
+  }
+
+  dimension: order_vertical {
+    description: "Vertical to which the order was assigned to.
+    There are 3 types of verticals: LaaS, Food and QCommerce"
+    type: string
+    sql: ${TABLE}.order_vertical ;;
+  }
+
+  measure: ranking_countries_global_level {
+    description: "Ranking of countries based on number of orders at global level"
+    type: sum
+    sql: ${TABLE}.top_weekly_orders_global_rank ;;
+  }
+
+  measure: number_of_orders {
+    description: "Total number of orders"
+    type: sum
+    sql: ${TABLE}.weekly_orders ;;
+  }
+
+  measure: number_of_nso_orders {
+    description: "Total number of nso orders"
+    type: sum
+    sql: ${TABLE}.weekly_non_seamless_orders ;;
+  }
+
+  measure: number_of_nso_dt_orders {
+    description: "Total number of nso orders due to delivery time"
+    type: sum
+    sql: ${TABLE}.weekly_nso_delivery_time ;;
+  }
+
+  measure: number_of_nso_eta_orders {
+    description: "Total number of nso orders due to ETA"
+    type: sum
+    sql: ${TABLE}.weekly_nso_eta ;;
+  }
+
+  measure: number_of_nso_feedback_orders {
+    description: "Total number of nso orders due to feedback"
+    type: sum
+    sql: ${TABLE}.weekly_bad_feedbacks_orders ;;
+  }
+
+  measure: number_of_nso_bad_ratings_orders {
+    description: "Total number of nso orders due to bad ratings"
+    type: sum
+    sql: ${TABLE}.weekly_bad_ratings_orders ;;
+  }
+
+  measure: number_of_nso_pna_orders {
+    description: "Total number of nso orders due to pna"
+    type: sum
+    sql: ${TABLE}.weekly_pna_orders ;;
+  }
+
+  measure: number_of_nso_canceled_orders {
+    description: "Total number of nso orders due to cancellations"
+    type: sum
+    sql: ${TABLE}.weekly_canceled_orders ;;
+  }
+
+  measure: percentage_of_nso_orders {
+    description: "Percentage of nso orders by city"
+    type: sum
+    value_format_name: percent_2
+    sql: ${TABLE}.pct_weekly_non_seamless_orders/100 ;;
+  }
+
+  measure: WoW_pp_change_percentage_of_nso_city {
+    description: "Week on week pp change of percentage of NSO orders at city level"
+    type: sum
+    sql: ${TABLE}.wow_weekly_pct_non_seamless_orders ;;
+  }
+
+  measure: MoM_pp_change_percentage_of_nso_city {
+    description: "Month on month pp change of percentage of NSO orders at city level"
+    type: sum
+    sql: ${TABLE}.mom_weekly_pct_non_seamless_orders ;;
+  }
+
+  measure: YoY_pp_change_percentage_of_nso_city {
+    description: "Year on year pp change of percentage of NSO orders at city level"
+    type: sum
+    sql: ${TABLE}.yoy_weekly_pct_non_seamless_orders ;;
+  }
+
+}
