@@ -3,7 +3,7 @@ include: "/growth_dm/views/top_cities.view.lkml"
 explore: top_cities {
   persist_with: top_cities_datagroup #cache policy - check datagroup definition in the model.
 
-  description: "Top Cities table wants to show top cities in terms of weekly number
+  description: "Top cities table wants to show top cities in terms of weekly number
     of orders and % of NSO vertical,country, weekly granularity"
 
 }
