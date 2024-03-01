@@ -1,4 +1,4 @@
-include: "/central_dm/views/top_countries.view.lkml"
+include: "/growth_dm/views/top_countries.view.lkml"
 
 explore: top_countries {
   persist_with: top_countries_datagroup #cache policy - check datagroup definition in the model.
