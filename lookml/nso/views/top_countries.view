@@ -115,42 +115,42 @@ view: top_countries {
   
   measure: percentage_of_nso_dt_orders {
     description: "Percentage of NSO orders due to DT>45 by country"
-    type: number
+    type: sum
     value_format_name: percent_2
     sql: ${TABLE}.pct_weekly_nso_delivery_time/100 ;;
   }
   
   measure: percentage_of_nso_eta_orders {
     description: "Percentage of NSO orders due to ETA-+15 by country"
-    type: number
+    type: sum
     value_format_name: percent_2
     sql:  ${TABLE}.pct_weekly_nso_eta/100 ;;
   }
   
   measure: percentage_of_nso_cancellation_orders {
     description: "Percentage of NSO orders due to cancellations by country"
-    type: number
+    type: sum
     value_format_name: percent_2
     sql:  ${TABLE}.pct_weekly_canceled_orders/100 ;;
   }
   
   measure: percentage_of_nso_feedback_orders {
     description: "Percentage of NSO orders due to feedback by country"
-    type: number
+    type: sum
     value_format_name: percent_2
     sql:  ${TABLE}.pct_weekly_bad_feedbacks_orders/100 ;;
   }
   
   measure: percentage_of_nso_bad_ratings_orders {
     description: "Percentage of NSO orders due to bad ratings by country"
-    type: number
+    type: sum
     value_format_name: percent_2
     sql:  ${TABLE}.pct_weekly_bad_ratings_orders/100 ;;
   }
   
   measure: percentage_of_nso_pna_orders {
     description: "Percentage of NSO orders due to PNA by country"
-    type: number
+    type: sum
     value_format_name: percent_2
     sql: ${TABLE}.pct_weekly_pna_orders/100 ;;
   }
