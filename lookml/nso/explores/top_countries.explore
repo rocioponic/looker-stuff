@@ -3,7 +3,7 @@ include: "/growth_dm/views/top_countries.view.lkml"
 explore: top_countries {
   persist_with: top_countries_datagroup #cache policy - check datagroup definition in the model.
 
-  description: "Top Countries table wants to show top countries in terms of weekly number
+  description: "Top countries table wants to show top countries in terms of weekly number
   of orders and % of NSO vertical,country, weekly granularity"
 
 }
