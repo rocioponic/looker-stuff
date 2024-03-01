@@ -30,7 +30,8 @@ view: top_countries {
           ELSE NULL END ;;
   }
 
-  dimension_group: p_creation_week {
+  dimension_group: order_creation_week {
+    alias: [p_creation_week]
     description: "Week date when each user last ordered"
     type: time
     timeframes: [week]
@@ -106,28 +107,178 @@ view: top_countries {
   }
 
   measure: percentage_of_nso_orders {
-    description: "Percentage of nso orders by city"
+    description: "Percentage of nso orders by country"
     type: sum
     value_format_name: percent_2
     sql: ${TABLE}.pct_weekly_non_seamless_orders/100 ;;
   }
+  
+  measure: percentage_of_nso_dt_orders {
+    description: "Percentage of NSO orders due to DT>45 by country"
+    type: number
+    value_format_name: percent_2
+    sql: ${TABLE}.pct_weekly_nso_delivery_time/100 ;;
+  }
+  
+  measure: percentage_of_nso_eta_orders {
+    description: "Percentage of NSO orders due to ETA-+15 by country"
+    type: number
+    value_format_name: percent_2
+    sql:  ${TABLE}.pct_weekly_nso_eta/100 ;;
+  }
+  
+  measure: percentage_of_nso_cancellation_orders {
+    description: "Percentage of NSO orders due to cancellations by country"
+    type: number
+    value_format_name: percent_2
+    sql:  ${TABLE}.pct_weekly_canceled_orders/100 ;;
+  }
+  
+  measure: percentage_of_nso_feedback_orders {
+    description: "Percentage of NSO orders due to feedback by country"
+    type: number
+    value_format_name: percent_2
+    sql:  ${TABLE}.pct_weekly_bad_feedbacks_orders/100 ;;
+  }
+  
+  measure: percentage_of_nso_bad_ratings_orders {
+    description: "Percentage of NSO orders due to bad ratings by country"
+    type: number
+    value_format_name: percent_2
+    sql:  ${TABLE}.pct_weekly_bad_ratings_orders/100 ;;
+  }
+  
+  measure: percentage_of_nso_pna_orders {
+    description: "Percentage of NSO orders due to PNA by country"
+    type: number
+    value_format_name: percent_2
+    sql: ${TABLE}.pct_weekly_pna_orders/100 ;;
+  }
 
-  measure: WoW_pp_change_percentage_of_nso_city {
-    description: "Week on week pp change of percentage of NSO orders at city level"
+  measure: WoW_pp_change_percentage_of_nso {
+    description: "Week on week pp change of percentage of NSO orders at country level"
     type: sum
     sql: ${TABLE}.wow_weekly_pct_non_seamless_orders ;;
   }
 
-  measure: MoM_pp_change_percentage_of_nso_city {
-    description: "Month on month pp change of percentage of NSO orders at city level"
+  measure: MoM_pp_change_percentage_of_nso_orders {
+    description: "Month on month pp change of percentage of NSO orders at country level"
     type: sum
     sql: ${TABLE}.mom_weekly_pct_non_seamless_orders ;;
   }
 
-  measure: YoY_pp_change_percentage_of_nso_city {
-    description: "Year on year pp change of percentage of NSO orders at city level"
+  measure: YoY_pp_change_percentage_of_nso_orders {
+    description: "Year on year pp change of percentage of NSO orders at country level"
     type: sum
     sql: ${TABLE}.yoy_weekly_pct_non_seamless_orders ;;
+  }
+  
+  measure: WoW_pp_change_percentage_of_nso_dt_orders {
+    description: "Week on week pp change of percentage of NSO orders due to DT>45 at country level"
+    type: sum
+    sql: ${TABLE}.wow_weekly_pct_nso_delivery_time ;;
+  }
+  
+  measure: MoM_pp_change_percentage_of_nso_dt_orders {
+    description: "Month on month pp change of percentage of NSO orders due to DT>45 at country level"
+    type: sum
+    sql: ${TABLE}.mom_weekly_pct_nso_delivery_time ;;
+  }
+  
+  measure: YoY_pp_change_percentage_of_nso_dt_orders {
+    description: "Year on year pp change of percentage of NSO orders due to DT>45 at country level"
+    type: sum
+    sql: ${TABLE}.yoy_weekly_pct_nso_delivery_time ;;
+  }
+
+  measure: WoW_pp_change_percentage_of_nso_cancellation_orders {
+    description: "Week on week pp change of percentage of NSO orders due to cancellations at country level"
+    type: sum
+    sql: ${TABLE}.wow_weekly_pct_canceled_orders ;;
+  }
+  
+  measure: MoM_pp_change_percentage_of_nso_cancellation_orders {
+    description: "Month on month pp change of percentage of NSO orders due to cancellations at country level"
+    type: sum
+    sql: ${TABLE}.mom_weekly_pct_canceled_orders ;;
+  }
+  
+  measure: YoY_pp_change_percentage_of_nso_cancellation_orders {
+    description: "Year on year pp change of percentage of NSO orders due to cancellations at country level"
+    type: sum
+    sql: ${TABLE}.yoy_weekly_pct_canceled_orders ;;
+  }
+  
+  measure: WoW_pp_change_percentage_of_nso_feedback_orders {
+    description: "Week on week pp change of percentage of NSO orders due to feedback at country level"
+    type: sum
+    sql: ${TABLE}.wow_weekly_pct_bad_feedbacks_orders ;;
+  }
+  
+  measure: MoM_pp_change_percentage_of_nso_feedback_orders {
+    description: "Month on month pp change of percentage of NSO orders due to feedback at country level"
+    type: sum
+    sql: ${TABLE}.mom_weekly_pct_bad_feedbacks_orders ;;
+  }
+  
+  measure: YoY_pp_change_percentage_of_nso_feedback_orders {
+    description: "Year on year pp change of percentage of NSO orders due to feedback at country level"
+    type: sum
+    sql: ${TABLE}.yoy_weekly_pct_bad_feedbacks_orders ;;
+  }
+
+  measure: WoW_pp_change_percentage_of_nso_eta_orders {
+    description: "Week on week pp change of percentage of NSO orders due to ETA-+15 at country level"
+    type: sum
+    sql: ${TABLE}.wow_weekly_pct_nso_eta ;;
+  }
+  
+  measure: MoM_pp_change_percentage_of_nso_eta_orders {
+    description: "Month on month pp change of percentage of NSO orders due to ETA-+15 at country level"
+    type: sum
+    sql: ${TABLE}.mom_weekly_pct_nso_eta ;;
+  }
+  
+  measure: YoY_pp_change_percentage_of_nso_eta_orders {
+    description: "Year on year pp change of percentage of NSO orders due to ETA-+15 at country level"
+    type: sum
+    sql: ${TABLE}.yoy_weekly_pct_nso_eta ;;
+  }
+
+  measure: WoW_pp_change_percentage_of_nso_bad_ratings_orders {
+    description: "Week on week pp change of percentage of NSO orders due to bad ratings at country level"
+    type: sum
+    sql: ${TABLE}.wow_weekly_pct_bad_ratings_orders ;;
+  }
+  
+  measure: MoM_pp_change_percentage_of_nso_bad_ratings_orders {
+    description: "Month on month pp change of percentage of NSO orders due to bad ratings at country level"
+    type: sum
+    sql: ${TABLE}.mom_weekly_pct_bad_ratings_orders ;;
+  }
+  
+  measure: YoY_pp_change_percentage_of_nso_bad_ratings_orders {
+    description: "Year on year pp change of percentage of NSO orders due to bad ratings at country level"
+    type: sum
+    sql: ${TABLE}.wow_weekly_pct_bad_ratings_orders ;;
+  }
+
+  measure: WoW_pp_change_percentage_of_nso_pna_orders {
+    description: "Week on week pp change of percentage of NSO orders due to PNA at country level"
+    type: sum
+    sql: ${TABLE}.wow_weekly_pct_pna_orders ;;
+  }
+  
+  measure: MoM_pp_change_percentage_of_nso_pna_orders {
+    description: "Month on month pp change of percentage of NSO orders due to PNA at country level"
+    type: sum
+    sql: ${TABLE}.mom_weekly_pct_pna_orders ;;
+  }
+  
+  measure: YoY_pp_change_percentage_of_nso_pna_orders {
+    description: "Year on year pp change of percentage of NSO orders due to PNA at country level"
+    type: sum
+    sql: ${TABLE}.yoy_weekly_pct_pna_orders ;;
   }
 
 }
