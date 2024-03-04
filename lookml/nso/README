@@ -5,7 +5,7 @@
   1. Create top_countries view ✅
   2. Create top_countries explore ✅
   3. Add to growth_dm.model top_countries datagroup ✅
-  4. Update charts previously using top_cities.explore with top_countries.explore
+  4. Update charts previously using top_cities.explore with top_countries.explore ✅
         > 1 chart in NSO main dashboard ✅
         > 6 charts in NSO breakdown dashboard (linked in the NSO main dashboard) ✅
   5. Validate data with previous explore
