@@ -1,14 +1,13 @@
 view: top_cities {
   sql_table_name: delta.central__non_seamless_orders__odp.non_seamless_gen2_orders_top_cities;;
 
-
   dimension: pk_order_city_code {
     description: "3-letter city code (IATA-3) indicating the
       city where the order was executed"
     type: string
     primary_key: yes
     hidden: yes
-    sql: ${TABLE}.order_city_code ;;
+    sql: CONCAT(${TABLE}.order_city_code ,${TABLE}.order_creation_week) ;;
   }
 
   dimension: order_city_code {
@@ -21,7 +20,8 @@ view: top_cities {
   parameter: week_ago_to_report {
     alias: [complete_weeks_ago_2]
     type: number
-    description: "Filters the field 'Order Creation Week to Report' by substracting 'X' weeks from the current date"
+    description: "Filters the field 'Order Creation Week to Report'
+      by substracting 'X' weeks from the current date"
     default_value: "2"
   }
 
@@ -30,7 +30,7 @@ view: top_cities {
     description: "Creation week to be used to report last complete week -1"
     type: time
     timeframes: [week]
-    sql:  CASE WHEN date_trunc('week', ${TABLE}.order_creation_week) = date_trunc('week',
+    sql:  CASE WHEN ${TABLE}.order_creation_week = date_trunc('week',
           date_add('week', -{% parameter week_ago_to_report %}, current_date))
           THEN date_trunc('week', date_add('week', -{% parameter week_ago_to_report %},
           current_date))
