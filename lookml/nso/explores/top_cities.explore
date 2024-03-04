@@ -4,6 +4,6 @@ explore: top_cities {
   persist_with: top_cities_datagroup #cache policy - check datagroup definition in the model.
 
   description: "Top cities table wants to show top cities in terms of weekly number
-    of orders and % of NSO vertical,country, weekly granularity"
+    of orders and % of NSO city / weekly granularity"
 
 }
