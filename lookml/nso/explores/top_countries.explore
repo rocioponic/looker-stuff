@@ -4,6 +4,6 @@ explore: top_countries {
   persist_with: top_countries_datagroup #cache policy - check datagroup definition in the model.
 
   description: "Top countries table wants to show top countries in terms of weekly number
-  of orders and % of NSO vertical,country, weekly granularity"
+    of orders and % of NSO country / weekly granularity"
 
 }
