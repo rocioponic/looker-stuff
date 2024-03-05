@@ -1,5 +1,5 @@
 view: top_cities {
-  sql_table_name: delta.central__non_seamless_orders__odp.non_seamless_gen2_orders_top_cities;;
+  sql_table_name: delta.central__non_seamless_orders__odp.non_seamless_gen2_orders_top_cities ;;
   
   dimension: pk_order_city_code {
     description: "3-letter city code (IATA-3) indicating the
