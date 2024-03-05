@@ -1,5 +1,5 @@
 view: nso_orders {
-  sql_table_name: delta.central__non_seamless_orders__odp.non_seamless_orders;;
+  sql_table_name: delta.central__non_seamless_orders__odp.non_seamless_orders ;;
   
   dimension: pk_order_id {
     description: "Partition key - Unique ID for each order"
@@ -105,7 +105,7 @@ view: nso_orders {
   
   dimension: city_population_tier {
     description: "Indicator of the size of a city in terms of its population covered.
-     Taken from user_defined_geography_data spreadsheet"
+      Taken from user_defined_geography_data spreadsheet"
     type: string
     hidden: yes
     sql: ${TABLE}.city_population_tier ;;
