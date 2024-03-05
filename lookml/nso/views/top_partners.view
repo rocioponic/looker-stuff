@@ -1,6 +1,6 @@
 view: top_partners {
   sql_table_name: delta.central__non_seamless_orders__odp.non_seamless_gen2_orders_top_partners ;;
-
+  
   dimension: pk_store_name {
     description: "Name for the store, it comes from the Partner Stores DP"
     type: string
@@ -8,21 +8,21 @@ view: top_partners {
     hidden: yes
     sql: CONCAT(${TABLE}.store_name ,${TABLE}.order_creation_week) ;;
   }
-
+  
   dimension: store_name {
     description: "Name for the store, it comes from the Partner Stores DP"
     type: string
     sql: ${TABLE}.store_name ;;
   }
-
+  
   parameter: week_ago_to_report {
     alias: [complete_weeks_ago_2]
     type: number
-    description: "Filters the field 'Order Creation Week to Report' 
+    description: "Filters the field 'Order Creation Week to Report'
       by substracting 'X' weeks from the current date"
     default_value: "2"
   }
-
+  
   dimension_group: order_creation_week_to_report {
     alias: [p_creation_week_to_report]
     description: "Creation week to be used to report last complete week -1"
@@ -34,7 +34,7 @@ view: top_partners {
           current_date))
           ELSE NULL END ;;
   }
-
+  
   dimension_group: order_creation_week {
     alias: [p_creation_week]
     description: "Week date when each user last ordered"
@@ -42,81 +42,81 @@ view: top_partners {
     timeframes: [week]
     sql: ${TABLE}.order_creation_week ;;
   }
-
+  
   dimension: order_country_code {
     description: "2-letter code (ISO 3166-1 alpha-2)
       indicating the country where the order took place"
     type: string
     sql: ${TABLE}.order_country_code ;;
   }
-
+  
   dimension: order_vertical {
     description: "Vertical to which the order was assigned to.
       There are 3 types of verticals: LaaS, Food and QCommerce"
     type: string
     sql: ${TABLE}.order_vertical ;;
   }
-
+  
   measure: ranking_partner_country_and_vertical_level {
     description: "Ranking of partners based on number of orders
       at country and vertical level"
     type: sum
     sql: ${TABLE}.top_weekly_orders_partner_country_vertical_rank ;;
   }
-
+  
   measure: ranking_partner_country_level {
     description: "Ranking of partners based on number of orders at country level"
     type: sum
     sql: ${TABLE}.top_weekly_orders_partner_country_rank ;;
   }
-
+  
   measure: ranking_partner_vertical_level {
     description: "Ranking of partners based on number of orders at vertical level"
     type: sum
     sql: ${TABLE}.top_weekly_orders_partner_vertical_rank ;;
   }
-
+  
   measure: ranking_partner_global_level {
     description: "Ranking of partners based on number of orders at global level"
     type: sum
     sql: ${TABLE}.top_weekly_orders_partner_global_rank ;;
   }
-
+  
   measure: number_of_orders {
     description: "Total number of orders"
     type: sum
     sql: ${TABLE}.weekly_orders ;;
   }
-
+  
   measure: number_of_nso_orders {
     description: "Total number of NSO orders"
     type: sum
     sql: ${TABLE}.weekly_non_seamless_orders ;;
   }
-
+  
   measure: percentage_of_nso_orders {
     description: "Percentage of NSO orders"
     type: sum
     value_format_name: percent_2
     sql: ${TABLE}.pct_weekly_non_seamless_orders/100 ;;
   }
-
+  
   measure: WoW_pp_change_percentage_of_nso {
     description: "Week on week evolution of percentage of NSO orders"
     type: sum
     sql:  ${TABLE}.wow_weekly_pct_non_seamless_orders ;;
   }
-
+  
   measure: MoM_pp_change_percentage_of_nso {
     description: "Month on month evolution of percentage of NSO orders"
     type: sum
     sql: ${TABLE}.mom_weekly_pct_non_seamless_orders ;;
   }
-
+  
   measure: YoY_pp_change_percentage_of_nso {
     description: "Year on year evolution of percentage of NSO orders"
     type: sum
     sql: ${TABLE}.yoy_weekly_pct_non_seamless_orders ;;
   }
-
+  
 }
