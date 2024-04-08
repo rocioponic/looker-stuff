@@ -267,8 +267,8 @@ view: order_descriptors {
     description: "Average Total Order Purchase"
     type: average_distinct
     value_format_name: eur
-    filters: [order_final_status: "CanceledStatus", test_BU_satisfies_filter: "yes"]
-    sql: ${order_total_purchase_eur} ;;
+    filters: [order_final_status: "DeliveredStatus", test_BU_satisfies_filter: "yes"]
+    sql: ${TABLE}.order_total_purchase_eur ;;
   }
   
   measure: bu_number_of_delivered_orders {
@@ -284,6 +284,21 @@ view: order_descriptors {
     filters: [order_final_status: "DeliveredStatus", test_BU_satisfies_filter: "yes",  order_is_prime: "yes"]
     sql: ${TABLE}.order_id ;;
   }
+  
+  measure: bu_number_of_customers_with_orders {
+    description: "Number of all unique customers with delivered order."
+    type: count_distinct
+    filters: [order_final_status: "DeliveredStatus",test_BU_satisfies_filter: "yes"]
+    sql: ${customer_id} ;;
+  }
+  
+  measure: bu_number_of_new_customers_with_orders {
+    description: "Number of new customers with first order delivered"
+    type: count_distinct
+    filters: [order_is_first_delivered_order: "Yes",test_BU_satisfies_filter: "yes"]
+    sql: ${customer_id} ;;
+  }
+  
   
 ########################
   
