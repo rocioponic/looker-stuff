@@ -294,8 +294,8 @@ view: order_descriptors {
   
   measure: bu_number_of_new_customers_with_orders {
     description: "Number of new customers with first order delivered"
-    type: count_distinct
-    filters: [order_is_first_delivered_order: "Yes",test_BU_satisfies_filter: "yes"]
+    type: count
+    filters: [order_is_first_delivered_order: "yes" , test_BU_satisfies_filter: "yes"]
     sql: ${customer_id} ;;
   }
   
