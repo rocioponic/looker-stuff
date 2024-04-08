@@ -287,6 +287,16 @@ view: order_descriptors {
 
 ########################
 
+
+  dimension: order_is_terminated_in_5min_or_less {
+    description: "Flag indicating if the order was terminated (Delivered) or cancelled in 5min or less"
+    type: yesno
+    sql: DATE_DIFF('second', ${order_created_local_raw}, ${order_terminated_local_raw}) / 60.0 <= 5
+        OR (${order_scheduled_local_raw} IS NOT NULL
+        AND (${order_activated_local_raw} IS NULL
+        OR DATE_DIFF('second', ${order_activated_local_raw}, ${order_terminated_local_raw}) / 60.0 <= 5)) ;;
+  }  
+
   dimension: order_vertical {
     description: "Vertical to which the order was assigned to. There are 3 types of verticals: LaaS,
       Food and QCommerce. You can check how to calculate them in this
