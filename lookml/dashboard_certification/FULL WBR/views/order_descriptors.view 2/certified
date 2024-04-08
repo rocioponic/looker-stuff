@@ -255,11 +255,11 @@ view: order_descriptors {
     sql: ${TABLE}.order_id ;;
   }
   
-  measure: bu_order_total_purchase_eur {
-    can_filter: no
-    description: "Total cancelled orders"
-    type: count_distinct
-    filters: [order_final_status: "CanceledStatus", test_BU_satisfies_filter: "yes"]
+  measure: bu_sum_total_purchase_eur {
+    description: "Sum Total Order Purchase Eur"
+    type: sum_distinct
+    value_format_name: eur
+    filters: [order_final_status: "DeliveredStatus", test_BU_satisfies_filter: "yes"]
     sql: ${TABLE}.order_total_purchase_eur ;;
   }
   
