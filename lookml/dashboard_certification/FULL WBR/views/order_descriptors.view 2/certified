@@ -296,9 +296,15 @@ view: order_descriptors {
     description: "Number of new customers with first order delivered"
     type: count
     filters: [order_is_first_delivered_order: "yes" , test_BU_satisfies_filter: "yes"]
-    sql: ${customer_id} ;;
+    sql: ${order_id} ;;
   }
   
+  measure: bu_number_of_recurrent_customers_with_orders {
+    description: "Number of new customers with first order delivered"
+    type: count_distinct
+    filters: [order_is_first_delivered_order: "no" , test_BU_satisfies_filter: "yes"]
+    sql: COALESCE(${customer_id},${order_id}) ;;
+  }
   
 ########################
   
