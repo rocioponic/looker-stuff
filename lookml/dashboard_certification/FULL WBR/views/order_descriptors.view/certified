@@ -27,6 +27,13 @@ view: order_descriptors {
     type: number
     sql: ${TABLE}.customer_id ;;
   }
+
+  dimension: customer_type {
+    description: "Identifier for if first order delivered is true"
+    type: number
+    sql: case when ${TABLE}.order_is_first_created_order = FALSE
+      or ${TABLE}.order_is_first_delivered_order=FALSE then 'RC' else 'NC' end ;;
+  }
   
   dimension: order_cancel_reason {
     description: "Reason for the order's cancellation."
@@ -140,123 +147,6 @@ view: order_descriptors {
     sql: ${TABLE}.order_subvertical3 ;;
     group_label: "Business Unit (BU)"
   }
-  
-########################################################################################################################################################################
-  
-  filter: test_filter_bu_vertical {
-    type: string
-    suggest_dimension: order_vertical
-    group_label: "BU Filters"
-  }
-  
-  filter: test_filter_bu_subvertical {
-    type: string
-    suggest_dimension: order_subvertical
-    group_label: "BU Filters"
-  }
-  
-  filter: test_filter_bu_subvertical2 {
-    type: string
-    suggest_dimension: order_subvertical2
-    group_label: "BU Filters"
-  }
-  
-  filter: test_filter_bu_subvertical3 {
-    type: string
-    suggest_dimension: order_subvertical3
-    group_label: "BU Filters"
-  }
-  
-  filter: test_filter_bu_store_name {
-    type: string
-    suggest_dimension: store_name
-    group_label: "BU Filters"
-  }
-  
-  filter: test_filter_bu_store_id {
-    type: string
-    suggest_dimension: store_id
-    group_label: "BU Filters"
-  }
-  
-  dimension: test_BU_satisfies_filter {
-    type: yesno
-    hidden: yes
-    sql: {% condition test_filter_bu_vertical %} ${order_vertical} {% endcondition %}
-        AND
-         {% condition test_filter_bu_subvertical %} ${order_subvertical} {% endcondition %}   
-        AND
-         {% condition test_filter_bu_subvertical2 %} ${order_subvertical2} {% endcondition %}   
-        AND
-         {% condition test_filter_bu_subvertical3 %} ${order_subvertical3} {% endcondition %}   
-        AND
-         {% condition test_filter_bu_store_name %} ${store_name} {% endcondition %}   
-        AND
-         {% condition test_filter_bu_store_id %} ${store_id} {% endcondition %}   
-         ;;
-  }
-  
-  measure: bu_number_of_cancelled_orders {
-    can_filter: no
-    description: "Total cancelled orders"
-    type: count_distinct
-    filters: [order_final_status: "CanceledStatus", test_BU_satisfies_filter: "yes"]
-    sql: ${TABLE}.order_id ;;
-  }
-  
-  measure: bu_sum_total_purchase_eur {
-    description: "Sum Total Order Purchase Eur"
-    type: sum_distinct
-    value_format_name: eur
-    filters: [order_final_status: "DeliveredStatus", test_BU_satisfies_filter: "yes"]
-    sql: ${TABLE}.order_total_purchase_eur ;;
-  }
-  
-  measure: bu_average_total_purchase_eur {
-    description: "Average Total Order Purchase"
-    type: average_distinct
-    value_format_name: eur
-    filters: [order_final_status: "DeliveredStatus", test_BU_satisfies_filter: "yes"]
-    sql: ${TABLE}.order_total_purchase_eur ;;
-  }
-  
-  measure: bu_number_of_delivered_orders {
-    description: "Total delivered orders"
-    type: count_distinct
-    filters: [order_final_status: "DeliveredStatus", test_BU_satisfies_filter: "yes"]
-    sql: ${TABLE}.order_id ;;
-  }
-  
-  measure: bu_number_of_delivered_orders_prime {
-    description: "Total delivered orders"
-    type: count_distinct
-    filters: [order_final_status: "DeliveredStatus", test_BU_satisfies_filter: "yes",  order_is_prime: "yes"]
-    sql: ${TABLE}.order_id ;;
-  }
-  
-  measure: bu_number_of_customers_with_orders {
-    description: "Number of all unique customers with delivered order."
-    type: count_distinct
-    filters: [order_final_status: "DeliveredStatus",test_BU_satisfies_filter: "yes"]
-    sql: ${customer_id} ;;
-  }
-  
-  measure: bu_number_of_new_customers_with_orders {
-    description: "Number of new customers with first order delivered"
-    type: count
-    filters: [order_is_first_delivered_order: "yes" , test_BU_satisfies_filter: "yes"]
-    sql: ${order_id} ;;
-  }
-  
-  measure: bu_number_of_recurrent_customers_with_orders {
-    description: "Number of new customers with first order delivered"
-    type: count_distinct
-    filters: [order_is_first_delivered_order: "no" , test_BU_satisfies_filter: "yes"]
-    sql: COALESCE(${customer_id},${order_id}) ;;
-  }
-
-########################################################################################################################################################################
-  
   dimension: order_is_terminated_in_5min_or_less {
     description: "Flag indicating if the order was terminated (Delivered) or cancelled in 5min or less"
     type: yesno
@@ -266,7 +156,7 @@ view: order_descriptors {
         OR DATE_DIFF('second', ${order_activated_local_raw}, ${order_terminated_local_raw}) / 60.0 <= 5)) ;;
   }
 
-dimension: store_name {
+  dimension: store_name {
     description: "Identifier for the store name associated with an order."
     type: string
     sql: TRIM(${TABLE}.store_name) ;;
@@ -291,26 +181,6 @@ dimension: store_name {
     sql: ${TABLE}.store_category_id ;;
   }
   
-  dimension: order_total_purchase_eur {
-    description: "Total price of the products bought for the order in major currency and euros. No
-    fees are included here."
-    type: number
-    value_format_name: eur
-    sql: ${TABLE}.order_total_purchase_eur ;;
-  }
-  
-  dimension: order_total_purchase_local {
-    description: "Total price of the products bought for the order in major currency and local currency. No
-    fees are included here."
-    # LAMS
-    # rule_exemptions: {
-    # F1: "2022-12-19 - We need to reference this view to avoid more joins"
-    # }
-    type: number
-    html: {{order_currency._value}} {{ rendered_value }};;
-    sql: ${TABLE}.order_total_purchase_local ;;
-  }
-  
   dimension: order_is_first_created_order {
     description: "Identifier to see if the order is the first one of the customer"
     type: yesno
@@ -323,13 +193,13 @@ dimension: store_name {
     sql: ${TABLE}.order_is_first_delivered_order ;;
   }
 
-  dimension: customer_type {
-    description: "Identifier for if first order delivered is true"
-    type: number
-    sql: case when ${TABLE}.order_is_first_created_order = FALSE
-      or ${TABLE}.order_is_first_delivered_order=FALSE then 'RC' else 'NC' end ;;
+  dimension: order_currency {
+    description: "3-letter code for the currency that was used to pay the order, such as EUR."
+    type: string
+    sql: ${TABLE}.order_currency ;;
+    group_label: "Geography"
   }
-  
+ 
   dimension: order_city_code {
     description: "3-letter city code (IATA-3) indicating the city where the order was executed."
     type: string
@@ -376,27 +246,121 @@ dimension: store_name {
     group_label: "Geography"
   }
   
-  dimension: order_currency {
-    description: "3-letter code for the currency that was used to pay the order, such as EUR."
+########################################################################################################################################################################
+  
+  filter: filter_bu_vertical {
     type: string
-    sql: ${TABLE}.order_currency ;;
-    group_label: "Geography"
+    suggest_dimension: order_vertical
+    group_label: "BU Filters"
   }
   
-  dimension: order_time_zone {
-    description: "Timezone for the order as string (E.g. ‘Europe/Madrid’)"
+  filter: filter_bu_subvertical {
     type: string
-    sql: ${TABLE}.order_time_zone ;;
-    group_label: "Geography"
+    suggest_dimension: order_subvertical
+    group_label: "BU Filters"
   }
   
-  dimension: order_timezone {
-    description: "No description added"
+  filter: filter_bu_subvertical2 {
     type: string
-    sql: ${TABLE}.order_timezone ;;
-    group_label: "Geography"
+    suggest_dimension: order_subvertical2
+    group_label: "BU Filters"
   }
   
+  filter: filter_bu_subvertical3 {
+    type: string
+    suggest_dimension: order_subvertical3
+    group_label: "BU Filters"
+  }
+  
+  filter: filter_bu_store_name {
+    type: string
+    suggest_dimension: store_name
+    group_label: "BU Filters"
+  }
+  
+  filter: filter_bu_store_id {
+    type: string
+    suggest_dimension: store_id
+    group_label: "BU Filters"
+  }
+  
+  dimension: all_BU_filter_satisfied {
+    type: yesno
+    hidden: yes
+    sql: {% condition filter_bu_vertical %} ${order_vertical} {% endcondition %}
+        AND
+         {% condition filter_bu_subvertical %} ${order_subvertical} {% endcondition %}   
+        AND
+         {% condition filter_bu_subvertical2 %} ${order_subvertical2} {% endcondition %}   
+        AND
+         {% condition filter_bu_subvertical3 %} ${order_subvertical3} {% endcondition %}   
+        AND
+         {% condition filter_bu_store_name %} ${store_name} {% endcondition %}   
+        AND
+         {% condition filter_bu_store_id %} ${store_id} {% endcondition %}   
+         ;;
+  }
+    
+  measure: bu_number_of_delivered_orders {
+    description: "Total delivered orders"
+    type: count_distinct
+    filters: [order_final_status: "DeliveredStatus", test_BU_satisfies_filter: "yes"]
+    sql: ${TABLE}.order_id ;;
+  }
+  
+  measure: bu_number_of_delivered_orders_prime {
+    description: "Total delivered orders"
+    type: count_distinct
+    filters: [order_final_status: "DeliveredStatus", test_BU_satisfies_filter: "yes",  order_is_prime: "yes"]
+    sql: ${TABLE}.order_id ;;
+  }
+  
+  measure: bu_number_of_cancelled_orders {
+    can_filter: no
+    description: "Total cancelled orders"
+    type: count_distinct
+    filters: [order_final_status: "CanceledStatus", test_BU_satisfies_filter: "yes"]
+    sql: ${TABLE}.order_id ;;
+  }
+  
+  measure: bu_sum_total_purchase_eur {
+    description: "Sum Total Order Purchase Eur"
+    type: sum_distinct
+    value_format_name: eur
+    filters: [order_final_status: "DeliveredStatus", test_BU_satisfies_filter: "yes"]
+    sql: ${TABLE}.order_total_purchase_eur ;;
+  }
+  
+  measure: bu_average_total_purchase_eur {
+    description: "Average Total Order Purchase"
+    type: average_distinct
+    value_format_name: eur
+    filters: [order_final_status: "DeliveredStatus", test_BU_satisfies_filter: "yes"]
+    sql: ${TABLE}.order_total_purchase_eur ;;
+  }
+
+########################################################################################################################################################################
+
+  dimension: order_total_purchase_eur {
+    description: "Total price of the products bought for the order in major currency and euros. No
+    fees are included here."
+    type: number
+    value_format_name: eur
+    sql: ${TABLE}.order_total_purchase_eur ;;
+  }
+  
+  dimension: order_total_purchase_local {
+    description: "Total price of the products bought for the order in major currency and local currency. No
+    fees are included here."
+    # LAMS
+    # rule_exemptions: {
+    # F1: "2022-12-19 - We need to reference this view to avoid more joins"
+    # }
+    type: number
+    html: {{order_currency._value}} {{ rendered_value }};;
+    sql: ${TABLE}.order_total_purchase_local ;;
+  }
+
   dimension: order_gtv_with_discounts_eur {
     description: "Order GTV (gross transacted value) with discounts applied, in euros and major format.
     This field takes into account discounts applied to the order, that is, displays the amount actually
