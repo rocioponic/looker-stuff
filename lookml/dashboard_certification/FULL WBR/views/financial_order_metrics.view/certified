@@ -147,6 +147,7 @@ view: financial_order_metrics {
     timeframes: [
       raw,
       date,
+      day_of_week,
       week,
       month,
       quarter,
@@ -164,6 +165,7 @@ view: financial_order_metrics {
       raw,
       time,
       hour_of_day,
+      day_of_week,
       date,
       week,
       month,
