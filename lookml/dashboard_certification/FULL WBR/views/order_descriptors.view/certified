@@ -34,75 +34,6 @@ view: order_descriptors {
     sql: ${TABLE}.order_cancel_reason ;;
   }
   
-  #Time Granularity
-  parameter: date_granularity {
-    description: "Parameter to set granularity of creation time."
-    label: "Time Granularity"
-    type: unquoted
-    
-    allowed_value: { value: "day" }
-    allowed_value: { value: "week" }
-    allowed_value: { value: "month" }
-    allowed_value: { value: "year" }
-  }
-  
-  dimension: order_created_dynamic {
-    description: "Dynamic creation time of an aggregate (date, week or month)"
-    label: "Order Created Dynamic"
-    # LAMS
-    # rule_exemptions: {
-    # F1: "2022-11-07 - Field does not reference another view but the value of a parameter of the view"
-    # }
-    sql:
-      {% if date_granularity._parameter_value == 'week' %}
-        ${p_creation_week}
-      {% elsif date_granularity._parameter_value == 'month' %}
-        ${p_creation_month}
-      {% elsif date_granularity._parameter_value == 'year' %}
-        ${p_creation_year}
-      {% else %}
-        ${p_creation_date}
-      {% endif %} ;;
-  }
-  
-  dimension: order_created_period_dynamic {
-    description: "Dynamic creation time for periods (day, week, month, year) comparisons - yes when order
-    was created in the last 2 <period>, where <period> adjusts to time granularity"
-    label: "Order Created Period Dynamic"
-    type: yesno
-    hidden: yes
-    # LAMS
-    # rule_exemptions: {
-    # F1: "2022-11-07 - Field does not reference another view but the value of a parameter of the view"
-    # }
-    sql:
-      {% if date_granularity._parameter_value == 'week' %}
-      -- If granularity is weeks, check if order_created_raw was in the last 2 weeks (current not included)
-        ${order_created_raw} >=
-        DATE_ADD('week', -2,
-          DATE_TRUNC('DAY',
-            DATE_ADD('day', (0 - MOD((DAY_OF_WEEK(current_date) % 7) - 1 + 7, 7)), current_date)
-          )
-        )
-        AND ${order_created_raw} <
-        DATE_TRUNC('DAY',
-          DATE_ADD('day', (0 - MOD((DAY_OF_WEEK(current_date) % 7) - 1 + 7, 7)),current_date)
-        )
-      {% elsif date_granularity._parameter_value == 'month' %}
-      -- If granularity is months, check if order_created_raw was in the last 2 months (current not included)
-        ${order_created_raw} >= DATE_ADD('month', -2, DATE_TRUNC('MONTH', current_date))
-        AND ${order_created_raw} < DATE_TRUNC( 'MONTH', current_date)
-      {% elsif date_granularity._parameter_value == 'year' %}
-      -- If granularity is years, check if order_created_raw was in the last 2 years (current not included)
-        ${order_created_raw} >= DATE_ADD('year', -2, DATE_TRUNC('YEAR', current_date))
-        AND ${order_created_raw} < DATE_TRUNC('YEAR', current_date)
-      {% else %}
-      -- If granularity is days, check if order_created_raw was in the last 2 days (today not included)
-        ${order_created_raw} >= DATE_ADD('day', -2, current_date)
-        AND ${order_created_raw} < current_date
-      {% endif %} ;;
-  }
-  
   dimension: order_final_status {
     description: "Either DeliveredStatus or CanceledStatus. Whether the final status for the order
     is delivered or is canceled."
@@ -139,7 +70,21 @@ view: order_descriptors {
     type: string
     sql: ${TABLE}.order_parent_relationship_type ;;
   }
-  
+
+  dimension: order_vertical {
+    description: "Vertical to which the order was assigned to. There are 3 types of verticals: LaaS,
+    Food and QCommerce. You can check how to calculate them in this
+    miro: https://miro.com/app/board/uXjVOAERhUc=/ . More information on LaaS order definition
+    here: https://glovoapp.atlassian.net/wiki/spaces/DATA/pages/3561127969/"
+    type: string
+    suggestions: [
+      "Food",
+      "LaaS",
+      "QCommerce"
+    ]
+    sql: ${TABLE}.order_vertical ;;
+  }
+
   dimension: order_subvertical {
     description: "Subvertical for the vertical to be able to categorize the order even further. It can take
     values: eLogistics, On-Demand, Courier (Laas), Quiero, MFC, QCPartners (QCommerce) and
@@ -192,7 +137,7 @@ view: order_descriptors {
     sql: ${TABLE}.order_subvertical3 ;;
   }
   
-########################
+########################################################################################################################################################################
   
   filter: test_filter_bu_vertical {
     type: string
@@ -305,9 +250,8 @@ view: order_descriptors {
     filters: [order_is_first_delivered_order: "no" , test_BU_satisfies_filter: "yes"]
     sql: COALESCE(${customer_id},${order_id}) ;;
   }
-  
-########################
-  
+
+########################################################################################################################################################################
   
   dimension: order_is_terminated_in_5min_or_less {
     description: "Flag indicating if the order was terminated (Delivered) or cancelled in 5min or less"
@@ -317,19 +261,11 @@ view: order_descriptors {
         AND (${order_activated_local_raw} IS NULL
         OR DATE_DIFF('second', ${order_activated_local_raw}, ${order_terminated_local_raw}) / 60.0 <= 5)) ;;
   }
-  
-  dimension: order_vertical {
-    description: "Vertical to which the order was assigned to. There are 3 types of verticals: LaaS,
-    Food and QCommerce. You can check how to calculate them in this
-    miro: https://miro.com/app/board/uXjVOAERhUc=/ . More information on LaaS order definition
-    here: https://glovoapp.atlassian.net/wiki/spaces/DATA/pages/3561127969/"
+
+dimension: store_name {
+    description: "Identifier for the store name associated with an order."
     type: string
-    suggestions: [
-      "Food",
-      "LaaS",
-      "QCommerce"
-    ]
-    sql: ${TABLE}.order_vertical ;;
+    sql: TRIM(${TABLE}.store_name) ;;
   }
   
   dimension: store_address_id {
@@ -371,32 +307,6 @@ view: order_descriptors {
     sql: ${TABLE}.order_total_purchase_local ;;
   }
   
-  dimension: order_total_effective_purchase_eur {
-    description: "Total price of products payed by the customer, with discounts applied. Column in euros
-    and major format."
-    type: number
-    value_format_name: eur
-    sql: ${TABLE}.order_total_effective_purchase_eur ;;
-  }
-  
-  dimension: order_total_effective_purchase_local {
-    description: "Total price of products payed by the customer, with discounts applied.
-    Column in local currency and major format."
-    # LAMS
-    # rule_exemptions: {
-    # F1: "2022-12-19 - We need to reference this view to avoid more joins"
-    # }
-    type: number
-    html: {{order_currency._value}} {{ rendered_value }};;
-    sql: ${TABLE}.order_total_effective_purchase_local ;;
-  }
-  
-  dimension: store_name {
-    description: "Identifier for the store name associated with an order."
-    type: string
-    sql: TRIM(${TABLE}.store_name) ;;
-  }
-  
   dimension: order_is_first_created_order {
     description: "Identifier to see if the order is the first one of the customer"
     type: yesno
@@ -407,6 +317,13 @@ view: order_descriptors {
     description: "Identifier to see if the order is the first delivered to the customer"
     type: yesno
     sql: ${TABLE}.order_is_first_delivered_order ;;
+  }
+
+  dimension: customer_type {
+    description: "Identifier for if first order delivered is true"
+    type: number
+    sql: case when ${TABLE}.order_is_first_created_order = FALSE
+      or ${TABLE}.order_is_first_delivered_order=FALSE then 'RC' else 'NC' end ;;
   }
   
   dimension: order_city_code {
@@ -435,13 +352,7 @@ view: order_descriptors {
     type: string
     sql: ${TABLE}.order_country_subregion ;;
   }
-  
-  dimension: order_currency {
-    description: "3-letter code for the currency that was used to pay the order, such as EUR."
-    type: string
-    sql: ${TABLE}.order_currency ;;
-  }
-  
+
   dimension: order_global_region {
     description: "Global region for the order, based on the country code. Taken from
     user_defined_geography_data spreadsheet"
@@ -454,6 +365,12 @@ view: order_descriptors {
     user_defined_geography_data spreadsheet"
     type: string
     sql: ${TABLE}.order_global_subregion ;;
+  }
+  
+  dimension: order_currency {
+    description: "3-letter code for the currency that was used to pay the order, such as EUR."
+    type: string
+    sql: ${TABLE}.order_currency ;;
   }
   
   dimension: order_time_zone {
@@ -476,13 +393,6 @@ view: order_descriptors {
     type: number
     value_format_name: eur
     sql: ${TABLE}.order_transacted_value_eur ;;
-  }
-  
-  dimension: customer_type {
-    description: "Identifier for if first order delivered is true"
-    type: number
-    sql: case when ${TABLE}.order_is_first_created_order = FALSE
-      or ${TABLE}.order_is_first_delivered_order=FALSE then 'RC' else 'NC' end ;;
   }
   
   dimension_group: delivery_duration {
