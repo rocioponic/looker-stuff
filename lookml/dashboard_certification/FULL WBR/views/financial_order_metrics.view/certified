@@ -10,150 +10,46 @@ view: financial_order_metrics {
     sql: ${TABLE}.order_id ;;
   }
 
-  measure: order_cancellation_fee_eur {
-    type: sum
-    value_format: "€0.00"
-    description: "The cancellation fee of the order in Euros"
-    sql:  ${TABLE}.order_cancellation_fee_eur ;;
+  dimension: order_id {
+    description: "Order ID"
+    type: number
+    sql: ${TABLE}.order_id ;;
   }
 
-  measure: order_net_cancellation_fee_eur {
-    type: sum
-    value_format: "€0.00"
-    description: "Net value of the column order_cancellation_fee_eur (without tax)"
-    sql:  ${TABLE}.order_net_cancellation_fee_eur ;;
+  dimension: courier_id {
+    description: "Identifier for the Courier person delivering an order"
+    type: number
+    sql: ${TABLE}.courier_id ;;
   }
 
-  measure: order_vat_cancellation_fee_eur {
-    type: sum
-    value_format: "€0.00"
-    description: "VAT amount of the column order_cancellation_fee_eur"
-    sql:  ${TABLE}.order_vat_cancellation_fee_eur ;;
+  dimension: customer_id {
+    description: "Identifier for the customer associated with an order"
+    type: number
+    sql: ${TABLE}.customer_id ;;
   }
 
-  dimension: order_is_mfc {
-    type: yesno
-    description: "Label which tells if order is MFC or not"
-    sql:  ${TABLE}.order_is_mfc ;;
-  }
-
-  dimension: order_city_code {
-    description: "3-letter city code (IATA-3) indicating the city where the order was placed"
+  dimension: order_vertical {
+    description: "Vertical to which the order was assigned to (LaaS, Food and Q-Commerce)"
     type: string
-    sql: ${TABLE}.order_city_code ;;
+    sql: ${TABLE}.order_vertical ;;
+    group_label: "Order vertical info"
   }
 
-  dimension: order_country_code {
-    description: "2-letter code (ISO 3166-1 alpha-2) indicating the country where the order was placed"
+  dimension: order_subvertical {
+    description: "Subvertical for the vertical to be able to categorize the order even further. It can take
+      values: eLogistics, On-Demand, Courier (Laas), Quiero, MFC, QCPartners (QCommerce) and
+      Food - Food and Food - Other (Food)"
     type: string
-    sql: ${TABLE}.order_country_code ;;
+    sql: ${TABLE}.order_subvertical ;;
+    group_label: "Order vertical info"
   }
 
-  measure: total_cm0_eur {
-    description: "Total revenue for the order minus the total CPO"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.cm0_eur ;;
-  }
-
-  measure: avg_cm0_eur {
-    description: "Average revenue for the order minus the total CPO"
-    type: average
-    value_format: "€0.00"
-    sql: ${TABLE}.cm0_eur ;;
-  }
-
-  measure: total_cm0_local_currency {
-    description: "Total revenue for the order minus the total CPO, in local currency"
-    type: sum
-    sql: ${TABLE}.cm0_local_currency ;;
-  }
-
-  measure: avg_cm0_local_currency {
-    description: "Average revenue for the order minus the total CPO, in local currency"
-    type: average
-    sql: ${TABLE}.cm0_local_currency ;;
-  }
-
-  measure: GTV {
-    description: "GTV"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_transacted_value_eur ;;
-  }
-
-  measure: avg_GTV {
-    description: "Average GTV"
-    type: average
-    value_format: "€0.00"
-    sql: ${TABLE}.order_transacted_value_eur ;;
-  }
-
-  measure: total_delivery_revenue_eur {
-    description: "Revenue earned by Glovo on Delivery fee per order after including promotions (in Euros)"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.total_delivery_revenue_eur ;;
-  }
-
-  measure: avg_delivery_revenue_eur {
-    description: "Revenue earned by Glovo on Delivery fee per order after including promotions (in Euros)"
-    type: average
-    value_format: "€0.00"
-    sql: ${TABLE}.total_delivery_revenue_eur ;;
-  }
-
-  measure: RPO {
-    description: "Revenue earned by Glovo on Delivery fee per order after including promotions (in Euros)"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.rpo_eur ;;
-  }
-
-  measure: avg_RPO {
-    description: "Revenue earned by Glovo on Delivery fee per order after including promotions (in Euros)"
-    type: average
-    value_format: "€0.00"
-    sql: ${TABLE}.rpo_eur ;;
-  }
-
-  measure: RPO_local_currency {
-    description: "Revenue earned by Glovo on Delivery fee per order after 
-      including promotions (in local currency)"
-    type: sum
-    sql: ${TABLE}.rpo_local_currency ;;
-  }
-
-  measure: avg_RPO_local_currency {
-    description: "Revenue earned by Glovo on Delivery fee per order after 
-      including promotions (in local currency)"
-    type: average
-    value_format: "€0.00"
-    sql: ${TABLE}.rpo_local_currency ;;
-  }
-
-  dimension: order_final_status {
-    description: "Final status of the order (DeliveredStatus or CanceledStatus)"
+  dimension: order_subvertical2 {
+    description: "Used to classify even further On-Demand subvertical in Food and Other and QCPartners
+      in Retail and Groceries"
     type: string
-    sql: ${TABLE}.order_final_status ;;
-  }
-
-  measure: total_delivered_orders {
-    type: count
-    description: "Total number of delivered orders"
-    filters: {
-      field: order_final_status
-      value: "DeliveredStatus"
-    }
-  }
-
-  measure: total_cancelled_orders {
-    type: count
-    description: "Total number of cancelled orders"
-    filters: {
-      field: order_final_status
-      value: "CanceledStatus"
-    }
+    sql: ${TABLE}.order_subvertical2 ;;
+    group_label: "Order vertical info"
   }
 
   dimension: order_handling_strategy {
@@ -164,47 +60,18 @@ view: financial_order_metrics {
     sql: ${TABLE}.order_handling_strategy ;;
   }
 
-  dimension: order_id {
-    description: "Order ID"
-    type: number
-    sql: ${TABLE}.order_id ;;
+  dimension: order_final_status {
+    description: "Final status of the order (DeliveredStatus or CanceledStatus)"
+    type: string
+    sql: ${TABLE}.order_final_status ;;
   }
-
-  measure: count_of_orders {
-    type: count_distinct
-    description: "total number of orders"
-    sql: ${TABLE}.order_id ;;
-  }
-
-  measure: order_cancellation_revenue_eur {
-    description: "Revenue earned by Glovo on cancellation fee per order (in Euros)"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_cancellation_revenue_eur ;;
-  }
-
-  dimension: order_is_first_delivered_order {
-    description: "Identifier to see if the order is the first delivered order of a customer"
-    type: yesno
-    sql: ${TABLE}.order_is_first_delivered_order ;;
-  }
-
-  dimension: order_is_partner_order {
-    description: "Flag indicating if an order is a Partner order. If the order was made to a Glovo partner
-      the value will be TRUE, else FALSE, which means the partner is a fake account: we show the store and
-      its menu in the app, but in reality it's like a QUIERO order because the store is not working with us,
-      we make a courier go to the store and buy the products in the customer place"
-    type: yesno
-    sql: ${TABLE}.order_is_partner_order ;;
-  }
-
   dimension: order_is_prime {
     description: "Flag indicating if the order is placed by a user with Prime benefits"
     type: yesno
     sql: ${TABLE}.order_is_prime ;;
   }
 
-  measure: prime_order {
+  measure: prime_user {
     description: "Flag indicating if the order is placed by a user with Prime benefits"
     type: count
     filters: {
@@ -228,93 +95,10 @@ view: financial_order_metrics {
     sql: ${TABLE}.order_parent_relationship_type ;;
   }
 
-  dimension_group: order_started_local_at {
-    description: "Conversion of the same field to local time zone of the city"
-    type: time
-    timeframes: [
-      raw,
-      time,
-      hour_of_day,
-      date,
-      week,
-      month,
-      quarter,
-      year
-    ]
-    sql: ${TABLE}.order_started_local_at ;;
-  }
-
-  dimension: order_subvertical {
-    description: "Subvertical for the vertical to be able to categorize the order even further. It can take
-      values: eLogistics, On-Demand, Courier (Laas), Quiero, MFC, QCPartners (QCommerce) and
-      Food - Food and Food - Other (Food)"
-    type: string
-    sql: ${TABLE}.order_subvertical ;;
-    group_label: "Order vertical info"
-  }
-
-  dimension: order_subvertical2 {
-    description: "Used to classify even further On-Demand subvertical in Food and Other and QCPartners
-      in Retail and Groceries"
-    type: string
-    sql: ${TABLE}.order_subvertical2 ;;
-    group_label: "Order vertical info"
-  }
-
-  dimension: order_tax_rate {
-    description: "Tax rate applied to an order can vary from 0 to 1. As this can be
-      changed using Admin panel, there are cases where you will find tax rate 0 for some orders
-      (for new cities for example). In any case, it's better to use tax rate per order as global
-      country ones could be wrong in some cases (such as Canary Island's 0.04 VS Spain's 0.21) and
-      in any case this is the tax that we applied to the order in the end"
-    type: number
-    sql: ${TABLE}.order_tax_rate_adj ;;
-  }
-
-  measure: order_total_purchase_eur {
-    description: "Total price of the products bought for the order in major currency and local currency.
-      No fees are included here."
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_total_purchase_eur ;;
-  }
-
-  measure: avg_order_purchase_eur {
-    description: "Average price of the products bought for the order in major currency and local currency.
-      No fees are included here."
-    type: average
-    value_format: "€0.00"
-    sql: ${TABLE}.order_total_purchase_eur ;;
-  }
-
-  dimension: order_vertical {
-    description: "Vertical to which the order was assigned to (LaaS, Food and Q-Commerce)"
-    type: string
-    sql: ${TABLE}.order_vertical ;;
-    group_label: "Order vertical info"
-  }
-
-  dimension: is_qcommerce {
-    description: "Is the store a Q-Commerce store? (Yes/No)"
+  dimension: order_is_first_delivered_order {
+    description: "Identifier to see if the order is the first delivered order of a customer"
     type: yesno
-    group_label: "Order vertical info"
-    sql: CASE WHEN ${order_vertical} = 'QCommerce' THEN TRUE ELSE FALSE END ;;
-  }
-
-  dimension_group: p_creation {
-    description: "Partition key for the table, in the form of '2022-06'"
-    type: time
-    timeframes: [
-      raw,
-      date,
-      week,
-      month,
-      quarter,
-      year
-    ]
-    convert_tz: no
-    datatype: date
-    sql: ${TABLE}.p_creation_date ;;
+    sql: ${TABLE}.order_is_first_delivered_order ;;
   }
 
   dimension: store_address_id {
@@ -357,30 +141,159 @@ view: financial_order_metrics {
     sql:  ${TABLE}.order_courier_payment_method ;;
   }
 
-  dimension: courier_id {
-    description: "Identifier for the Courier person delivering an order"
-    type: number
-    sql: ${TABLE}.courier_id ;;
+  dimension_group: p_creation {
+    description: "Partition key for the table, in the form of '2022-06'"
+    type: time
+    timeframes: [
+      raw,
+      date,
+      week,
+      month,
+      quarter,
+      year
+    ]
+    convert_tz: no
+    datatype: date
+    sql: ${TABLE}.p_creation_date ;;
   }
 
-  dimension: customer_id {
-    description: "Identifier for the customer associated with an order"
-    type: number
-    sql: ${TABLE}.customer_id ;;
+  dimension_group: order_started_local_at {
+    description: "Conversion of the same field to local time zone of the city"
+    type: time
+    timeframes: [
+      raw,
+      time,
+      hour_of_day,
+      date,
+      week,
+      month,
+      quarter,
+      year
+    ]
+    sql: ${TABLE}.order_started_local_at ;;
   }
 
-  dimension: order_is_unbundled {
-    description: "Boolean fields which tells if the order is unbundled or not"
-    type: yesno
-    sql: ${TABLE}.order_is_unbundled ;;
+  dimension: order_city_code {
+    description: "3-letter city code (IATA-3) indicating the city where the order was placed"
+    type: string
+    sql: ${TABLE}.order_city_code ;;
+    group_label: "Geography"
   }
 
-  measure: avg_order_mfc_margin_eur {
-    description: "The sum of all product margins in the order
-      in EUR [SUM(product_total_revenue - cost_of_good_sold)]"
+  dimension: order_country_code {
+    description: "2-letter code (ISO 3166-1 alpha-2) indicating the country where the order was placed"
+    type: string
+    sql: ${TABLE}.order_country_code ;;
+    group_label: "Geography"
+  }
+
+  measure: number_of_orders {
+    type: count_distinct
+    description: "Total number of orders"
+    sql: ${TABLE}.order_id ;;
+  }
+
+  measure: total_delivered_orders {
+    type: count
+    description: "Total number of delivered orders"
+    filters: {
+      field: order_final_status
+      value: "DeliveredStatus"
+    }
+  }
+
+  measure: total_cancelled_orders {
+    type: count
+    description: "Total number of cancelled orders"
+    filters: {
+      field: order_final_status
+      value: "CanceledStatus"
+    }
+  }
+
+  measure: total_cm0_eur {
+    description: "Total revenue for the order minus the total CPO"
+    type: sum
+    value_format: "€0.00"
+    sql: ${TABLE}.cm0_eur ;;
+  }
+
+  measure: avg_cm0_eur {
+    description: "Average revenue for the order minus the total CPO"
     type: average
     value_format: "€0.00"
-    sql: ${TABLE}.order_mfc_adjusted_margin_eur ;;
+    sql: ${TABLE}.cm0_eur ;;
+  }
+
+  measure: total_cm0_local_currency {
+    description: "Total revenue for the order minus the total CPO, in local currency"
+    type: sum
+    sql: ${TABLE}.cm0_local_currency ;;
+  }
+
+  measure: avg_cm0_local_currency {
+    description: "Average revenue for the order minus the total CPO, in local currency"
+    type: average
+    sql: ${TABLE}.cm0_local_currency ;;
+  }
+
+  measure: GTV {
+    description: "GTV"
+    type: sum
+    value_format: "€0.00"
+    sql: ${TABLE}.order_transacted_value_eur ;;
+  }
+
+  measure: avg_GTV {
+    description: "Average GTV"
+    type: average
+    value_format: "€0.00"
+    sql: ${TABLE}.order_transacted_value_eur ;;
+  }
+
+  measure: RPO {
+    description: "Revenue earned by Glovo on Delivery fee per order after including promotions (in Euros)"
+    type: sum
+    value_format: "€0.00"
+    sql: ${TABLE}.rpo_eur ;;
+  }
+
+  measure: avg_RPO {
+    description: "Revenue earned by Glovo on Delivery fee per order after including promotions (in Euros)"
+    type: average
+    value_format: "€0.00"
+    sql: ${TABLE}.rpo_eur ;;
+  }
+
+  measure: RPO_local_currency {
+    description: "Revenue earned by Glovo on Delivery fee per order after 
+      including promotions (in local currency)"
+    type: sum
+    sql: ${TABLE}.rpo_local_currency ;;
+  }
+
+  measure: avg_RPO_local_currency {
+    description: "Revenue earned by Glovo on Delivery fee per order after 
+      including promotions (in local currency)"
+    type: average
+    value_format: "€0.00"
+    sql: ${TABLE}.rpo_local_currency ;;
+  }
+
+  measure: order_total_purchase_eur {
+    description: "Total price of the products bought for the order in major currency and local currency.
+      No fees are included here."
+    type: sum
+    value_format: "€0.00"
+    sql: ${TABLE}.order_total_purchase_eur ;;
+  }
+
+  measure: avg_order_purchase_eur {
+    description: "Average price of the products bought for the order in major currency and local currency.
+      No fees are included here."
+    type: average
+    value_format: "€0.00"
+    sql: ${TABLE}.order_total_purchase_eur ;;
   }
 
   measure: CPO {
@@ -408,34 +321,6 @@ view: financial_order_metrics {
     type: average
     value_format: "€0.00"
     sql: ${TABLE}.cpo_local_currency ;;
-  }
-
-  measure: total_order_courier_waiting_cost_eur_currency {
-    description: "total waiting cost in Eur currency"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_courier_waiting_cost_eur_currency ;;
-  }
-
-  measure: avg_order_courier_waiting_cost_eur_currency {
-    description: "Average waiting cost in Eur currency"
-    type: number
-    value_format: "€0.00"
-    sql: ${total_order_courier_waiting_cost_eur_currency}/${total_delivered_orders};;
-  }
-
-  measure: total_order_courier_cancellation_cost_eur_currency {
-    description: "total cancellation cost in Eur currency"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_courier_cancellation_cost_eur_currency ;;
-  }
-
-  measure: avg_order_courier_cancellation_cost_eur_currency {
-    description: "Average cancellation cost in Eur currency"
-    type: number
-    value_format: "€0.00"
-    sql: ${total_order_courier_cancellation_cost_eur_currency}/${total_delivered_orders};;
   }
 
 }
