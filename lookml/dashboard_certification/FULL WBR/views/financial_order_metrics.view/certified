@@ -10,92 +10,6 @@ view: financial_order_metrics {
     sql: ${TABLE}.order_id ;;
   }
 
-  dimension_group: order_accepted_by_partner_local_at {
-    description: "Timestamp (UTC) indicating when the order is accepted by the partner"
-    type: time
-    timeframes: [
-      raw,
-      time,
-      date,
-      week,
-      month,
-      quarter,
-      year
-    ]
-    sql: ${TABLE}.order_accepted_by_partner_local_at ;;
-  }
-
-  dimension_group: order_terminated_local_at {
-    description: "Timestamp (UTC) indicating when the order is accepted by the partner"
-    type: time
-    timeframes: [
-      raw,
-      time,
-      date,
-      week,
-      month,
-      quarter,
-      year
-    ]
-    sql: ${TABLE}.order_terminated_local_at ;;
-  }
-
-  dimension_group: aggregation {
-    description: "aggregation date"
-    type: time
-    timeframes: [date, week, month, year, raw]
-    sql: ${TABLE}.p_creation_date ;;
-  }
-
-  dimension: day_of_the_week {
-    description: "(String) day of the week"
-    type: string
-    sql: CASE
-           WHEN dow(${TABLE}.p_creation_date) = 1 THEN 'Monday'
-           WHEN dow(${TABLE}.p_creation_date) = 2 THEN 'Tuesday'
-           WHEN dow(${TABLE}.p_creation_date) = 3 THEN 'Wednesday'
-           WHEN dow(${TABLE}.p_creation_date) = 4 THEN 'Thursday'
-           WHEN dow(${TABLE}.p_creation_date) = 5 THEN 'Friday'
-           WHEN dow(${TABLE}.p_creation_date) = 6 THEN 'Saturday'
-           WHEN dow(${TABLE}.p_creation_date) = 7 THEN 'Sunday'
-         else 'other' end ;;
-  }
-
-  dimension: aggregation_week_ending {
-    description: "Last day of the week for aggregate"
-    type: date
-    sql: date_trunc('week', "financial_order_metrics"."p_creation_date") ;;
-    datatype: date
-  }
-
-  dimension: aggregation_month_ending {
-    description: "Last day of the month for aggregate"
-    type: date
-    sql: date_trunc('month', "financial_order_metrics"."p_creation_date") ;;
-    datatype: date
-  }
-
-  parameter: timeframe_picker {
-    description: "Time Granularity"
-    label: "Date Granularity"
-    type: string
-    allowed_value: { value: "Date" }
-    allowed_value: { value: "Week" }
-    allowed_value: { value: "Month" }
-    default_value: "Date"
-  }
-
-  dimension: time_period_end_date {
-    description: "Time reference for end date"
-    type: string
-    sql:
-      CASE
-        WHEN {% parameter timeframe_picker %} = 'Date' THEN CAST(${aggregation_date} AS VARCHAR)
-        WHEN {% parameter timeframe_picker %} = 'Week' THEN CAST(${aggregation_week_ending} AS VARCHAR)
-        WHEN {% parameter timeframe_picker %} = 'Month' THEN CAST(${aggregation_month_ending} AS VARCHAR)
-      END ;;
-  }
-
   measure: order_cancellation_fee_eur {
     type: sum
     value_format: "€0.00"
@@ -121,12 +35,6 @@ view: financial_order_metrics {
     type: yesno
     description: "Label which tells if order is MFC or not"
     sql:  ${TABLE}.order_is_mfc ;;
-  }
-
-  dimension: order_is_marketplace {
-    type: yesno
-    description: "Label which tells if order is from Marketplace or not"
-    sql:  ${TABLE}.order_is_marketplace ;;
   }
 
   dimension: order_city_code {
@@ -167,34 +75,6 @@ view: financial_order_metrics {
     sql: ${TABLE}.cm0_local_currency ;;
   }
 
-  measure: total_delivery_fee {
-    description: "The final delivery fee applied for a particular order after including promotions (in Euros)"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.total_delivery_fee_eur ;;
-  }
-
-  measure: avg_delivery_fee {
-    description: "The final delivery fee applied for a particular order after including promotions (in Euros)"
-    type: average
-    value_format: "€0.00"
-    sql: ${TABLE}.total_delivery_fee_eur ;;
-  }
-
-  measure: total_delivery_fee_local_currency {
-    description: "The final delivery fee applied for a particular order after 
-      including promotions (in local currency)"
-    type: sum
-    sql: ${TABLE}.total_delivery_fee_local_currency ;;
-  }
-
-  measure: avg_delivery_fee_local_currency {
-    description: "The final delivery fee applied for a particular order after 
-      including promotions (in local currency)"
-    type: average
-    sql: ${TABLE}.total_delivery_fee_local_currency ;;
-  }
-
   measure: GTV {
     description: "GTV"
     type: sum
@@ -207,34 +87,6 @@ view: financial_order_metrics {
     type: average
     value_format: "€0.00"
     sql: ${TABLE}.order_transacted_value_eur ;;
-  }
-
-  measure: order_base_delivery_revenue_eur {
-    description: "Revenue earned by Glovo on delivery fee per order before promotions (in Euros)"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_base_delivery_revenue_eur ;;
-  }
-
-  measure: order_min_basket_surcharge_eur {
-    description: "Fee charged (in Euros) if the customer does not meet the minimum basket price"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_min_basket_surcharge_eur ;;
-  }
-
-  measure: order_net_min_basket_surcharge_eur {
-    description: "Net value of the column order_min_basket_surcharge_eur (without tax)"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_net_min_basket_surcharge_eur ;;
-  }
-
-  measure: order_vat_min_basket_surcharge_eur {
-    description: "VAT amount of the column order_min_basket_surcharge_eur"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_vat_min_basket_surcharge_eur ;;
   }
 
   measure: total_delivery_revenue_eur {
@@ -280,74 +132,11 @@ view: financial_order_metrics {
     sql: ${TABLE}.rpo_local_currency ;;
   }
 
-  measure: order_delivered_weather_surcharge_eur {
-    description: "An extra charge (in Euros) for bad weather compensation for delivered orders"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_delivered_weather_surcharge_eur ;;
-  }
-
-  measure: order_net_delivered_weather_surcharge_eur {
-    description: "Net value of the column order_delivered_weather_surcharge_eur (without tax)"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_net_delivered_weather_surcharge_eur ;;
-  }
-
-  measure: order_vat_delivered_weather_surcharge_eur {
-    description: "VAT amount of the column order_delivered_weather_surcharge_eur"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_vat_delivered_weather_surcharge_eur ;;
-  }
-
-  measure: order_min_basket_revenue_eur {
-    description: "Revenue earned by Glovo on MBS per order (in Euros)"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_min_basket_revenue_eur ;;
-  }
-
-  measure: order_cancelled_weather_surcharge_eur {
-    description: "An extra charge (in Euros) for bad weather compensation for cancelled orders"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_cancelled_weather_surcharge_eur ;;
-  }
-
-  measure: order_net_cancelled_weather_surcharge_eur {
-    description: "Net value of the column order_cancelled_weather_surcharge_eur (without tax)"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_net_cancelled_weather_surcharge_eur ;;
-  }
-
-  measure: order_vat_cancelled_weather_surcharge_eur {
-    description: "VAT amount of the column order_cancelled_weather_surcharge_eur"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_vat_cancelled_weather_surcharge_eur ;;
-  }
-
-  measure: order_estimated_purchase_eur {
-    description: "The estimated amount for the order (in Euros). It's the products price at checkout"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_estimated_purchase_eur ;;
-  }
-
   dimension: order_final_status {
     description: "Final status of the order (DeliveredStatus or CanceledStatus)"
     type: string
     sql: ${TABLE}.order_final_status ;;
   }
-
-  # measure: total_delivered_orders {
-  #   type: count
-  #   description: "Total number of delivered orders"
-  #   filters: [order_final_status: "DeliveredStatus"]
-  #   sql: ${TABLE}.order_final_status ;;
-  # }
 
   measure: total_delivered_orders {
     type: count
@@ -357,13 +146,6 @@ view: financial_order_metrics {
       value: "DeliveredStatus"
     }
   }
-
-  # measure: total_cancelled_orders {
-  #   type: count_distinct
-  #   description: "Total number of cancelled orders"
-  #   filters: [order_final_status: "CanceledStatus"]
-  #   sql: ${TABLE}.order_final_status ;;
-  # }
 
   measure: total_cancelled_orders {
     type: count
@@ -394,67 +176,11 @@ view: financial_order_metrics {
     sql: ${TABLE}.order_id ;;
   }
 
-  measure: order_initial_base_delivery_fee_eur {
-    description: "Delivery fee (in Euros) before any discounts applied"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_initial_base_delivery_fee_eur ;;
-  }
-
-  measure: order_net_initial_base_delivery_fee_eur {
-    description: "Net base Delivery fee (in Euros) before any discounts applied"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_net_initial_base_delivery_fee_eur ;;
-  }
-
-  measure: order_vat_initial_base_delivery_fee_eur {
-    description: "VAT base Delivery fee (in Euros) before any discounts applied"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_vat_initial_base_delivery_fee_eur ;;
-  }
-
-  measure: total_order_service_revenue_eur {
-    description: "Revenue earned by Glovo on Service fee per order (in Euros)"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_service_revenue_eur ;;
-  }
-
-  measure: avg_order_service_revenue_eur {
-    description: "Revenue earned by Glovo on Service fee per order (in Euros)"
-    type: average
-    value_format: "€0.00"
-    sql: ${TABLE}.order_service_revenue_eur ;;
-  }
-
-  measure: total_commission_actual_amount_eur {
-    description: "Revenue earned by Glovo on commisson fee per order (in Euros)"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.commission_actual_amount_eur ;;
-  }
-
-  measure: avg_commission_actual_amount_eur {
-    description: "Revenue earned by Glovo on commisson fee per order (in Euros)"
-    type: average
-    value_format: "€0.00"
-    sql: ${TABLE}.commission_actual_amount_eur ;;
-  }
-
   measure: order_cancellation_revenue_eur {
     description: "Revenue earned by Glovo on cancellation fee per order (in Euros)"
     type: sum
     value_format: "€0.00"
     sql: ${TABLE}.order_cancellation_revenue_eur ;;
-  }
-
-  measure: order_weather_revenue_eur {
-    description: "Weather surcharge fee charged to the customer for an order"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_weather_revenue_eur ;;
   }
 
   dimension: order_is_first_delivered_order {
@@ -500,26 +226,6 @@ view: financial_order_metrics {
       for example on QCommerce orders, if the user buys a lot of drinks."
     type: string
     sql: ${TABLE}.order_parent_relationship_type ;;
-  }
-
-  measure: order_service_fee_eur {
-    description: "An extra charge (in Euros) assessed for the service"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_service_fee_eur ;;
-  }
-
-  measure: order_net_service_fee_eur {
-    description: "Net value of the column order_service_fee_eur (without tax)"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_net_service_fee_eur ;;
-  }
-
-  measure: order_vat_service_fee_eur {
-    description: "VAT amount of the column order_service_fee_eur"
-    type: sum
-    sql: ${TABLE}.order_vat_service_fee_eur ;;
   }
 
   dimension_group: order_started_local_at {
@@ -574,26 +280,11 @@ view: financial_order_metrics {
   }
 
   measure: avg_order_purchase_eur {
-    description: "Total price of the products bought for the order in major currency and local currency.
+    description: "Average price of the products bought for the order in major currency and local currency.
       No fees are included here."
     type: average
     value_format: "€0.00"
     sql: ${TABLE}.order_total_purchase_eur ;;
-  }
-
-  dimension_group: order_updated_at {
-    description: "Order update time in UTC"
-    type: time
-    timeframes: [
-      raw,
-      time,
-      date,
-      week,
-      month,
-      quarter,
-      year
-    ]
-    sql: ${TABLE}.order_updated_at ;;
   }
 
   dimension: order_vertical {
@@ -684,27 +375,6 @@ view: financial_order_metrics {
     sql: ${TABLE}.order_is_unbundled ;;
   }
 
-  dimension: partner_is_mcdonalds {
-    description: "Order is from McDonalds"
-    type: yesno
-    sql: ${TABLE}.partner_is_mcdonalds ;;
-  }
-
-  measure: actual_commission_eur {
-    description: "Calculated commission"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.actual_commission_eur ;;
-  }
-
-  measure: total_order_mfc_margin_eur {
-    description: "The sum of all product margins in the order
-      in EUR [SUM(product_total_revenue - cost_of_good_sold)]"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_mfc_adjusted_margin_eur ;;
-  }
-
   measure: avg_order_mfc_margin_eur {
     description: "The sum of all product margins in the order
       in EUR [SUM(product_total_revenue - cost_of_good_sold)]"
@@ -740,34 +410,6 @@ view: financial_order_metrics {
     sql: ${TABLE}.cpo_local_currency ;;
   }
 
-  measure: total_order_courier_base_cost_eur_currency {
-    description: "total base cost in Eur currency"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_courier_base_cost_eur_currency ;;
-  }
-
-  measure: avg_order_courier_base_cost_eur_currency {
-    description: "Average base cost in Eur currency"
-    type: number
-    value_format: "€0.00"
-    sql: ${total_order_courier_base_cost_eur_currency}/${total_delivered_orders};;
-  }
-
-  measure: total_order_courier_distance_cost_eur_currency {
-    description: "total distance cost in Eur currency"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_courier_distance_cost_eur_currency ;;
-  }
-
-  measure: avg_order_courier_distance_cost_eur_currency {
-    description: "Average distance cost in Eur currency"
-    type: number
-    value_format: "€0.00"
-    sql: ${total_order_courier_distance_cost_eur_currency}/${total_delivered_orders};;
-  }
-
   measure: total_order_courier_waiting_cost_eur_currency {
     description: "total waiting cost in Eur currency"
     type: sum
@@ -780,20 +422,6 @@ view: financial_order_metrics {
     type: number
     value_format: "€0.00"
     sql: ${total_order_courier_waiting_cost_eur_currency}/${total_delivered_orders};;
-  }
-
-  measure: total_order_courier_extra_points_cost_eur_currency {
-    description: "total extra points cost in Eur currency"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_courier_extra_points_cost_eur_currency ;;
-  }
-
-  measure: avg_order_courier_extra_points_cost_eur_currency {
-    description: "Average extra points cost in Eur currency"
-    type: number
-    value_format: "€0.00"
-    sql: ${total_order_courier_extra_points_cost_eur_currency}/${total_delivered_orders};;
   }
 
   measure: total_order_courier_cancellation_cost_eur_currency {
@@ -810,311 +438,4 @@ view: financial_order_metrics {
     sql: ${total_order_courier_cancellation_cost_eur_currency}/${total_delivered_orders};;
   }
 
-  measure: total_order_courier_bundling_extra_points_cost_eur_currency {
-    description: "total bundling extra points cost in Eur currency"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_courier_bundling_extra_points_cost_eur_currency ;;
-  }
-
-  measure: avg_order_courier_bundling_extra_points_cost_eur_currency {
-    description: "Average bundling extra points cost in Eur currency"
-    type: number
-    value_format: "€0.00"
-    sql: ${total_order_courier_bundling_extra_points_cost_eur_currency}/${total_delivered_orders};;
-  }
-
-  measure: total_order_courier_bundling_extra_cost_eur_currency {
-    description: "total bundling extra cost in Eur currency"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_courier_bundling_extra_cost_eur_currency ;;
-  }
-
-  measure: avg_order_courier_bundling_extra_cost_eur_currency {
-    description: "Average bundling extra cost in Eur currency"
-    type: number
-    value_format: "€0.00"
-    sql: ${total_order_courier_bundling_extra_cost_eur_currency}/${total_delivered_orders};;
-  }
-
-  measure: total_order_courier_challenges_cost_eur_currency {
-    description: "total challenges cost in Eur currency"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_courier_challenges_cost_eur_currency ;;
-  }
-
-  measure: avg_order_courier_challenges_cost_eur_currency {
-    description: "Average challenges cost in Eur currency"
-    type: number
-    value_format: "€0.00"
-    sql: ${total_order_courier_challenges_cost_eur_currency}/${total_delivered_orders};;
-  }
-
-  measure: total_order_courier_supplement_cost_eur_currency {
-    description: "total supplement cost in Eur currency"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_courier_supplement_cost_eur_currency ;;
-  }
-
-  measure: avg_order_courier_supplement_cost_eur_currency {
-    description: "Average supplement cost in Eur currency"
-    type: number
-    value_format: "€0.00"
-    sql: ${total_order_courier_supplement_cost_eur_currency}/${total_delivered_orders};;
-  }
-
-  measure: total_order_courier_rush_bonus_cost_eur_currency {
-    description: "total rush bonus cost in Eur currency"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_courier_rush_bonus_cost_eur_currency ;;
-  }
-
-  measure: avg_order_courier_rush_bonus_cost_eur_currency {
-    description: "Average rush bonus cost in Eur currency"
-    type: number
-    value_format: "€0.00"
-    sql: ${total_order_courier_rush_bonus_cost_eur_currency}/${total_delivered_orders};;
-  }
-
-  measure: total_order_courier_rain_bonus_cost_eur_currency {
-    description: "total rain bonus cost in Eur currency"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_courier_rain_bonus_cost_eur_currency ;;
-  }
-
-  measure: avg_order_courier_rain_bonus_cost_eur_currency {
-    description: "Average rain bonus cost in Eur currency"
-    type: number
-    value_format: "€0.00"
-    sql: ${total_order_courier_rain_bonus_cost_eur_currency}/${total_delivered_orders};;
-  }
-
-  measure: total_order_courier_other_bonus_cost_eur_currency {
-    description: "total other bonus cost in Eur currency"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_courier_other_bonus_cost_eur_currency ;;
-  }
-
-  measure: avg_order_courier_other_bonus_cost_eur_currency {
-    description: "Average other bonus cost in Eur currency"
-    type: number
-    value_format: "€0.00"
-    sql: ${total_order_courier_other_bonus_cost_eur_currency}/${total_delivered_orders};;
-  }
-
-  measure: total_order_courier_referral_bonus_cost_eur_currency {
-    description: "total referral bonus cost in Eur currency"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_courier_referral_bonus_cost_eur_currency ;;
-  }
-
-  measure: avg_order_courier_referral_bonus_cost_eur_currency {
-    description: "Average referral bonus cost in Eur currency"
-    type: number
-    value_format: "€0.00"
-    sql: ${total_order_courier_referral_bonus_cost_eur_currency}/${total_delivered_orders};;
-  }
-
-  measure: total_order_courier_rto_adjustment_bonus_cost_eur_currency {
-    description: "total rto adjustment bonus cost in Eur currency"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_courier_rto_adjustment_bonus_cost_eur_currency ;;
-  }
-
-  measure: avg_order_courier_rto_adjustment_bonus_cost_eur_currency {
-    description: "Average rto adjustment bonus cost in Eur currency"
-    type: number
-    value_format: "€0.00"
-    sql: ${total_order_courier_rto_adjustment_bonus_cost_eur_currency}/${total_delivered_orders};;
-  }
-
-  measure: total_order_courier_supplement_bonus_cost_eur_currency {
-    description: "total supplement bonus cost in Eur currency"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_courier_supplement_bonus_cost_eur_currency ;;
-  }
-
-  measure: avg_order_courier_supplement_bonus_cost_eur_currency {
-    description: "Average supplement bonus cost in Eur currency"
-    type: number
-    value_format: "€0.00"
-    sql: ${total_order_courier_supplement_bonus_cost_eur_currency}/${total_delivered_orders};;
-  }
-
-  measure: total_order_courier_snow_bonus_cost_eur_currency {
-    description: "total snow bonus cost in Eur currency"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_courier_snow_bonus_cost_eur_currency ;;
-  }
-
-  measure: avg_order_courier_snow_bonus_cost_eur_currency {
-    description: "Average snow bonus cost in Eur currency"
-    type: number
-    value_format: "€0.00"
-    sql: ${total_order_courier_snow_bonus_cost_eur_currency}/${total_delivered_orders};;
-  }
-
-  measure: total_order_courier_other_bad_weather_bonus_cost_eur_currency {
-    description: "total other bad weather bonus cost in Eur currency"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_courier_other_bad_weather_bonus_cost_eur_currency ;;
-  }
-
-  measure: avg_order_courier_other_bad_weather_bonus_cost_eur_currency {
-    description: "Average other bad weather bonus cost in Eur currency"
-    type: number
-    value_format: "€0.00"
-    sql: ${total_order_courier_other_bad_weather_bonus_cost_eur_currency}/${total_delivered_orders};;
-  }
-
-  measure: total_order_courier_bad_weather_bonus_cost_eur_currency {
-    description: "total bad weather bonus cost in Eur currency"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_courier_bad_weather_bonus_cost_eur_currency ;;
-  }
-
-  measure: avg_order_courier_bad_weather_bonus_cost_eur_currency {
-    description: "Average bad weather bonus cost in Eur currency"
-    type: number
-    value_format: "€0.00"
-    sql: ${total_order_courier_bad_weather_bonus_cost_eur_currency}/${total_delivered_orders};;
-  }
-
-  measure: total_order_courier_special_operation_day_bonus_cost_eur_currency {
-    description: "total special operation day bonus cost in Eur currency"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_courier_special_operation_day_bonus_cost_eur_currency ;;
-  }
-
-  measure: avg_order_courier_special_operation_day_bonus_cost_eur_currency {
-    description: "Average special operation day bonus cost in Eur currency"
-    type: number
-    value_format: "€0.00"
-    sql: ${total_order_courier_special_operation_day_bonus_cost_eur_currency}/${total_delivered_orders};;
-  }
-
-  measure: total_order_courier_complex_order_bonus_cost_eur_currency {
-    description: "total complex order bonus cost in Eur currency"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_courier_complex_order_bonus_cost_eur_currency ;;
-  }
-
-  measure: avg_order_courier_complex_order_bonus_cost_eur_currency {
-    description: "Average complex order bonus cost in Eur currency"
-    type: number
-    value_format: "€0.00"
-    sql: ${total_order_courier_complex_order_bonus_cost_eur_currency}/${total_delivered_orders};;
-  }
-
-  measure: total_order_courier_holiday_bonus_cost_eur_currency {
-    description: "total holiday bonus cost in Eur currency"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_courier_holiday_bonus_cost_eur_currency ;;
-  }
-
-  measure: avg_order_courier_holiday_bonus_cost_eur_currency {
-    description: "Average holiday bonus cost in Eur currency"
-    type: number
-    value_format: "€0.00"
-    sql: ${total_order_courier_holiday_bonus_cost_eur_currency}/${total_delivered_orders};;
-  }
-
-  measure: total_order_courier_night_rush_bonus_cost_eur_currency {
-    description: "total night rush bonus cost in Eur currency"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_courier_night_rush_bonus_cost_eur_currency ;;
-  }
-
-  measure: avg_order_courier_night_rush_bonus_cost_eur_currency {
-    description: "Average night rush bonus cost in Eur currency"
-    type: number
-    value_format: "€0.00"
-    sql: ${total_order_courier_night_rush_bonus_cost_eur_currency}/${total_delivered_orders};;
-  }
-
-  measure: total_order_courier_distance_bonus_cost_eur_currency {
-    description: "total night rush bonus cost in Eur currency"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_courier_distance_bonus_cost_eur_currency ;;
-  }
-
-  measure: avg_order_courier_distance_bonus_cost_eur_currency {
-    description: "Average night rush bonus cost in Eur currency"
-    type: number
-    value_format: "€0.00"
-    sql: ${total_order_courier_distance_bonus_cost_eur_currency}/${total_delivered_orders};;
-  }
-
-  measure: total_order_courier_minimum_compensation_cost_eur_currency {
-    description: "total minimum compensation bonus cost in Eur currency"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_courier_minimum_compensation_cost_eur_currency ;;
-  }
-
-  measure: avg_order_courier_minimum_compensation_cost_eur_currency {
-    description: "Average minimum compensation bonus cost in Eur currency"
-    type: number
-    value_format: "€0.00"
-    sql: ${total_order_courier_minimum_compensation_cost_eur_currency}/${total_delivered_orders};;
-  }
-
-  measure: total_order_courier_big_order_bonus_cost_eur_currency {
-    description: "total big order bonus cost in Eur currency"
-    type: sum
-    value_format: "€0.00"
-    sql: ${TABLE}.order_courier_big_order_bonus_cost_eur_currency ;;
-  }
-
-  measure: avg_order_courier_big_order_bonus_cost_eur_currency {
-    description: "Average big order bonus cost in Eur currency"
-    type: number
-    value_format: "€0.00"
-    sql: ${total_order_courier_big_order_bonus_cost_eur_currency}/${total_delivered_orders};;
-  }
-
-  measure: total_bad_weather_bonus_cost_eur_currency {
-    description: "Sum of bad weather bonus costs (Rain, Snow, Other bad weather) eur currency"
-    type: number
-    value_format: "€0.00"
-    sql:
-      ${total_order_courier_rain_bonus_cost_eur_currency}+
-      ${total_order_courier_snow_bonus_cost_eur_currency}+
-      ${total_order_courier_bad_weather_bonus_cost_eur_currency}+
-      ${total_order_courier_other_bad_weather_bonus_cost_eur_currency} ;;
-  }
-
-  measure: total_rest_of_bonuses_cost_eur_currency {
-    description: "Sum of bonus costs that aren't rush or bad weather bonuses eur currency"
-    type: number
-    value_format: "€0.00"
-    sql:
-      ${total_order_courier_other_bonus_cost_eur_currency}+
-      ${total_order_courier_referral_bonus_cost_eur_currency}+
-      ${total_order_courier_big_order_bonus_cost_eur_currency}+
-      ${total_order_courier_complex_order_bonus_cost_eur_currency}+
-      ${total_order_courier_distance_bonus_cost_eur_currency}+
-      ${total_order_courier_holiday_bonus_cost_eur_currency}+
-      ${total_order_courier_night_rush_bonus_cost_eur_currency}+
-      ${total_order_courier_rto_adjustment_bonus_cost_eur_currency}+
-      ${total_order_courier_special_operation_day_bonus_cost_eur_currency}+
-      ${total_order_courier_supplement_bonus_cost_eur_currency};;
-  }
 }
