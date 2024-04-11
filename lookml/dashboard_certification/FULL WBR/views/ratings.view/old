@@ -1,0 +1,161 @@
+view: ratings {
+  sql_table_name: delta.central_ratings_odp.ratings ;;
+  suggestions: no
+
+  dimension: pk_order_id {
+    type: number
+    primary_key: yes
+    hidden: yes
+    description: "Order id associated with the rating"
+    sql: ${TABLE}.order_id ;;
+  }
+
+  dimension: rating_id {
+    type: number
+    description: "Unique id for ratings"
+    sql: ${TABLE}.rating_id ;;
+  }
+
+  dimension: order_id {
+    type: number
+    description: "Order id associated with the rating"
+    sql: ${TABLE}.order_id ;;
+  }
+
+  dimension_group: rating_created_at {
+    type: time
+    description: "Creation time for the rating"
+    timeframes: [
+      raw,
+      time,
+      date,
+      minute,
+      minute30,
+      minute5,
+      day_of_week,
+      hour,
+      hour_of_day,
+      week,
+      month,
+      quarter,
+      year,
+      week_of_year,
+      month_num,
+      fiscal_month_num,
+      day_of_month
+    ]
+    sql: ${TABLE}.rating_created_at ;;
+  }
+
+  dimension_group: rating_updated_at {
+    type: time
+    description: "Update time for the rating"
+    timeframes: [
+      raw,
+      time,
+      date,
+      minute30,
+      minute5,
+      day_of_week,
+      hour,
+      hour_of_day,
+      week,
+      month,
+      quarter,
+      year,
+      week_of_year,
+      month_num,
+      fiscal_month_num,
+      day_of_month
+    ]
+    sql: ${TABLE}.rating_updated_at ;;
+  }
+
+  dimension: courier_rating_value {
+    type: number
+    description: "The rating that was given to the courier. It can be 1 for bad rating or 2 for good rating"
+    sql: ${TABLE}.courier_rating_value ;;
+  }
+
+  dimension: partner_rating_value {
+    type: number
+    description: "The rating that was given to the partner. It can be 1 for bad rating or 2 for good rating"
+    sql: ${TABLE}.partner_rating_value ;;
+  }
+
+  dimension: rating_origin {
+    type: string
+    description: "It can be RATINGS, ORDER_DETAILS or PUSH_NOTIFICATION"
+    sql: ${TABLE}.rating_origin ;;
+  }
+
+  dimension: partner_rating_mode_used {
+    type: string
+    description: "To be able to identify the rating that was given to the partner (e.g. THUMBS_UP_DOWN)"
+    sql: ${TABLE}.partner_rating_mode_used ;;
+  }
+
+  dimension: courier_rating_mode_used {
+    type: string
+    description: "To be able to identify the rating that was given to the courier (e.g. THUMBS_UP_DOWN)"
+    sql: ${TABLE}.courier_rating_mode_used ;;
+  }
+
+  dimension: is_courier_rating_displayed_first {
+    type: string
+    description: "Boolean indicating if the courier rating was displayed first to the customer"
+    sql: ${TABLE}.is_courier_rating_displayed_first ;;
+  }
+
+  dimension: partner_rating_comment {
+    type: yesno
+    description: "Free text field where the customer can input details of the rating.
+      Can contain nulls if not enabled in prod"
+    sql: ${TABLE}.partner_rating_comment ;;
+  }
+
+  dimension: rating_courier_service {
+    type: string
+    description: "Type of rating (order). Positive, Negative or Missing"
+
+    sql: CASE WHEN ${TABLE}.courier_rating_value = 2 then 'Positive'
+        WHEN ${TABLE}.courier_rating_value is null then 'Missing'
+        ELSE 'Negative'
+        END ;;
+  }
+
+  dimension: rating_store_service {
+    type: string
+    description: "Type of rating (partner). Positive, Negative or Missing"
+    sql: CASE WHEN ${TABLE}.partner_rating_value = 2 then 'Positive'
+        WHEN ${TABLE}.partner_rating_value is null then 'Missing'
+        ELSE 'Negative'
+         END ;;
+  }
+
+  dimension: negative_ratings_any_service {
+    type: yesno
+    description: "Whether the current rating has any negative feedback"
+    sql: ${TABLE}.courier_rating_value = 1
+      OR ${TABLE}.partner_rating_value = 1 ;;
+  }
+
+  dimension: partner_review_message {
+    type: string
+    description: "Free text message the customer can write to the partner about the products"
+    sql: partner_review_message ;;
+  }
+
+  measure: number_of_orders_with_store_rating {
+    description: "Number of orders with store rating (negative or positive)"
+    type: count_distinct
+    sql: case when ${partner_rating_value} is not null then ${order_id} end ;;
+  }
+
+  measure: number_of_orders_with_negative_rating {
+    description: "Number of orders with bad rating (negative)"
+    type: count_distinct
+    sql: case when ${negative_ratings_any_service} then ${order_id} end ;;
+  }
+
+}
