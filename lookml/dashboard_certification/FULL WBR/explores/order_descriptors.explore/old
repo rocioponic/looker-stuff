@@ -1,0 +1,231 @@
+# include all the views
+include: "/central_dm/views/first_order_tag_derived.view.lkml"
+include: "/central_dm/views/cities.view.lkml"
+include: "/central_dm/views/order_descriptors.view.lkml"
+include: "/central_dm/views/ratings.view.lkml"
+include: "/mfc_dm/views/mfc_store_addresses.view.lkml"
+include: "/partners_dm/views/store_addresses.view.lkml"
+include: "/partners_dm/views/stores.view.lkml"
+include: "/central_dm/views/account_details.view.lkml"
+include: "/partners_dm/views/concepts_store_addresses.view.lkml"
+include: "/mfc_dm/views/qc_dh_migration_declarative.view.lkml"
+include: "/growth_dm/views/nso_orders.view.lkml"
+include: "/central_dm/views/order_pna.view.lkml"
+include: "/courier_dm/views/order_pickup_code_updated_events.view.lkml"
+include: "/central_dm/views/first_orders_levels.view.lkml"
+include: "/growth_dm/views/customer_retention.view.lkml"
+include: "/central_dm/views/courier_rating_reasons.view.lkml"
+include: "/central_dm/views/partner_rating_reasons.view.lkml"
+include: "/fintech_dm/views/payments.view.lkml"
+include: "/central_dm/views/points_postal_codes.view.lkml"
+include: "/partners_dm/views/daily_partner_segmentation.view.lkml"
+
+
+explore: order_descriptors {
+  persist_with: order_descriptors_datagroup #cache policy - check datagroup definition in the model.
+
+  always_filter: {
+    filters: [order_descriptors.p_creation_date: "365 days"] #force filter by partition key
+  }
+
+  description: "Order Descriptors table wants to have all relevant order dimensions per order_id granularity"
+
+  join: store_addresses {
+    type: left_outer
+    sql_on: ${order_descriptors.store_address_id} = ${store_addresses.pk2_store_address_id}
+      AND ${store_addresses.pk2_p_end_date} is Null ;;
+    # LAMS
+    # rule_exemptions: {
+    # E2: "2022-11-14 - We can't add store_address_id as PK"
+    # }
+    relationship: many_to_one
+  }
+
+  join: concepts_store_addresses {
+    type: left_outer
+    sql_on:
+      ${order_descriptors.store_address_id} =
+      ${concepts_store_addresses.pk1_concept_store_address_id};;
+    # LAMS
+    # rule_exemptions: {
+    # E2: "2022-11-14 - We can't add store_address_id as PK"
+    # }
+    relationship: many_to_one
+  }
+
+  join: stores {
+    type: left_outer
+    sql_on: ${store_addresses.store_id} = ${stores.pk2_store_id}
+      AND ${stores.pk2_p_end_date} is Null ;;
+    # LAMS
+    # rule_exemptions: {
+    # E2: "2023-03-01 -  pk2_p_end_date is not joined to another primary key, but
+    # is needed for only loading the last update for the store."
+    # }
+    relationship: many_to_one
+    fields: [
+      stores.store_vertical,
+      stores.store_subvertical,
+      stores.store_subvertical2,
+      stores.store_subvertical3,
+      stores.store_sub_business_unit,
+      stores.is_specialty,
+      stores.store_is_enabled,
+      stores.store_name,
+      stores.brand_id
+    ]
+  }
+
+  join: qc_dh_migration_declarative {
+    view_label: "DH Migration"
+    type: left_outer
+    sql_on:
+      (${stores.pk2_store_id} = ${qc_dh_migration_declarative.pk1_store_id}) ;;
+    # LAMS
+    # rule_exemptions: {
+    # E2: "Will be deleted after the DH catalog migration is over"
+    # }
+    relationship: many_to_one
+  }
+
+  join: ratings {
+    type: left_outer
+    sql_on: ${order_descriptors.pk1_order_id} = ${ratings.pk_order_id};;
+    relationship: one_to_one
+  }
+
+  join: first_order_tag_derived {
+    # 2022-12-21 This makes the 6th View, but we need it to tag New/Recurrent Customers
+    # in the Q-Commerce BUs/Verticals
+    type: inner
+    sql_on: ${order_descriptors.customer_id} = ${first_order_tag_derived.pk_id} ;;
+    relationship: many_to_one
+  }
+
+  join: mfc_store_addresses {
+    # 2022-12-21 This makes the 10th View, but we need it to identify filter MFC stores
+    type: left_outer
+    sql_on: ${order_descriptors.store_address_id} = ${mfc_store_addresses.store_address_id}
+      AND DATE(${mfc_store_addresses.end_date}) >= CURRENT_DATE ;;
+    # LAMS
+    # rule_exemptions: {
+    # E2: "2022-12-21 - We can't add store_address_id as PK"
+    # }
+    fields: [
+      mfc_store_addresses.store_address_is_mfc
+      , mfc_store_addresses.mfc_name
+      , mfc_store_addresses.mfc_danzai_id
+      , mfc_store_addresses.mfc_business_id
+    ]
+    relationship: one_to_many
+  }
+
+  join: account_details {
+    # 2023-06-01 This makes the 8th View, but we need it to have external names of store_addresses
+    type: left_outer
+    sql_on: ${order_descriptors.store_address_id} = ${account_details.store_address_id};;
+    # LAMS
+    # rule_exemptions: {
+    # E2: "2023-06-01 - We can't add store_address_id as PK"
+    # }
+    fields: [
+      account_details.external_name
+    ]
+    relationship: many_to_one
+  }
+
+  join: cities {
+    type: left_outer
+    sql_on: ${order_descriptors.order_city_code} = ${cities.pk1_city_code};;
+    relationship: many_to_one
+  }
+
+  join: nso_orders {
+    type: left_outer
+    sql_on: ${order_descriptors.pk1_order_id} = ${nso_orders.pk_order_id};;
+    relationship: one_to_one
+  }
+
+  join: order_pna {
+    type: left_outer
+    sql_on: ${order_descriptors.pk1_order_id} = ${order_pna.pk1_order_id}
+      and ${order_descriptors.p_creation_date} = ${order_pna.p_creation_date} ;;
+    relationship: one_to_one
+  }
+
+  join: first_orders_levels {
+    type: left_outer
+    sql_on: ${order_descriptors.pk1_order_id} = ${first_orders_levels.pk1_order_id} ;;
+    relationship: one_to_one
+  }
+
+  join: order_pickup_code_updated_events {
+    view_label: "Order Descriptors"
+    type: left_outer
+    sql_on: ${order_descriptors.pk1_order_id} = ${order_pickup_code_updated_events.order_id};;
+    # LAMS
+    # rule_exemptions: {
+    # E2: "2023-10-10 - We can't add order_id as PK"
+    # }
+    relationship: one_to_many
+  }
+
+  join: courier_rating_reasons {
+    type: left_outer
+    sql_on: ${order_descriptors.pk1_order_id} = ${courier_rating_reasons.pk_order_id};;
+    relationship: one_to_one
+  }
+
+  join: partner_rating_reasons {
+    type: left_outer
+    sql_on: ${order_descriptors.pk1_order_id} = ${partner_rating_reasons.pk_order_id};;
+    relationship: one_to_one
+  }
+
+  join: customer_retention {
+    type: left_outer
+    sql_on: ${order_descriptors.pk1_order_id} = ${customer_retention.pk_original_order_id};;
+    relationship: one_to_one
+  }
+
+  join: payments {
+    type: left_outer
+    sql_on: ${order_descriptors.pk1_order_id} = ${payments.order_id} ;;
+    # LAMS
+    # rule_exemptions: {
+    # E2: "2024-01-19 - Order ID isn't the PK in payments"
+    # }
+    relationship: one_to_many
+  }
+
+  join: points_postal_codes {
+    type: left_outer
+    sql_on: ${order_descriptors.pk1_order_id} = ${points_postal_codes.order_id};;
+    # LAMS
+    # rule_exemptions: {
+    # E2: "2024-03-25 - order_id is not the points_postal_codes PK"
+    # }
+    sql_where: ${points_postal_codes.point_type} = 'DELIVERY' ;;
+    relationship: one_to_one
+  }
+
+  join: daily_partner_segmentation {
+    type: left_outer
+    sql_on: ${order_descriptors.store_id} = ${daily_partner_segmentation.pk2_store_id}
+      AND ${daily_partner_segmentation.pk2_p_end_date} IS NULL ;;
+    # LAMS
+    # rule_exemptions: {
+    # E2: "2024-04-08 - We can't add store_id as PK"
+    # }
+    fields: [
+      daily_partner_segmentation.am_email,
+      daily_partner_segmentation.segmentation,
+      daily_partner_segmentation.subsegmentation,
+      daily_partner_segmentation.brand_id,
+      daily_partner_segmentation.store_is_virtual_brand,
+      daily_partner_segmentation.mother_store_id
+    ]
+    relationship: many_to_one
+  }
+
+}
