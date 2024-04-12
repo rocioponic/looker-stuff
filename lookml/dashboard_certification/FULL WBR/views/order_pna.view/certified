@@ -30,46 +30,6 @@ view: order_pna {
     sql: ${TABLE}.order_id ;;
   }
 
-  dimension: customer_id {
-    description: "Unique identifier for the customer associated with an order."
-    type: number
-    hidden: yes
-    sql: ${TABLE}.customer_id ;;
-  }
-
-  dimension: store_address_id {
-    description: "Unique identifier for the store address associated with an order.
-      Takes into account if the order is remade/rescued."
-    type: number
-    hidden: yes
-    sql: ${TABLE}.store_address_id ;;
-  }
-
-  dimension: order_vertical {
-    description: "Vertical to which the order was assigned to. There are 3 types of verticals: LaaS,
-      Food and QCommerce. You can check how to calculate them in this
-      miro: https://miro.com/app/board/uXjVOAERhUc=/ . More information on LaaS order definition
-      here: https://glovoapp.atlassian.net/wiki/spaces/DATA/pages/3561127969/"
-    type: string
-    hidden: yes
-    sql: ${TABLE}.order_vertical ;;
-  }
-
-  dimension: order_city_code {
-    description: "3-letter city code (IATA-3) indicating the city where the order was executed."
-    type: string
-    hidden: yes
-    sql: ${TABLE}.order_city_code ;;
-  }
-
-  dimension: order_country_code {
-    description: "2-letter code (ISO 3166-1 alpha-2) indicating the country where the
-      order took place."
-    type: string
-    hidden: yes
-    sql: ${TABLE}.order_country_code ;;
-  }
-
   dimension: order_is_pna_cancellation {
     description: "Boolean yes/no. Indicates if the order was cancelled due to PNA"
     type: yesno
@@ -133,49 +93,57 @@ view: order_pna {
   measure: number_of_orders_with_pna_cancellations {
     description: "Number of orders with cancellations due to PNA"
     type: count_distinct
-    sql: CASE WHEN ${order_is_pna_cancellation} THEN ${order_id} END ;;
+    filters: [order_is_pna_cancellation: "yes"]
+    sql: ${order_id} ;;
   }
 
   measure: number_of_orders_with_pna_wm_feedback {
     description: "Number of orders with wrong or missing items feedback"
     type: count_distinct
-    sql: CASE WHEN ${order_is_pna_wm_feedback} THEN ${order_id} END ;;
+    filters: [order_is_pna_wm_feedback: "yes"]
+    sql: ${order_id} ;;
   }
 
   measure: number_of_orders_with_pna_refund {
     description: "Number of orders with refund due to PNA"
     type: count_distinct
-    sql: CASE WHEN ${order_is_pna_refund} THEN ${order_id} END ;;
+    filters: [order_is_pna_refund: "yes"]
+    sql: ${order_id} ;;
   }
 
   measure: number_of_orders_with_pna_replacement {
     description: "Number of orders with replacement"
     type: count_distinct
-    sql: CASE WHEN ${order_is_pna_replacement} THEN ${order_id} END ;;
+    filters: [order_is_pna_replacement: "yes"]
+    sql: ${order_id} ;;
   }
 
   measure: number_of_orders_with_pna_partial_removal {
     description: "Number of orders with partial removal"
     type: count_distinct
-    sql: CASE WHEN ${order_is_pna_partial_removal} THEN ${order_id} END ;;
+    filters: [order_is_pna_partial_removal: "yes"]
+    sql: ${order_id} ;;
   }
 
   measure: number_of_orders_with_pna_total_removal {
     description: "Number of orders with total removal"
     type: count_distinct
-    sql: CASE WHEN ${order_is_pna_total_removal} THEN ${order_id} END ;;
+    filters: [order_is_pna_total_removal: "yes"]
+    sql: ${order_id} ;;
   }
 
   measure: number_of_orders_with_pna_replacement_or_removal {
     description: "Number of orders with total replacements or removal"
     type: count_distinct
-    sql: CASE WHEN ${order_is_pna_removed_or_replaced} THEN ${order_id} END ;;
+    filters: [order_is_pna_removed_or_replaced: "yes"]
+    sql: ${order_id} ;;
   }
 
   measure: number_of_orders_with_pna {
     description: "Number of orders with pna"
     type: count_distinct
-    sql: CASE WHEN ${order_is_pna} THEN ${order_id} END ;;
+    filters: [order_is_pna: "yes"]
+    sql: ${order_id} ;;
   }
 
   measure: percentage_of_orders_with_pna_cancellations {
