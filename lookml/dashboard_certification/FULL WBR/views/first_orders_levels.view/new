@@ -2,7 +2,6 @@ view: first_orders_levels {
   sql_table_name: delta.central__daily_first_orders_levels__odp.daily_first_orders_levels ;;
   suggestions: no
 
-
   dimension: pk1_order_id {
     description: "Primary Key"
     hidden: yes
@@ -107,14 +106,6 @@ view: first_orders_levels {
     sql: ${TABLE}.store_name ;;
   }
 
-  dimension: first_order_in_glovo_app_date {
-    description: "First Order in Glovo Activated Local Date"
-    group_label: "Date First Orders Levels at"
-    type: date
-    hidden: yes
-    sql: ${TABLE}.first_order_in_glovo_app_date ;;
-  }
-
   dimension_group: first_order_in_glovo_app_at {
     description: "First order in glovo date"
     group_label: "Date First Orders Levels at"
@@ -128,14 +119,6 @@ view: first_orders_levels {
     ]
     datatype: date
     sql: ${TABLE}.first_order_in_glovo_app_date ;;
-  }
-
-  dimension: first_order_in_vertical_date {
-    description: "First Order in Vertical Activated Local Date"
-    group_label: "Date First Orders Levels at"
-    type: date
-    hidden: yes
-    sql: ${TABLE}.first_order_in_vertical_date ;;
   }
 
   dimension_group: first_order_in_vertical_at {
@@ -153,14 +136,6 @@ view: first_orders_levels {
     sql: ${TABLE}.first_order_in_vertical_date ;;
   }
 
-  dimension: first_order_in_subvertical_date {
-    description: "First Order in Sub-Vertical Activated Local Date"
-    group_label: "Date First Orders Levels at"
-    type: date
-    hidden: yes
-    sql: ${TABLE}.first_order_in_subvertical_date ;;
-  }
-
   dimension_group: first_order_in_subvertical_at {
     description: "First order in sub-vertical date"
     group_label: "Date First Orders Levels at"
@@ -174,14 +149,6 @@ view: first_orders_levels {
     ]
     datatype: date
     sql: ${TABLE}.first_order_in_subvertical_date ;;
-  }
-
-  dimension: first_order_in_subvertical2_date {
-    description: "First Order in Sub-Vertical2 Activated Local Date"
-    group_label: "Date First Orders Levels at"
-    type: date
-    hidden: yes
-    sql: ${TABLE}.first_order_in_subvertical2_date ;;
   }
 
   dimension_group: first_order_in_subvertical2_at {
@@ -199,14 +166,6 @@ view: first_orders_levels {
     sql: ${TABLE}.first_order_in_subvertical2_date ;;
   }
 
-  dimension: first_order_in_subvertical3_date {
-    description: "First Order in Sub-Vertical3 Activated Local Date"
-    group_label: "Date First Orders Levels at"
-    type: date
-    hidden: yes
-    sql: ${TABLE}.first_order_in_subvertical3_date ;;
-  }
-
   dimension_group: first_order_in_subvertical3_at {
     description: "First order in sub-vertical3 date"
     group_label: "Date First Orders Levels at"
@@ -220,14 +179,6 @@ view: first_orders_levels {
     ]
     datatype: date
     sql: ${TABLE}.first_order_in_subvertical3_date ;;
-  }
-
-  dimension: first_order_in_store_sub_business_unit_date {
-    description: "First Order in Sub BU Activated Local Date"
-    group_label: "Date First Orders Levels at"
-    type: date
-    hidden: yes
-    sql: ${TABLE}.first_order_in_store_sub_business_unit_date ;;
   }
 
   dimension_group: first_order_in_store_sub_business_unit_at {
@@ -245,14 +196,6 @@ view: first_orders_levels {
     sql: ${TABLE}.first_order_in_store_sub_business_unit_date ;;
   }
 
-  dimension: first_order_in_store_name_date {
-    description: "First Order in Store Name Activated Local Date"
-    group_label: "Date First Orders Levels at"
-    type: date
-    hidden: yes
-    sql: ${TABLE}.first_order_in_store_name_date ;;
-  }
-
   dimension_group: first_order_in_store_name_at {
     description: "First order in Store Name date"
     group_label: "Date First Orders Levels at"
@@ -267,8 +210,7 @@ view: first_orders_levels {
     datatype: date
     sql: ${TABLE}.first_order_in_store_name_date ;;
   }
-
-
+  
   parameter: date_granularity {
     description: "Parameter to set date granularity. Use same date granularity as selected in the table"
     group_label: "Liquid Filters"
