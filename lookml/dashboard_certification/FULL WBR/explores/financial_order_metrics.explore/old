@@ -1,0 +1,37 @@
+# include all the views
+include: "/finance_dm/views/financial_order_metrics.view.lkml"
+include: "/finance_dm/views/courier_attributes.view.lkml"
+include: "/partners_dm/views/stores.view.lkml"
+
+explore: financial_order_metrics {
+  persist_with: financial_order_metrics_datagroup #cache policy
+
+  description: "FOM table aims to provide all relevant
+    financial metrics and dimensions at order level granularity"
+
+  join: courier_attributes {
+    type: inner
+    sql_on: ${financial_order_metrics.courier_id} = ${courier_attributes.pk1_courier_id};;
+    relationship: many_to_many
+  }
+
+  join: stores {
+    type: left_outer
+    sql_on: ${financial_order_metrics.store_id} = ${stores.pk2_store_id}
+      AND ${stores.pk2_p_end_date} is Null ;;
+    # LAMS
+    # rule_exemptions: {
+    # E2: "2023-11-13 -  pk2_p_end_date is not joined to another primary key, but
+    # is needed for only loading the last update for the store."
+    # }
+    relationship: many_to_one
+    fields: [
+      stores.store_vertical,
+      stores.store_subvertical,
+      stores.store_subvertical2,
+      stores.store_subvertical3,
+      stores.store_sub_business_unit,
+      stores.is_specialty,
+    ]
+  }
+}
