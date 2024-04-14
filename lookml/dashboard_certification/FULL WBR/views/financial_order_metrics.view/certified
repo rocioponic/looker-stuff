@@ -37,8 +37,8 @@ view: financial_order_metrics {
 
   dimension: order_subvertical {
     description: "Subvertical for the vertical to be able to categorize the order even further. It can take
-      values: eLogistics, On-Demand, Courier (Laas), Quiero, MFC, QCPartners (QCommerce) and
-      Food - Food and Food - Other (Food)"
+    values: eLogistics, On-Demand, Courier (Laas), Quiero, MFC, QCPartners (QCommerce) and
+    Food - Food and Food - Other (Food)"
     type: string
     sql: ${TABLE}.order_subvertical ;;
     group_label: "Order vertical info"
@@ -46,7 +46,7 @@ view: financial_order_metrics {
 
   dimension: order_subvertical2 {
     description: "Used to classify even further On-Demand subvertical in Food and Other and QCPartners
-      in Retail and Groceries"
+    in Retail and Groceries"
     type: string
     sql: ${TABLE}.order_subvertical2 ;;
     group_label: "Order vertical info"
@@ -54,8 +54,8 @@ view: financial_order_metrics {
 
   dimension: order_handling_strategy {
     description: "Whether the order is delivered and is GEN1 (marketplace),
-      or GEN2 (delivered by Glovo),
-      or the order was picked by the customer at the store (IN_STORE or PICKUP)"
+    or GEN2 (delivered by Glovo),
+    or the order was picked by the customer at the store (IN_STORE or PICKUP)"
     type: string
     sql: ${TABLE}.order_handling_strategy ;;
   }
@@ -82,15 +82,15 @@ view: financial_order_metrics {
 
   dimension: order_parent_relationship_type {
     description: "Possible values: REMAKE, RESCUE, SPLIT, null.
-      Orders can have child orders that operationally look the same as regular orders, but some of
-      the fields are not correct. These child orders in Order Descriptors have already the sanitized
-      fields from the parent order so no need to recompute anything.
-      - REMAKE orders are orders created by liveops when some item is missing in the customer order.
-      - RESCUE orders are also created by liveops. If for some reason the courier for the parent order
-      cannot deliver the order, then liveops creates a rescue order and sends another courier to pick up
-      the original order from the original courier, in order to finally deliver it.
-      - SPLIT orders are created by backend or liveops whenever an order is too big for one courier to take,
-      for example on QCommerce orders, if the user buys a lot of drinks."
+    Orders can have child orders that operationally look the same as regular orders, but some of
+    the fields are not correct. These child orders in Order Descriptors have already the sanitized
+    fields from the parent order so no need to recompute anything.
+    - REMAKE orders are orders created by liveops when some item is missing in the customer order.
+    - RESCUE orders are also created by liveops. If for some reason the courier for the parent order
+    cannot deliver the order, then liveops creates a rescue order and sends another courier to pick up
+    the original order from the original courier, in order to finally deliver it.
+    - SPLIT orders are created by backend or liveops whenever an order is too big for one courier to take,
+    for example on QCommerce orders, if the user buys a lot of drinks."
     type: string
     sql: ${TABLE}.order_parent_relationship_type ;;
   }
@@ -103,7 +103,7 @@ view: financial_order_metrics {
 
   dimension: store_address_id {
     description: "Unique identifier for the store address associated with an order.
-      Takes into account if the order is remade/rescued"
+    Takes into account if the order is remade/rescued"
     type: number
     sql: ${TABLE}.store_address_id ;;
     group_label: "Store info"
@@ -268,15 +268,15 @@ view: financial_order_metrics {
   }
 
   measure: RPO_local_currency {
-    description: "Revenue earned by Glovo on Delivery fee per order after 
-      including promotions (in local currency)"
+    description: "Revenue earned by Glovo on Delivery fee per order after
+    including promotions (in local currency)"
     type: sum
     sql: ${TABLE}.rpo_local_currency ;;
   }
 
   measure: avg_RPO_local_currency {
-    description: "Revenue earned by Glovo on Delivery fee per order after 
-      including promotions (in local currency)"
+    description: "Revenue earned by Glovo on Delivery fee per order after
+    including promotions (in local currency)"
     type: average
     value_format: "€0.00"
     sql: ${TABLE}.rpo_local_currency ;;
@@ -284,7 +284,7 @@ view: financial_order_metrics {
 
   measure: order_total_purchase_eur {
     description: "Total price of the products bought for the order in major currency and local currency.
-      No fees are included here."
+    No fees are included here."
     type: sum
     value_format: "€0.00"
     sql: ${TABLE}.order_total_purchase_eur ;;
@@ -292,7 +292,7 @@ view: financial_order_metrics {
 
   measure: avg_order_purchase_eur {
     description: "Average price of the products bought for the order in major currency and local currency.
-      No fees are included here."
+    No fees are included here."
     type: average
     value_format: "€0.00"
     sql: ${TABLE}.order_total_purchase_eur ;;
