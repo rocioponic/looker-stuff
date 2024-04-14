@@ -144,8 +144,6 @@ view: order_feedback_facts {
     sql: ${TABLE}.csat_reason ;;
   }
 
-  ################################### MEASURES ####################################
-
   measure: number_of_feedbacks {
     description: "Total number of feedbacks"
     type: count_distinct
@@ -268,9 +266,6 @@ view: order_feedback_facts {
         END ;;
   }
 
-  ################################################################################################
-
-  # All store related reasons
   measure: percentage_of_order_feedback_submitted_due_to_store {
     description: "Percentage of order feedback submitted over orders due to store reasons"
     group_label: "Percentage of Orders with Feedback due to Store Related Reasons (Past Order)"
@@ -285,7 +280,6 @@ view: order_feedback_facts {
       / nullif(${order_descriptors.number_of_delivered_orders}, 0) ;;
   }
 
-  # Wrong or missing products
   measure: percentage_of_order_feedback_submitted_due_to_store_wrong_or_missing_products {
     description: "Percentage of order feedback submitted over orders due to reasons 'Wrong Products',
     'Missing Products' or 'Missing Extras'"
@@ -301,7 +295,6 @@ view: order_feedback_facts {
       / nullif(${order_descriptors.number_of_delivered_orders}, 0) ;;
   }
 
-  # Wrong products
   measure: percentage_of_order_feedback_submitted_due_to_store_wrong_products {
     description: "Percentage of order feedback submitted over orders due to reason 'Wrong Products'"
     group_label: "Percentage of Orders with Feedback due to Store Related Reasons (Past Order)"
