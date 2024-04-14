@@ -110,7 +110,7 @@ view: ratings {
   dimension: partner_rating_comment {
     type: string
     description: "Free text field where the customer can input details of the rating.
-      Can contain nulls if not enabled in prod"
+    Can contain nulls if not enabled in prod"
     sql: ${TABLE}.partner_rating_comment ;;
   }
 
