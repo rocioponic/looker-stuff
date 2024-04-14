@@ -54,7 +54,7 @@ view: first_orders_levels {
 
   dimension: store_vertical {
     description: "- Qcommerce
-      - Food"
+    - Food"
     group_label: "Stores"
     type: string
     sql: ${TABLE}.store_vertical ;;
@@ -62,9 +62,9 @@ view: first_orders_levels {
 
   dimension: store_subvertical {
     description: "- QCPartners
-      - MFC
-      - Food - Food
-      - Food - Other"
+    - MFC
+    - Food - Food
+    - Food - Other"
     group_label: "Stores"
     type: string
     sql: ${TABLE}.store_subvertical ;;
@@ -72,9 +72,9 @@ view: first_orders_levels {
 
   dimension: store_subvertical2 {
     description: "- Groceries
-      - Retail
-      - Food - Food
-      - Food - Other"
+    - Retail
+    - Food - Food
+    - Food - Other"
     group_label: "Stores"
     type: string
     sql: ${TABLE}.store_subvertical2 ;;
@@ -82,11 +82,11 @@ view: first_orders_levels {
 
   dimension: store_subvertical3 {
     description: "- Groceries
-      - Health
-      - Shops
-      - Smoking
-      - Food - Food
-      - Food - Other"
+    - Health
+    - Shops
+    - Smoking
+    - Food - Food
+    - Food - Other"
     group_label: "Stores"
     type: string
     sql: ${TABLE}.store_subvertical3 ;;
@@ -210,7 +210,7 @@ view: first_orders_levels {
     datatype: date
     sql: ${TABLE}.first_order_in_store_name_date ;;
   }
-  
+
   parameter: date_granularity {
     description: "Parameter to set date granularity. Use same date granularity as selected in the table"
     group_label: "Liquid Filters"
@@ -264,7 +264,7 @@ view: first_orders_levels {
 
   dimension: first_order_in_glovo_app_is_prime {
     description: "Is Prime Customer at the moment
-      of the first order in Glovo"
+    of the first order in Glovo"
     group_label: "Is Prime Customers Levels"
     type: yesno
     sql: ${TABLE}.first_order_in_glovo_app_is_prime ;;
@@ -422,7 +422,7 @@ view: first_orders_levels {
 
   dimension: first_order_in_vertical_is_prime {
     description: "Is Prime Customer at the moment
-      of the first order in Vertical"
+    of the first order in Vertical"
     group_label: "Is Prime Customers Levels"
     type: yesno
     sql: ${TABLE}.first_order_in_vertical_is_prime ;;
@@ -580,7 +580,7 @@ view: first_orders_levels {
 
   dimension: first_order_in_subvertical_is_prime {
     description: "Is Prime Customer at the moment
-      of the first order in the SubVertical"
+    of the first order in the SubVertical"
     group_label: "Is Prime Customers Levels"
     type: yesno
     sql: ${TABLE}.first_order_in_subvertical_is_prime ;;
@@ -738,7 +738,7 @@ view: first_orders_levels {
 
   dimension: first_order_in_subvertical2_is_prime {
     description: "Is Prime Customer at the moment
-      of the first order in the SubVertical2"
+    of the first order in the SubVertical2"
     group_label: "Is Prime Customers Levels"
     type: yesno
     sql: ${TABLE}.first_order_in_subvertical2_is_prime ;;
@@ -896,7 +896,7 @@ view: first_orders_levels {
 
   dimension: first_order_in_subvertical3_is_prime {
     description: "Is Prime Customer at the moment
-      of the first order in the SubVertical3"
+    of the first order in the SubVertical3"
     group_label: "Is Prime Customers Levels"
     type: yesno
     sql: ${TABLE}.first_order_in_subvertical3_is_prime ;;
@@ -1054,7 +1054,7 @@ view: first_orders_levels {
 
   dimension: first_order_in_store_sub_business_unit_is_prime {
     description: "Is Prime Customer at the moment
-      of the first order in the Store Sub BU"
+    of the first order in the Store Sub BU"
     group_label: "Is Prime Customers Levels"
     type: yesno
     sql: ${TABLE}.first_order_in_store_sub_business_unit_is_prime ;;
@@ -1212,7 +1212,7 @@ view: first_orders_levels {
 
   dimension: first_order_in_store_name_is_prime {
     description: "Is Prime Customer at the moment
-      of the first order in Store Name"
+    of the first order in Store Name"
     group_label: "Is Prime Customers Levels"
     type: yesno
     sql: ${TABLE}.first_order_in_store_name_is_prime ;;
@@ -1348,7 +1348,7 @@ view: first_orders_levels {
 
   parameter: business_unit_granularity {
     description: "Parameter to set vertical level granularity. Use granularity taking
-      into account in which level you want to do the counts"
+    into account in which level you want to do the counts"
     group_label: "Liquid Filters"
     type: unquoted
     allowed_value: { value: "Glovo_App" }
@@ -1754,7 +1754,7 @@ view: first_orders_levels {
 
   dimension: first_order_in_selected_bu_at_dynamic {
     description: "Dynamic date of an aggregate
-      (date, week, month or year for the selected level)"
+    (date, week, month or year for the selected level)"
     group_label: "Date First Orders Levels at"
     type: date
     # LAMS
@@ -1850,7 +1850,7 @@ view: first_orders_levels {
 
   dimension: retention_cohorts {
     description: "Retention Cohorts
-      (date, week, month or year for the selected level)"
+    (date, week, month or year for the selected level)"
     group_label: "Retention Cohorts"
     type: number
     # LAMS
