@@ -38,7 +38,7 @@ view: order_pna {
 
   dimension: order_is_pna_wm_feedback {
     description: "Boolean yes/no. Indicates if the order had wrong or missing items
-      feedback"
+    feedback"
     type: yesno
     sql: ${TABLE}.order_is_pna_wm_feedback ;;
   }
