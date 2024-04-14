@@ -1,13 +1,13 @@
 connection: "starburst"
 
-include: "/central_dm/explores/*.explore.lkml"
+include: "/central_dm_cert/explores_cert/*.explore.lkml"
 
 # DATAGROUPS
 # Applied at explore level in this model.
 # The sql_trigger is checked every hour from 5am to 12pm - check this in connection settings.
 
 datagroup: order_descriptors_datagroup {
-  sql_trigger: select max(p_creation_date) 
+  sql_trigger: select max(p_creation_date)
     from delta.central_order_descriptors_odp.order_descriptors_v2 ;;
   max_cache_age: "6 hours"
   label: "New p_creation_date added"
