@@ -7,7 +7,8 @@ include: "/central_dm/explores/*.explore.lkml"
 # The sql_trigger is checked every hour from 5am to 12pm - check this in connection settings.
 
 datagroup: order_descriptors_datagroup {
-  sql_trigger: select max(p_creation_date) from delta.central_order_descriptors_odp.order_descriptors_v2 ;;
+  sql_trigger: select max(p_creation_date) 
+    from delta.central_order_descriptors_odp.order_descriptors_v2 ;;
   max_cache_age: "6 hours"
   label: "New p_creation_date added"
   description: "Triggered when order descriptors v2 ETL is finished. Persists for max 24h"
@@ -15,7 +16,7 @@ datagroup: order_descriptors_datagroup {
 
 datagroup: data_product_pna_orders_info {
   sql_trigger: select max(p_creation_date)
-    from delta.central__pna_orders__odp.pna_orders_info ;;
+    from delta.mfc__pna__odp.pna_orders_info ;;
   max_cache_age: "6 hours"
   label: "New p_creation_date added"
   description: "Triggered when quality score ETL is finished. Persists for max 6h"
