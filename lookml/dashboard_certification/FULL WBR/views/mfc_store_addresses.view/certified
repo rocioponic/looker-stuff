@@ -1,0 +1,137 @@
+view: mfc_store_addresses {
+  sql_table_name: delta.mfc_sales_odp.mfc_store_addresses_history ;;
+
+  dimension: pk1_store_address_id {
+    primary_key: yes
+    sql: CONCAT(${TABLE}.store_address_id, ${TABLE}.valid_to) ;;
+    hidden: yes
+  }
+
+  dimension: store_address_id {
+    description: "Glovo's unique identifier for a store address."
+    sql: ${TABLE}.store_address_id ;;
+  }
+
+  dimension: store_address_integration_id {
+    description: "Identifier for the store_address created by the external system integrated with it.
+    It can be the integration id from Odoo or DH. If it comes from Danzai it will have NULL"
+    type: string
+  }
+
+  dimension: store_address_external_id {
+    description: "External identifier for the store_address, used for the integration."
+    type: string
+  }
+
+  dimension_group: start {
+    description: "First date with the same store_address data."
+    type: time
+    convert_tz: no
+    timeframes: [
+      date,
+      week,
+      month,
+      quarter,
+      year
+    ]
+    label: "Valid From"
+    sql: ${TABLE}.valid_from ;;
+  }
+
+  dimension_group: end {
+    description: "Last date with the same store_address data.
+    The newest row per store is the one with this field NULL."
+    type: time
+    convert_tz: no
+    timeframes: [
+      date,
+      week,
+      month,
+      quarter,
+      year
+    ]
+    label: "Valid To"
+    sql: ${TABLE}.valid_to ;;
+  }
+
+  dimension: store_id {
+    description: "Glovo's unique identifier for a store."
+    type: number
+  }
+
+  dimension: store_address_street_address {
+    type: string
+    description: "Street address of the store."
+    sql: ${TABLE}.street_address ;;
+  }
+
+  dimension: warehouse_system {
+    type: string
+    description: "Source of the information. It can be ODOO, DH, or DANZAI."
+  }
+
+  dimension: mfc_business_id {
+    description: "MFC unique identifier, consisting of the city_code and a letter and number, eg.
+    BCNF1. Note that for MFCs in Danzai, the value will be NULL."
+    type: string
+    label: "Warehouse Code"
+    sql: ${TABLE}.warehouse_business_id ;;
+  }
+
+  dimension: mfc_name {
+    description: "Name of the mfc, often including the street. Example: BCNF1 - Girona.
+    Note that for MFCs in Danzai, the value will be NULL."
+    type: string
+    label: "Warehouse Name"
+    sql: ${TABLE}.warehouse_name ;;
+  }
+
+  dimension: warehouse_id {
+    description: "Warehouse unique identifier in the Warehouse system."
+    type: string
+    label: "Warehouse ID"
+    sql: ${TABLE}.warehouse_id ;;
+  }
+
+  dimension: mfc_danzai_id {
+    description: "Warehouse unique identifier in the Warehouse system,
+    only complete for Danzai records."
+    type: string
+    label: "MFC Danzai ID"
+    sql: CASE WHEN ${warehouse_system} = 'DANZAI' THEN ${warehouse_id} END ;;
+  }
+
+  dimension: latitude {
+    description: "Latitude of the location of the store address"
+    type: number
+  }
+
+  dimension: longitude {
+    description: "Longitude of the location of the store address"
+    type: number
+  }
+
+  dimension: city_code {
+    type: string
+    description: "City of the MFC. Three-letter code, eg: BCN for Barcelona."
+  }
+
+  dimension: country_code {
+    type: string
+    description: "Country of the MFC. Two-letter code, eg: ES for España."
+  }
+
+  dimension: dh_store_type {
+    description: "Store type based on DH's classification. Only available for store_addresses with
+    DH as a source; otherwise NOT AVAILABLE."
+    type: string
+    sql: ${TABLE}.store_type ;;
+  }
+
+  dimension: store_address_is_mfc {
+    description: "The Store Address is linked to an MFCs"
+    label: "Store Address Is MFC"
+    type: yesno
+    sql: ${mfc_name} IS NOT NULL OR ${mfc_business_id} IS NOT NULL ;;
+  }
+}
