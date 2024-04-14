@@ -1,7 +1,7 @@
 view: order_descriptors {
   sql_table_name: delta.central_order_descriptors_odp.order_descriptors_v2 ;;
   suggestions: no
-  
+
   dimension: pk1_order_id {
     description: "Primary key"
     primary_key: yes
@@ -9,38 +9,38 @@ view: order_descriptors {
     type: number
     sql: ${TABLE}.order_id ;;
   }
-  
+
   dimension: order_id {
     description: "Order ID"
     type: number
     sql: ${TABLE}.order_id ;;
   }
-  
+
   dimension: courier_id {
     description: "Unique identifier for the courier associated with an order"
     type: number
     sql: ${TABLE}.courier_id ;;
   }
-  
+
   dimension: customer_id {
     description: "Unique identifier for the customer associated with an order."
     type: number
     sql: ${TABLE}.customer_id ;;
   }
-  
+
   dimension: customer_type {
     description: "Identifier for if first order delivered is true"
     type: number
     sql: case when ${TABLE}.order_is_first_created_order = FALSE
       or ${TABLE}.order_is_first_delivered_order=FALSE then 'RC' else 'NC' end ;;
   }
-  
+
   dimension: order_cancel_reason {
     description: "Reason for the order's cancellation."
     type: string
     sql: ${TABLE}.order_cancel_reason ;;
   }
-  
+
   dimension: order_final_status {
     description: "Either DeliveredStatus or CanceledStatus. Whether the final status for the order
     is delivered or is canceled."
@@ -48,7 +48,7 @@ view: order_descriptors {
     suggestions: ["DeliveredStatus", "CanceledStatus"]
     sql: ${TABLE}.order_final_status ;;
   }
-  
+
   dimension: order_handling_strategy {
     description: "Possible values: GEN1, GEN2, IN_STORE or PICKUP. Tells us whether the order is delivered
     and is GEN1 (marketplace) or GEN2(delivered by Glovo) or the order was picked by the customer at the
@@ -56,13 +56,13 @@ view: order_descriptors {
     type: string
     sql: ${TABLE}.order_handling_strategy ;;
   }
-  
+
   dimension: order_is_prime {
     description: "Flag indicating if an order is placed by an user with Glovo Prime."
     type: yesno
     sql: ${TABLE}.order_is_prime ;;
   }
-  
+
   dimension: order_parent_relationship_type {
     description: "Possible values: REMAKE, RESCUE, SPLIT, null.
     Orders can have child orders that operationally look the same as regular orders, but some of
@@ -77,12 +77,10 @@ view: order_descriptors {
     type: string
     sql: ${TABLE}.order_parent_relationship_type ;;
   }
-  
+
   dimension: order_vertical {
     description: "Vertical to which the order was assigned to. There are 3 types of verticals: LaaS,
-    Food and QCommerce. You can check how to calculate them in this
-    miro: https://miro.com/app/board/uXjVOAERhUc=/ . More information on LaaS order definition
-    here: https://glovoapp.atlassian.net/wiki/spaces/DATA/pages/3561127969/"
+    Food and QCommerce"
     type: string
     suggestions: [
       "Food",
@@ -92,7 +90,7 @@ view: order_descriptors {
     sql: ${TABLE}.order_vertical ;;
     group_label: "Business Unit (BU)"
   }
-  
+
   dimension: order_subvertical {
     description: "Subvertical for the vertical to be able to categorize the order even further. It can take
     values: eLogistics, On-Demand, Courier (Laas), Quiero, MFC, QCPartners (QCommerce) and
@@ -110,7 +108,7 @@ view: order_descriptors {
     sql: ${TABLE}.order_subvertical ;;
     group_label: "Business Unit (BU)"
   }
-  
+
   dimension: order_subvertical2 {
     description: "Used to classify even further On-Demand subvertical in Food and Other and QCPartners
     in Retail and Groceries"
@@ -128,7 +126,7 @@ view: order_descriptors {
     sql: ${TABLE}.order_subvertical2 ;;
     group_label: "Business Unit (BU)"
   }
-  
+
   dimension: order_subvertical3 {
     description: "Used to classify even further Retail orders into Health and Shops"
     type: string
@@ -155,58 +153,58 @@ view: order_descriptors {
         AND (${order_activated_local_raw} IS NULL
         OR DATE_DIFF('second', ${order_activated_local_raw}, ${order_terminated_local_raw}) / 60.0 <= 5)) ;;
   }
-  
+
   dimension: store_name {
     description: "Identifier for the store name associated with an order."
     type: string
     sql: TRIM(${TABLE}.store_name) ;;
   }
-  
+
   dimension: store_address_id {
     description: "Unique identifier for the store address associated with an order.
     Takes into account if the order is remade/rescued."
     type: number
     sql: ${TABLE}.store_address_id ;;
   }
-  
+
   dimension: store_id {
     description: "Unique identifier for the store associated with an order."
     type: number
     sql: ${TABLE}.store_id ;;
   }
-  
+
   dimension: store_category_id {
     description: "Unique identifier for the store category from the store associated with the order."
     type: number
     sql: ${TABLE}.store_category_id ;;
   }
-  
+
   dimension: order_is_first_created_order {
     description: "Identifier to see if the order is the first one of the customer"
     type: yesno
     sql: ${TABLE}.order_is_first_created_order ;;
   }
-  
+
   dimension: order_is_first_delivered_order {
     description: "Identifier to see if the order is the first delivered to the customer"
     type: yesno
     sql: ${TABLE}.order_is_first_delivered_order ;;
   }
-  
+
   dimension: order_currency {
     description: "3-letter code for the currency that was used to pay the order, such as EUR."
     type: string
     sql: ${TABLE}.order_currency ;;
     group_label: "Geography"
   }
-  
+
   dimension: order_city_code {
     description: "3-letter city code (IATA-3) indicating the city where the order was executed."
     type: string
     sql: ${TABLE}.order_city_code ;;
     group_label: "Geography"
   }
-  
+
   dimension: order_country_code {
     description: "2-letter code (ISO 3166-1 alpha-2) indicating the country where the
     order took place."
@@ -214,7 +212,7 @@ view: order_descriptors {
     sql: ${TABLE}.order_country_code ;;
     group_label: "Geography"
   }
-  
+
   dimension: order_country_region {
     description: "Name of the region where the order_country_code belongs. Taken from
     user_defined_geography_data spreadsheet"
@@ -222,14 +220,15 @@ view: order_descriptors {
     sql: ${TABLE}.order_country_region ;;
     group_label: "Geography"
   }
-  
+
   dimension: order_country_subregion {
     description: "Name of the subregion where the order_country_code belongs. Taken from
     user_defined_geography_data spreadsheet"
     type: string
     sql: ${TABLE}.order_country_subregion ;;
+    group_label: "Geography"
   }
-  
+
   dimension: order_global_region {
     description: "Global region for the order, based on the country code. Taken from
     user_defined_geography_data spreadsheet"
@@ -237,7 +236,7 @@ view: order_descriptors {
     sql: ${TABLE}.order_global_region ;;
     group_label: "Geography"
   }
-  
+
   dimension: order_global_subregion {
     description: "Global subregion for the order, based on the country code. Taken from
     user_defined_geography_data spreadsheet"
@@ -245,7 +244,7 @@ view: order_descriptors {
     sql: ${TABLE}.order_global_subregion ;;
     group_label: "Geography"
   }
-  
+
   dimension_group: order_activated {
     description: "Timestamp (UTC) indicating the moment at which the order was activated."
     type: time
@@ -262,9 +261,8 @@ view: order_descriptors {
       week_of_year
     ]
     sql: ${TABLE}.order_activated_at ;;
-    group_label: "Date / Time Information"
   }
-  
+
   dimension_group: order_activated_local {
     description: "Conversion of the same field to local time zone for the city"
     type: time
@@ -282,9 +280,8 @@ view: order_descriptors {
       week_of_year
     ]
     sql: ${TABLE}.order_activated_local_at ;;
-    group_label: "Date / Time Information"
   }
-  
+
   dimension_group: order_courier_arrival_to_delivery {
     description: "Timestamp (UTC) indicating the moment at which the courier arrived at the delivery
     location (if multiple locations, uses the first one)"
@@ -302,7 +299,7 @@ view: order_descriptors {
     ]
     sql: ${TABLE}.order_courier_arrival_to_delivery_at ;;
   }
-  
+
   dimension_group: order_created {
     description: "Timestamp (UTC) indicating the moment at which the order was created."
     type: time
@@ -320,9 +317,8 @@ view: order_descriptors {
       week_of_year
     ]
     sql: ${TABLE}.order_created_at ;;
-    group_label: "Date / Time Information"
   }
-  
+
   dimension_group: order_created_local {
     description: "Conversion of the same field to local time zone for the city"
     type: time
@@ -339,9 +335,8 @@ view: order_descriptors {
       week_of_year
     ]
     sql: ${TABLE}.order_created_local_at ;;
-    group_label: "Date / Time Information"
   }
-  
+
   dimension_group: order_scheduled {
     description: "Timestamp (UTC) indicating the moment at which an order was scheduled, if any"
     type: time
@@ -357,9 +352,8 @@ view: order_descriptors {
       week_of_year
     ]
     sql: ${TABLE}.order_scheduled_at ;;
-    group_label: "Date / Time Information"
   }
-  
+
   dimension_group: order_scheduled_local {
     description: "Conversion of the same field to local time zone for the city"
     type: time
@@ -375,9 +369,8 @@ view: order_descriptors {
       week_of_year
     ]
     sql: ${TABLE}.order_scheduled_local_at ;;
-    group_label: "Date / Time Information"
   }
-  
+
   dimension_group: order_started {
     description:
     "Timestamp (UTC) indicating the moment at which an order started from the customer point of view.
@@ -398,9 +391,8 @@ view: order_descriptors {
       week_of_year
     ]
     sql: ${TABLE}.order_started_at ;;
-    group_label: "Date / Time Information"
   }
-  
+
   dimension_group: order_started_local {
     description: "Conversion of the same field to local time zone for the city"
     type: time
@@ -416,9 +408,8 @@ view: order_descriptors {
       week_of_year
     ]
     sql: ${TABLE}.order_started_local_at ;;
-    group_label: "Date / Time Information"
   }
-  
+
   dimension_group: order_terminated {
     description: "Timestamp (UTC) indicating the moment at which an order was terminated, that is if it was
     delivered it will be delivery time, if it was cancelled it will be cancelled time. This field
@@ -436,9 +427,8 @@ view: order_descriptors {
       week_of_year
     ]
     sql: ${TABLE}.order_terminated_at ;;
-    group_label: "Date / Time Information"
   }
-  
+
   dimension_group: order_terminated_local {
     description: "Conversion of the same field to local time zone for the city"
     type: time
@@ -453,78 +443,77 @@ view: order_descriptors {
       week_of_year
     ]
     sql: ${TABLE}.order_terminated_local_at ;;
-    group_label: "Date / Time Information"
   }
-  
+
 ########################################################################################################################################################################
-  
+
   filter: filter_bu_vertical {
     type: string
     suggest_dimension: order_vertical
     group_label: "BU Filters"
   }
-  
+
   filter: filter_bu_subvertical {
     type: string
     suggest_dimension: order_subvertical
     group_label: "BU Filters"
   }
-  
+
   filter: filter_bu_subvertical2 {
     type: string
     suggest_dimension: order_subvertical2
     group_label: "BU Filters"
   }
-  
+
   filter: filter_bu_subvertical3 {
     type: string
     suggest_dimension: order_subvertical3
     group_label: "BU Filters"
   }
-  
+
   filter: filter_bu_store_name {
     type: string
     suggest_dimension: store_name
     group_label: "BU Filters"
   }
-  
+
   filter: filter_bu_store_id {
     type: string
     suggest_dimension: store_id
     group_label: "BU Filters"
   }
-  
+
   dimension: all_BU_filter_satisfied {
     type: yesno
     hidden: yes
     sql: {% condition filter_bu_vertical %} ${order_vertical} {% endcondition %}
         AND
-         {% condition filter_bu_subvertical %} ${order_subvertical} {% endcondition %}   
+         {% condition filter_bu_subvertical %} ${order_subvertical} {% endcondition %}
         AND
-         {% condition filter_bu_subvertical2 %} ${order_subvertical2} {% endcondition %}   
+         {% condition filter_bu_subvertical2 %} ${order_subvertical2} {% endcondition %}
         AND
-         {% condition filter_bu_subvertical3 %} ${order_subvertical3} {% endcondition %}   
+         {% condition filter_bu_subvertical3 %} ${order_subvertical3} {% endcondition %}
         AND
-         {% condition filter_bu_store_name %} ${store_name} {% endcondition %}   
+         {% condition filter_bu_store_name %} ${store_name} {% endcondition %}
         AND
-         {% condition filter_bu_store_id %} ${store_id} {% endcondition %}   
+         {% condition filter_bu_store_id %} ${store_id} {% endcondition %}
          ;;
   }
-  
+
   measure: bu_number_of_delivered_orders {
     description: "Total delivered orders"
     type: count_distinct
     filters: [order_final_status: "DeliveredStatus", all_BU_filter_satisfied: "yes"]
     sql: ${TABLE}.order_id ;;
   }
-  
+
   measure: bu_number_of_delivered_orders_prime {
     description: "Total delivered orders"
     type: count_distinct
     filters: [order_final_status: "DeliveredStatus", all_BU_filter_satisfied: "yes",  order_is_prime: "yes"]
     sql: ${TABLE}.order_id ;;
   }
-  
+
   measure: bu_number_of_cancelled_orders {
     can_filter: no
     description: "Total cancelled orders"
@@ -532,7 +521,7 @@ view: order_descriptors {
     filters: [order_final_status: "CanceledStatus", all_BU_filter_satisfied: "yes"]
     sql: ${TABLE}.order_id ;;
   }
-  
+
   measure: bu_sum_total_purchase_eur {
     description: "Sum Total Order Purchase Eur"
     type: sum_distinct
@@ -540,7 +529,7 @@ view: order_descriptors {
     filters: [order_final_status: "DeliveredStatus", all_BU_filter_satisfied: "yes"]
     sql: ${TABLE}.order_total_purchase_eur ;;
   }
-  
+
   measure: bu_average_total_purchase_eur {
     description: "Average Total Order Purchase"
     type: average_distinct
@@ -548,9 +537,9 @@ view: order_descriptors {
     filters: [order_final_status: "DeliveredStatus", all_BU_filter_satisfied: "yes"]
     sql: ${TABLE}.order_total_purchase_eur ;;
   }
-  
+
 ########################################################################################################################################################################
-  
+
   dimension: order_total_purchase_eur {
     description: "Total price of the products bought for the order in major currency and euros. No
     fees are included here."
@@ -558,7 +547,7 @@ view: order_descriptors {
     value_format_name: eur
     sql: ${TABLE}.order_total_purchase_eur ;;
   }
-  
+
   dimension: order_total_purchase_local {
     description: "Total price of the products bought for the order in major currency and local currency. No
     fees are included here."
@@ -570,7 +559,7 @@ view: order_descriptors {
     html: {{order_currency._value}} {{ rendered_value }};;
     sql: ${TABLE}.order_total_purchase_local ;;
   }
-  
+
   dimension_group: delivery_duration {
     label: "Delivered Order Duration"
     type: duration
@@ -579,7 +568,7 @@ view: order_descriptors {
     sql_start: ${order_started_local_raw} ;;
     sql_end: ${order_terminated_local_raw} ;;
   }
-  
+
   dimension_group: order_created_delivery_duration {
     label: "Order Creation to Delivery Duration"
     type: duration
@@ -588,20 +577,14 @@ view: order_descriptors {
     sql_start: ${order_created_local_raw} ;;
     sql_end: ${order_terminated_local_raw} ;;
   }
-  
-  measure: count_of_store_address_id {
-    description: "Count of Store Address Ids with orders"
-    type: count_distinct
-    sql: ${TABLE}.store_address_id ;;
-  }
-  
+
   measure: number_of_orders {
     description: "Total orders"
     type: count_distinct
     sql: ${TABLE}.order_id ;;
     group_label: "Number of Orders"
   }
-  
+
   measure: count_of_first_orders {
     description: "Total first created orders"
     type: count_distinct
@@ -609,7 +592,7 @@ view: order_descriptors {
     sql: ${TABLE}.order_id ;;
     group_label: "Number of Orders"
   }
-  
+
   measure: count_of_first_delivered_orders {
     description: "Total first delivered orders"
     type: count_distinct
@@ -617,7 +600,7 @@ view: order_descriptors {
     sql: ${TABLE}.order_id ;;
     group_label: "Number of Orders"
   }
-  
+
   measure: number_of_delivered_orders {
     description: "Total delivered orders"
     type: count_distinct
@@ -625,7 +608,7 @@ view: order_descriptors {
     sql: ${TABLE}.order_id ;;
     group_label: "Number of Orders"
   }
-  
+
   measure: number_of_cancelled_orders {
     description: "Total cancelled orders"
     type: count_distinct
@@ -633,7 +616,7 @@ view: order_descriptors {
     sql: ${TABLE}.order_id ;;
     group_label: "Number of Orders"
   }
-  
+
   measure: number_of_cancelled_orders_due_to_partner {
     description: "Total cancelled orders due to partner, includes these reasons:
     STORE_CLOSED, PRODUCTS_NOT_AVAILABLE, STORE_CAN_NOT_DELIVER,
@@ -649,7 +632,7 @@ view: order_descriptors {
     sql: ${TABLE}.order_id ;;
     group_label: "Number of Orders"
   }
-  
+
   measure: number_of_cancelled_orders_due_to_partner_products_not_available {
     type: count_distinct
     description: "Total number of cancellations due to products not available"
@@ -660,7 +643,7 @@ view: order_descriptors {
     }
     group_label: "Number of Orders"
   }
-  
+
   measure: sum_total_purchase_eur {
     description: "Sum Total Order Purchase Eur"
     type: sum_distinct
@@ -671,7 +654,7 @@ view: order_descriptors {
     }
     sql: ${order_total_purchase_eur} ;;
   }
-  
+
   measure: sum_total_purchase_local {
     description: "Sum Total Order Purchase Local"
     # LAMS
@@ -687,14 +670,14 @@ view: order_descriptors {
     }
     sql: ${order_total_purchase_local} ;;
   }
-  
+
   measure: sum_total_estimated_purchase_eur {
     description: "Sum Total Estimated Order Purchase Eur"
     type: sum
     value_format_name: eur
     sql: ${TABLE}.order_estimated_purchase_eur ;;
   }
-  
+
   measure: average_total_purchase_eur {
     description: "Average Total Order Purchase"
     type: average_distinct
@@ -705,7 +688,7 @@ view: order_descriptors {
     }
     sql: ${order_total_purchase_eur} ;;
   }
-  
+
   measure: average_total_purchase_local {
     description: "Average Total Order Purchase Local"
     # LAMS
@@ -721,14 +704,14 @@ view: order_descriptors {
     }
     sql: ${order_total_purchase_local} ;;
   }
-  
+
   measure: percentage_of_cancelled_orders {
     description: "Percentage of cancelled orders"
     type: number
     value_format_name: percent_2
     sql: 1.0000 *  ${number_of_cancelled_orders} / nullif(${number_of_orders}, 0);;
   }
-  
+
   measure: percentage_cancelled_orders_due_to_partner {
     label: "Percentage of cancelled orders due to partner reasons"
     description: "Percentage of total orders cancelled due to partner, includes these reasons: STORE_CLOSED,
@@ -738,7 +721,7 @@ view: order_descriptors {
     value_format_name: percent_2
     sql: 1.0000 *  ${number_of_cancelled_orders_due_to_partner} / nullif(${number_of_orders}, 0);;
   }
-  
+
   measure: number_self_cancellation_less_5_min {
     type: number
     hidden: yes
@@ -755,7 +738,7 @@ view: order_descriptors {
         THEN ${order_id} ELSE NULL END
         ));;
   }
-  
+
   measure: hard_cancellation_number {
     label: "Number of Hard Cancellations"
     description: "Number of hard cancellations. It is calculated by subtracting numbe rof self-cancelled
@@ -763,7 +746,7 @@ view: order_descriptors {
     type: number
     sql: ${number_of_cancelled_orders} - ${number_self_cancellation_less_5_min};;
   }
-  
+
   measure: average_delivery_duration {
     label: "Average Delivered Order Duration"
     description: "Average duration of delivered orders"
@@ -771,66 +754,21 @@ view: order_descriptors {
     value_format_name: decimal_2
     sql: ${seconds_delivery_duration} / 60.00 ;;
   }
-  
-  measure: average_order_created_delivery_duration {
-    label: "Average Order Created to Delivery Duration"
-    description: "Average duration of delivered orders, from creation to delivery"
-    type: average
-    value_format_name: decimal_2
-    sql: ${seconds_delivery_duration} / 60.00 ;;
-  }
-  
+
   measure: number_of_customers_with_orders {
     description: "Number of all unique customers with delivered order."
     type: count_distinct
     filters: [order_final_status: "DeliveredStatus"]
     sql: ${customer_id} ;;
   }
-  
+
   measure: number_of_new_customers_with_orders {
     description: "Number of new customers with first order delivered"
     type: count_distinct
     filters: [order_is_first_delivered_order: "Yes"]
     sql: ${customer_id} ;;
   }
-  
-  measure: number_of_recurrent_customers_with_orders {
-    description: "Number of recurrent customers (that repeated the order)"
-    type: number
-    sql: ${number_of_customers_with_orders} - ${number_of_new_customers_with_orders};;
-  }
-  
-  measure: ratio_of_new_customers_to_recurrent_customers {
-    description: "Ratio of new customers to the recurrent customers."
-    type: number
-    value_format_name: decimal_2
-    sql: ${number_of_new_customers_with_orders} / nullif(${number_of_recurrent_customers_with_orders}, 0) ;;
-  }
-  
-  measure: percentage_of_new_customers {
-    description: "Percentage of new customers out of all customers with order made."
-    type: number
-    value_format_name: percent_1
-    sql: ${number_of_new_customers_with_orders} / nullif(${number_of_customers_with_orders}, 0);;
-  }
-  
-  measure: delivery_time_below_60 {
-    type: count_distinct
-    description: "Num. of orders with delivery duration below 60 minutes"
-    sql: CASE WHEN ${seconds_delivery_duration} / 60.00 < 60 THEN ${order_id} ELSE NULL END ;;
-    filters: {
-      field: order_final_status
-      value: "DeliveredStatus"
-    }
-  }
-  
-  measure: percentage_of_delivery_time_below_60 {
-    type: number
-    description: "Percentage of orders with delivery duration below 60 minutes"
-    value_format_name: percent_1
-    sql: 1.000 *  ${delivery_time_below_60} / nullif(${number_of_delivered_orders}, 0) ;;
-  }
-  
+
   dimension_group: p_creation {
     description: "Partition key for the table from the order_created_at field, in the form of '2022-06-04'"
     type: time
@@ -845,6 +783,5 @@ view: order_descriptors {
       year
     ]
     sql: ${TABLE}.p_creation_date ;;
-    group_label: "Date / Time Information"
   }
 }
