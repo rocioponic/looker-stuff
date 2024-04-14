@@ -4,10 +4,8 @@
 # CENTRAL
 
 /central_dm_cert/explores_cert/ @Glovo/looker-main-admins
-/central_dm_cert/explores_cert/financial_order_metrics.explore.lkml @Glovo/looker-main-admins
 /central_dm_cert/explores_cert/order_descriptors.explore.lkml @Glovo/looker-main-admins
 /central_dm_cert/explores_cert/order_feedback_facts.explore.lkml @Glovo/looker-main-admins
-
 
 
 /central_dm_cert/views_cert/ @Glovo/looker-main-admins
@@ -17,3 +15,42 @@
 /central_dm_cert/views_cert/order_descriptors.view.lkml @Glovo/looker-main-admins
 /central_dm_cert/views_cert/order_pna.view.lkml @Glovo/looker-main-admins
 /central_dm_cert/views_cert/ratings.view.lkml @Glovo/looker-main-admins
+
+
+# FINANCE_CERT
+/finance_dm_cert/ @Glovo/looker-main-admins
+
+# FINANCE
+
+/finance_dm_cert/explores_cert/ @Glovo/looker-main-admins
+/finance_dm_cert/explores_cert/financial_order_metrics.explore.lkml @Glovo/looker-main-admins
+
+
+/finance_dm_cert/views_cert/ @Glovo/looker-main-admins
+/finance_dm_cert/views_cert/financial_order_metrics.view.lkml @Glovo/looker-main-admins
+
+
+# MFC_CERT
+/mfc_dm_cert/ @Glovo/looker-main-admins
+
+# MFC
+
+# /mfc_dm_cert/explores_cert/ @Glovo/looker-main-admins
+# /mfc_dm_cert/explores_cert/.explore.lkml @Glovo/looker-main-admins
+
+
+/mfc_dm_cert/views_cert/ @Glovo/looker-main-admins
+/mfc_dm_cert/views_cert/mfc_store_addresses.view.lkml @Glovo/looker-main-admins
+
+# PARTNERS_CERT
+/partners_dm_cert/ @Glovo/looker-main-admins
+
+# PARTNERS
+
+# /partners_dm_cert/explores_cert/ @Glovo/looker-main-admins
+# /partners_dm_cert/explores_cert/.explore.lkml @Glovo/looker-main-admins
+
+
+/partners_dm_cert/views_cert/ @Glovo/looker-main-admins
+/partners_dm_cert/views_cert/stores.view.lkml @Glovo/looker-main-admins
+/partners_dm_cert/views_cert/store_addresses.view.lkml @Glovo/looker-main-admins
