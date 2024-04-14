@@ -65,7 +65,7 @@ view: financial_order_metrics {
     type: string
     sql: ${TABLE}.order_final_status ;;
   }
-  
+
   dimension: order_is_prime {
     description: "Flag indicating if the order is placed by a user with Prime benefits"
     type: yesno
