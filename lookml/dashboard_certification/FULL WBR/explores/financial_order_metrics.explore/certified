@@ -1,5 +1,6 @@
 # include all the views
 include: "/finance_dm/views/financial_order_metrics.view.lkml"
+include: "/finance_dm/views/courier_attributes.view.lkml"
 include: "/partners_dm/views/stores.view.lkml"
 
 explore: financial_order_metrics {
@@ -7,6 +8,12 @@ explore: financial_order_metrics {
 
   description: "FOM table aims to provide all relevant
     financial metrics and dimensions at order level granularity"
+
+  join: courier_attributes {
+    type: inner
+    sql_on: ${financial_order_metrics.courier_id} = ${courier_attributes.pk1_courier_id};;
+    relationship: many_to_many
+  }
 
   join: stores {
     type: left_outer
