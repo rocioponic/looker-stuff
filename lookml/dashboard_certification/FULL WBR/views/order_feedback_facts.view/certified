@@ -78,7 +78,7 @@ view: order_feedback_facts {
   dimension: origin {
     type: string
     description: "The origin of the feedback.
-      It can come from help, ongoing, ratings, support, profile, fraud_popup"
+    It can come from help, ongoing, ratings, support, profile, fraud_popup"
     sql: ${TABLE}.origin ;;
   }
 
@@ -91,16 +91,16 @@ view: order_feedback_facts {
   dimension: feedback_outcome {
     type: string
     description: "The different results of the feedback.
-      The outcome of the feedback. Possible values are: CALL_COURIER, CALL_PARTNER, CANCEL_AND_REORDER,
-      CANCEL_ORDER, CHAT_COURIER, CHAT_SUPPORT, CLOSE_CONTACT_TREE, EMAIL, FAQ, FORM, REDIRECT_WEB, REORDER,
-      SELF_REFUND,and TIMELINE"
+    The outcome of the feedback. Possible values are: CALL_COURIER, CALL_PARTNER, CANCEL_AND_REORDER,
+    CANCEL_ORDER, CHAT_COURIER, CHAT_SUPPORT, CLOSE_CONTACT_TREE, EMAIL, FAQ, FORM, REDIRECT_WEB, REORDER,
+    SELF_REFUND,and TIMELINE"
     sql: ${TABLE}.feedback_outcome ;;
   }
 
   dimension: contact_tree_variation {
     type: string
     description: "Type of contact of the feedback. Possible values are:
-      NOT_RELATED_TO_ORDER, ONGOING, PAST_ORDER"
+    NOT_RELATED_TO_ORDER, ONGOING, PAST_ORDER"
     sql: ${TABLE}.contact_tree_variation ;;
   }
 
@@ -108,7 +108,7 @@ view: order_feedback_facts {
     type: number
     label: "CSAT Score"
     description: "The score given in the Customer Satisfaction (CSAT) Survey triggered to customers after
-      using in-app solutions"
+    using in-app solutions"
     sql: ${TABLE}.csat_score ;;
   }
 
@@ -116,7 +116,7 @@ view: order_feedback_facts {
     type: number
     label: "CSAT Rating"
     description: "The 1 to 5 star-rating given in the Customer Satisfaction (CSAT)
-      Survey triggered to customers after using in-app solutions"
+    Survey triggered to customers after using in-app solutions"
     sql: ${TABLE}.csat_rating ;;
   }
 
@@ -124,7 +124,7 @@ view: order_feedback_facts {
     type: string
     label: "CSAT Score Type"
     description: "The sentiment of the score given in the Customer Satisfaction (CSAT) Survey triggered
-      to customers after using in-app solutions. Possible values are: Positive, Negative, Neutral"
+    to customers after using in-app solutions. Possible values are: Positive, Negative, Neutral"
     sql: ${TABLE}.csat_score_type ;;
   }
 
@@ -132,7 +132,7 @@ view: order_feedback_facts {
     type: string
     label: "CSAT Side"
     description: "The side where thumbs up appear in the CSAT Survey showed to the customer.
-      Possible values are: Right, Left"
+    Possible values are: Right, Left"
     sql: ${TABLE}.csat_side ;;
   }
 
@@ -140,7 +140,7 @@ view: order_feedback_facts {
     type: string
     label: "CSAT Reason"
     description: "The reason given by the customer in the CSAT Survey.
-      Possible values are: NoAgent, NotRelevant, TooManySteps"
+    Possible values are: NoAgent, NotRelevant, TooManySteps"
     sql: ${TABLE}.csat_reason ;;
   }
 
@@ -285,42 +285,10 @@ view: order_feedback_facts {
       / nullif(${order_descriptors.number_of_delivered_orders}, 0) ;;
   }
 
-  # Allergy not considered
-  measure: percentage_of_order_feedback_submitted_due_to_store_allergy_not_considered {
-    description: "Percentage of order feedback submitted over orders due to reason'
-      Allergy not considered'"
-    group_label: "Percentage of Orders with Feedback due to Store Related Reasons (Past Order)"
-    group_item_label: "Allergy not Considered"
-    type: number
-    value_format_name: percent_2
-    # LAMS
-    # rule_exemptions: {
-    # F1: "2023-08-23 - Field references another view as in order feedbacks"
-    # }
-    sql: 1.0000* ${number_of_order_feedback_allergy_not_considered}
-      / nullif(${order_descriptors.number_of_delivered_orders}, 0) ;;
-  }
-
-  # Charged wrong ammount
-  measure: percentage_of_order_feedback_submitted_due_to_store_charged_wrong_amount {
-    description: "Percentage of order feedback submitted over
-      orders due to reason charged wrong amount (store)"
-    group_label: "Percentage of Orders with Feedback due to Store Related Reasons (Past Order)"
-    group_item_label: "Charged Wrong Amount"
-    type: number
-    value_format_name: percent_2
-    # LAMS
-    # rule_exemptions: {
-    # F1: "2023-08-23 - Field references another view as in order feedbacks"
-    # }
-    sql: 1.0000* ${number_of_order_feedback_submitted_due_to_store_charged_wrong_amount}
-      / nullif(${order_descriptors.number_of_delivered_orders}, 0) ;;
-  }
-
   # Wrong or missing products
   measure: percentage_of_order_feedback_submitted_due_to_store_wrong_or_missing_products {
     description: "Percentage of order feedback submitted over orders due to reasons 'Wrong Products',
-      'Missing Products' or 'Missing Extras'"
+    'Missing Products' or 'Missing Extras'"
     group_label: "Percentage of Orders with Feedback due to Store Related Reasons (Past Order)"
     group_item_label: "Wrong or Missing Products"
     type: number
