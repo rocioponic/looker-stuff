@@ -1,0 +1,10 @@
+connection: "starburst"
+
+include: "/finance_dm/explores/*.explore.lkml"
+
+datagroup: financial_order_metrics_datagroup {
+  sql_trigger: select max(p_creation_date) from delta.finance_financial_metrics_odp.financial_order_metrics ;;
+  max_cache_age: "24 hours"
+  label: "New p_creation_date added"
+  description: "Triggered when financial metrics daily ETL is finished. Persists for 24 hours max"
+}
