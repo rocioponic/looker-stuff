@@ -1,0 +1,422 @@
+view: first_order_tag_derived {
+  derived_table: {
+    sql: WITH clean_num_orders AS (
+      SELECT customer_id
+      , od.order_id AS "first_tagged_order_id"
+      , od.store_id AS "first_tagged_order_store_id"
+      , od.store_name AS "first_tagged_order_store_name"
+      , od.order_subvertical AS "first_tagged_order_order_subvertical"
+      , od.order_subvertical2 AS "first_tagged_order_order_subvertical2"
+      , od.order_subvertical3 AS "first_tagged_order_order_subvertical3"
+      , stores_data.store_vertical AS "first_tagged_order_store_vertical"
+      , stores_data.store_subvertical AS "first_tagged_order_store_subvertical"
+      , stores_data.store_subvertical2 AS "first_tagged_order_store_subvertical2"
+      , stores_data.store_subvertical3 AS "first_tagged_order_store_subvertical3"
+      , od.order_total_purchase_eur AS "first_tagged_order_gmv_eur"
+      , od.order_is_first_delivered_order AS "first_tagged_order_first_delivered_glovo"
+      , od.order_started_local_at AS "first_tagged_order_start_local_at"
+      , od.order_activated_at AS "first_tagged_order_activated_at"
+      , od.order_activated_local_at  AS "first_tagged_order_activated_local_at"
+      , od.order_careated_local_at AS "first_tagged_order_created_local_at"
+      , od.order_terminated_at AS "first_tagged_order_terminated_local_at"
+      , od.order_city_code  AS "first_tagged_order_city_code"
+      , od.order_country_code AS "first_tagged_order_country_code"
+      , mfc_store_addresses.warehouse_name  AS "first_tagged_order_mfc_name"
+      , stores_data.store_sub_business_unit AS "first_tagged_order_sub_business_unit"
+      , CASE WHEN stores_data.store_subvertical != 'MFC'
+            AND stores_data.store_subvertical3 = 'Groceries'
+            AND stores_data.store_sub_business_unit NOT IN ('Convenience', 'Supermarket', 'Other')
+            THEN TRUE ELSE False END AS "first_tagged_order_is_specialty"
+      , ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY order_started_local_at) AS RN
+      FROM delta.central_order_descriptors_odp.order_descriptors_v2 AS od
+      LEFT JOIN delta.mfc_sales_odp.mfc_store_addresses_history AS mfc_store_addresses
+        ON mfc_store_addresses.store_address_id = od.store_address_id
+            AND mfc_store_addresses.valid_to >= CURRENT_DATE
+      LEFT JOIN (SELECT * FROM delta.partner_stores_odp.stores_v2 WHERE p_end_date IS NULL) AS stores_data
+        ON od.store_id = stores_data.store_id
+      WHERE
+        {% condition tag_order_city %}                od.order_city_code                  {% endcondition %}
+        AND {% condition tag_order_country %}         od.order_country_code               {% endcondition %}
+        AND {% condition tag_order_prime %}           od.order_is_prime                   {% endcondition %}
+        AND {% condition tag_order_vertical %}        od.order_vertical                   {% endcondition %}
+        AND {% condition tag_order_subvertical %}     od.order_subvertical                {% endcondition %}
+        AND {% condition tag_order_subvertical2 %}    od.order_subvertical2               {% endcondition %}
+        AND {% condition tag_order_subvertical3 %}    od.order_subvertical3               {% endcondition %}
+        AND {% condition tag_store_vertical %}        stores_data.store_vertical          {% endcondition %}
+        AND {% condition tag_store_subvertical %}     stores_data.store_subvertical       {% endcondition %}
+        AND {% condition tag_store_subvertical2 %}    stores_data.store_subvertical2      {% endcondition %}
+        AND {% condition tag_store_subvertical3 %}    stores_data.store_subvertical3      {% endcondition %}
+        AND {% condition tag_store_name %}            od.store_name                       {% endcondition %}
+        AND {% condition tag_store_id %}              od.store_id                         {% endcondition %}
+        AND {% condition tag_mfc_name %}              mfc_store_addresses.warehouse_name  {% endcondition %}
+        AND {% condition tag_sub_business_unit %}     stores_data.store_sub_business_unit {% endcondition %}
+        AND {% condition tag_is_specialties %}
+            CASE WHEN stores_data.store_subvertical != 'MFC'
+            AND stores_data.store_subvertical3 = 'Groceries'
+            AND stores_data.store_sub_business_unit NOT IN ('Convenience', 'Supermarket', 'Other')
+            THEN TRUE ELSE False END                                                      {% endcondition %}
+        AND od.order_final_status = 'DeliveredStatus'
+      ),
+      first_tagged_order_id_t AS (
+        SELECT *
+        FROM clean_num_orders
+        WHERE RN = 1
+      ),
+      tagged_customer_info AS ( SELECT od.customer_id AS "customer_id"
+        , COUNT(DISTINCT
+            CASE WHEN od.order_final_status = 'DeliveredStatus'
+              THEN od.order_id ELSE NULL END) AS "orders_before_tagged_order"
+      FROM delta.central_order_descriptors_odp.order_descriptors_v2 AS od
+      LEFT JOIN first_tagged_order_id_t
+        ON od.customer_id = first_tagged_order_id_t.customer_id
+        AND od.order_started_local_at < first_tagged_order_id_t.first_tagged_order_start_local_at
+      GROUP BY 1
+      ) SELECT first_tagged_order_id_t.*
+        , date_diff('second', first_tagged_order_activated_local_at, first_tagged_order_terminated_local_at)
+        / 60 as "first_tagged_order_delivery_time"
+        , tagged_customer_info.orders_before_tagged_order AS "delivered_orders_before_tagged_order"
+        FROM first_tagged_order_id_t
+        LEFT JOIN tagged_customer_info
+          ON first_tagged_order_id_t.customer_id = tagged_customer_info.customer_id ;;
+  }
+
+  dimension: pk_id {
+    description: "Primary Key"
+    type: number
+    primary_key: yes
+    hidden: yes
+    sql: ${TABLE}.customer_id ;;
+  }
+
+  dimension: customer_id {
+    description: "The user that placed at least one order given selected filters"
+    type: number
+    sql: ${TABLE}.customer_id ;;
+  }
+
+  dimension: first_tagged_order_id {
+    type: number
+    description: "First Order ID in Glovo for the filtered tag. The user may have orders before this one"
+    sql: ${TABLE}.first_tagged_order_id ;;
+  }
+
+  dimension: first_tagged_order_store_id {
+    type: number
+    description: "Store ID of the first Tagged Order"
+    sql: ${TABLE}.first_tagged_order_store_id ;;
+  }
+
+  dimension: first_tagged_order_store_name {
+    type: string
+    description: "Store Name of the first Tagged Order"
+    sql: ${TABLE}.first_tagged_order_store_name ;;
+  }
+
+  dimension: first_tagged_order_order_subvertical {
+    type: string
+    description: "Order subvertical of the first Tagged Order"
+    sql: ${TABLE}.first_tagged_order_order_subvertical ;;
+  }
+
+  dimension: first_tagged_order_order_subvertical2 {
+    type: string
+    description: "Order subvertical2 of the first Tagged Order"
+    sql: ${TABLE}.first_tagged_order_order_subvertical2 ;;
+  }
+
+  dimension: first_tagged_order_order_subvertical3 {
+    type: string
+    description: "Order subvertical3 Name of the first Tagged Order"
+    sql: ${TABLE}.first_tagged_order_order_subvertical3 ;;
+  }
+
+  dimension: first_tagged_order_store_vertical {
+    type: string
+    description: "Store vertical of the first Tagged Order"
+    sql: ${TABLE}.first_tagged_order_store_vertical ;;
+  }
+
+  dimension: first_tagged_order_store_subvertical {
+    type: string
+    description: "Store subvertical of the first Tagged Order"
+    sql: ${TABLE}.first_tagged_order_store_subvertical ;;
+  }
+
+  dimension: first_tagged_order_store_subvertical2 {
+    type: string
+    description: "Store subvertical2 of the first Tagged Order"
+    sql: ${TABLE}.first_tagged_order_store_subvertical2 ;;
+  }
+
+  dimension: first_tagged_order_store_subvertical3 {
+    type: string
+    description: "Store subvertical3 Name of the first Tagged Order"
+    sql: ${TABLE}.first_tagged_order_store_subvertical3 ;;
+  }
+
+  dimension: first_tagged_order_city_code {
+    type: string
+    description: "City code where the first Tagged Order was placed"
+    sql: ${TABLE}.first_tagged_order_city_code ;;
+  }
+
+  dimension: first_tagged_order_country_code {
+    type: string
+    description: "Country code where the first Tagged Order was placed"
+    sql: ${TABLE}.first_tagged_order_country_code ;;
+  }
+
+  dimension: first_tagged_order_mfc_name {
+    type: string
+    description: "MFC Name (if is MFC order) of the first Tagged Order"
+    sql: ${TABLE}.first_tagged_order_mfc_name ;;
+  }
+
+  dimension: first_tagged_order_sub_business_unit {
+    type: string
+    description: "Sub Business Unit of the first Tagged Order"
+    sql: ${TABLE}.first_tagged_order_sub_business_unit ;;
+  }
+
+  dimension: first_tagged_order_is_specialty {
+    type: yesno
+    description: "The first Tagged Order is in a Specialty Store?"
+    sql: ${TABLE}.first_tagged_order_is_specialty ;;
+  }
+
+  dimension: first_tagged_order_first_delivered_glovo {
+    type: yesno
+    description: "Is first tagged order the first order delivered in Glovo?"
+    sql: ${TABLE}.first_tagged_order_first_delivered_glovo ;;
+  }
+
+  dimension_group: first_tagged_order_local_at {
+    label: "First Tagged Order Activation Local Time"
+    type: time
+    description: "First Tagged Order Activation Local Time"
+    timeframes: [
+      raw,
+      time,
+      hour_of_day,
+      date,
+      day_of_week,
+      week,
+      month,
+      quarter,
+      year,
+      week_of_year,
+      month_num,
+      fiscal_month_num,
+      day_of_month
+    ]
+    sql: ${TABLE}.first_tagged_order_activated_local_at ;;
+  }
+
+  dimension_group: first_tagged_order_at {
+    label: "First Tagged Order Activation Time"
+    type: time
+    description:  "First Tagged Order Activation Time"
+    timeframes: [
+      raw,
+      time,
+      hour_of_day,
+      date,
+      day_of_week,
+      week,
+      month,
+      quarter,
+      year,
+      week_of_year,
+      month_num,
+      fiscal_month_num,
+      day_of_month
+    ]
+    sql: ${TABLE}.first_tagged_order_activated_at ;;
+  }
+
+  dimension: first_tagged_order_delivery_time {
+    type: number
+    description: "Delivery time (in minutes) of the first tagged order"
+    sql: ${TABLE}.first_tagged_order_delivery_time ;;
+  }
+
+  dimension: delivered_orders_before_tagged_order {
+    type: number
+    description: "Number of delivered orders PREVIOUS to the first order that fullfills de filters"
+    sql: ${TABLE}.delivered_orders_before_tagged_order ;;
+  }
+
+  dimension: first_tagged_order_gmv_eur {
+    type: number
+    value_format_name: eur
+    description: "GMV of the first tagged order"
+    sql: ${TABLE}.first_tagged_order_gmv_eur ;;
+  }
+
+  dimension: order_is_tag_first_order {
+    description: "Tag to identify the first tagged order"
+    type: yesno
+    sql: ${first_order_tag_derived.first_tagged_order_id} =
+      ${order_descriptors.order_id} ;;
+    # LAMS
+    # rule_exemptions: {
+    # F1: "2024-04-08 - We need to reference this view to avoid more joins"
+    # }
+  }
+
+  dimension: order_is_tag_NC_activation_day {
+    description: "Is the order placed in the same day that
+      the user got its first tagged order ACTIVATED?"
+    type: yesno
+    sql: ${first_order_tag_derived.first_tagged_order_local_at_date} =
+      ${order_descriptors.order_activated_local_date} ;;
+    # LAMS
+    # rule_exemptions: {
+    # F1: "2024-04-08 - We need to reference this view to avoid more joins"
+    # }
+  }
+
+  dimension: order_is_tag_NC_activation_week {
+    description: "Is the order placed in the same week that
+      the user got its first tagged order ACTIVATED?"
+    type: yesno
+    sql: ${first_order_tag_derived.first_tagged_order_local_at_week} =
+      ${order_descriptors.order_activated_local_week};;
+    # LAMS
+    # rule_exemptions: {
+    # F1: "2024-04-08 - We need to reference this view to avoid more joins"
+    # }
+  }
+
+  dimension: order_is_tag_NC_activation_month {
+    description: "Is the order placed in the same month that
+      the user got its first tagged order ACTIVATED?"
+    type: yesno
+    sql: ${first_order_tag_derived.first_tagged_order_local_at_month} =
+      ${order_descriptors.order_activated_local_month};;
+    # LAMS
+    # rule_exemptions: {
+    # F1: "2024-04-08 - We need to reference this view to avoid more joins"
+    # }
+  }
+
+  filter: tag_order_prime {
+    description: "Filter orders to consider if they were prime?"
+    type: yesno
+  }
+
+  filter: tag_order_city {
+    description: "Filter orders to consider by city?"
+    type: string
+  }
+
+  filter: tag_order_country {
+    description: "Filter orders to consider by country?"
+    type: string
+  }
+
+  filter: tag_order_vertical {
+    description: "Filter orders to consider by order vertical? (Food, QCommerce, Laas)"
+    type: string
+  }
+
+  filter: tag_order_subvertical {
+    description: "Filter orders to consider by order subvertical?
+      (12/12/2022 : Courier, Food-Food, Food-Other, MFC, ON-Demand, QCPartners, Quiero)"
+    type: string
+  }
+
+  filter: tag_order_subvertical2 {
+    description: "Filter orders to consider by order subvertical2?
+      (12/12/2022 : Courier, Food-Food, Food-Other, Groceries, MFC,
+      On-Demand-Food, On-Demand-Other, Quiero, Retail)"
+    type: string
+  }
+
+  filter: tag_order_subvertical3 {
+    description: "Filter orders to consider by order subvertical3?
+      (12/12/2022 : Courier, Food-Food, Food-Other, Groceries, Health, MFC,
+      On-Demand-Food, On-Demand-Other, Quiero, Shops, Smoking)"
+    type: string
+  }
+
+  filter: tag_store_vertical {
+    description: "Filter orders to consider by store vertical? (Food, QCommerce, Laas)"
+    type: string
+  }
+
+  filter: tag_store_subvertical {
+    description: "Filter orders to consider by store subvertical?
+      (12/12/2022 : Courier, Food-Food, Food-Other, MFC, ON-Demand, QCPartners)"
+    type: string
+  }
+
+  filter: tag_store_subvertical2 {
+    description: "Filter orders to consider by store subvertical2?
+      (12/12/2022 : Courier, Food-Food, Food-Other, Groceries, MFC,
+      On-Demand-Food, On-Demand-Other, Retail)"
+    type: string
+  }
+
+  filter: tag_store_subvertical3 {
+    description: "Filter orders to consider by store subvertical3?
+      (12/12/2022 : Courier, Food-Food, Food-Other, Groceries, Health, MFC,
+      On-Demand-Food, On-Demand-Other, Shops, Smoking)"
+    type: string
+  }
+
+  filter: tag_store_name {
+    description: "Filter orders to consider by specific store names?"
+    type: string
+  }
+
+  filter: tag_store_id {
+    description: "Filter orders to consider by specific store IDs?"
+    type: string
+  }
+
+  filter: tag_mfc_name {
+    description: "Filter orders to consider by specific MFC Name?"
+    type: string
+  }
+
+  filter: tag_sub_business_unit {
+    description: "Filter orders to consider by specific Sub Business Unit?"
+    type: string
+  }
+
+  filter: tag_is_specialties {
+    description: "Filter orders to consider if they are or not placed in Specialties?"
+    type: yesno
+  }
+
+  measure: count_NC_activation_week {
+    type: count_distinct
+    description: "Count active users that the first tagged order was ACTIVATED that
+      specific week.
+
+      NOTE: To define first tagged order we use the Tag {####} filters,
+      to count users we use the other filters in addition to that
+      the first tagged order was on the same week that you consider."
+    sql: CASE WHEN ${first_order_tag_derived.first_tagged_order_local_at_week} =
+          ${order_descriptors.order_activated_local_week}
+                             THEN ${first_order_tag_derived.customer_id}
+                        ELSE null END ;;
+    # LAMS
+    # rule_exemptions: {
+    # F1: "2024-04-08 - We need to reference this view to avoid more joins"
+    # }
+  }
+
+  measure:count_NCs {
+    type: count_distinct
+    description: "Count users that placed its first tagged order in the time/location/BU
+      that you're showing.
+
+      NOTE: This count all the orders that are the first tagged order, considering
+      the Tag {####} filters"
+    sql: CASE WHEN ${order_is_tag_first_order}
+                             THEN ${first_order_tag_derived.customer_id}
+                        ELSE null END ;;
+  }
+}
