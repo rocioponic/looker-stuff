@@ -266,7 +266,7 @@ view: first_order_tag_derived {
 
   dimension: order_is_tag_NC_activation_day {
     description: "Is the order placed in the same day that
-      the user got its first tagged order ACTIVATED?"
+    the user got its first tagged order ACTIVATED?"
     type: yesno
     sql: ${first_order_tag_derived.first_tagged_order_local_at_date} =
       ${order_descriptors.order_activated_local_date} ;;
@@ -278,7 +278,7 @@ view: first_order_tag_derived {
 
   dimension: order_is_tag_NC_activation_week {
     description: "Is the order placed in the same week that
-      the user got its first tagged order ACTIVATED?"
+    the user got its first tagged order ACTIVATED?"
     type: yesno
     sql: ${first_order_tag_derived.first_tagged_order_local_at_week} =
       ${order_descriptors.order_activated_local_week};;
@@ -290,7 +290,7 @@ view: first_order_tag_derived {
 
   dimension: order_is_tag_NC_activation_month {
     description: "Is the order placed in the same month that
-      the user got its first tagged order ACTIVATED?"
+    the user got its first tagged order ACTIVATED?"
     type: yesno
     sql: ${first_order_tag_derived.first_tagged_order_local_at_month} =
       ${order_descriptors.order_activated_local_month};;
@@ -322,21 +322,21 @@ view: first_order_tag_derived {
 
   filter: tag_order_subvertical {
     description: "Filter orders to consider by order subvertical?
-      (12/12/2022 : Courier, Food-Food, Food-Other, MFC, ON-Demand, QCPartners, Quiero)"
+    (12/12/2022 : Courier, Food-Food, Food-Other, MFC, ON-Demand, QCPartners, Quiero)"
     type: string
   }
 
   filter: tag_order_subvertical2 {
     description: "Filter orders to consider by order subvertical2?
-      (12/12/2022 : Courier, Food-Food, Food-Other, Groceries, MFC,
-      On-Demand-Food, On-Demand-Other, Quiero, Retail)"
+    (12/12/2022 : Courier, Food-Food, Food-Other, Groceries, MFC,
+    On-Demand-Food, On-Demand-Other, Quiero, Retail)"
     type: string
   }
 
   filter: tag_order_subvertical3 {
     description: "Filter orders to consider by order subvertical3?
-      (12/12/2022 : Courier, Food-Food, Food-Other, Groceries, Health, MFC,
-      On-Demand-Food, On-Demand-Other, Quiero, Shops, Smoking)"
+    (12/12/2022 : Courier, Food-Food, Food-Other, Groceries, Health, MFC,
+    On-Demand-Food, On-Demand-Other, Quiero, Shops, Smoking)"
     type: string
   }
 
@@ -347,21 +347,21 @@ view: first_order_tag_derived {
 
   filter: tag_store_subvertical {
     description: "Filter orders to consider by store subvertical?
-      (12/12/2022 : Courier, Food-Food, Food-Other, MFC, ON-Demand, QCPartners)"
+    (12/12/2022 : Courier, Food-Food, Food-Other, MFC, ON-Demand, QCPartners)"
     type: string
   }
 
   filter: tag_store_subvertical2 {
     description: "Filter orders to consider by store subvertical2?
-      (12/12/2022 : Courier, Food-Food, Food-Other, Groceries, MFC,
-      On-Demand-Food, On-Demand-Other, Retail)"
+    (12/12/2022 : Courier, Food-Food, Food-Other, Groceries, MFC,
+    On-Demand-Food, On-Demand-Other, Retail)"
     type: string
   }
 
   filter: tag_store_subvertical3 {
     description: "Filter orders to consider by store subvertical3?
-      (12/12/2022 : Courier, Food-Food, Food-Other, Groceries, Health, MFC,
-      On-Demand-Food, On-Demand-Other, Shops, Smoking)"
+    (12/12/2022 : Courier, Food-Food, Food-Other, Groceries, Health, MFC,
+    On-Demand-Food, On-Demand-Other, Shops, Smoking)"
     type: string
   }
 
@@ -393,11 +393,11 @@ view: first_order_tag_derived {
   measure: count_NC_activation_week {
     type: count_distinct
     description: "Count active users that the first tagged order was ACTIVATED that
-      specific week.
+    specific week.
 
-      NOTE: To define first tagged order we use the Tag {####} filters,
-      to count users we use the other filters in addition to that
-      the first tagged order was on the same week that you consider."
+    NOTE: To define first tagged order we use the Tag {####} filters,
+    to count users we use the other filters in addition to that
+    the first tagged order was on the same week that you consider."
     sql: CASE WHEN ${first_order_tag_derived.first_tagged_order_local_at_week} =
           ${order_descriptors.order_activated_local_week}
                              THEN ${first_order_tag_derived.customer_id}
@@ -406,17 +406,17 @@ view: first_order_tag_derived {
     # rule_exemptions: {
     # F1: "2024-04-08 - We need to reference this view to avoid more joins"
     # }
-  }
+    }
 
-  measure:count_NCs {
-    type: count_distinct
-    description: "Count users that placed its first tagged order in the time/location/BU
+    measure: count_NCs {
+      type: count_distinct
+      description: "Count users that placed its first tagged order in the time/location/BU
       that you're showing.
 
       NOTE: This count all the orders that are the first tagged order, considering
       the Tag {####} filters"
-    sql: CASE WHEN ${order_is_tag_first_order}
+      sql: CASE WHEN ${order_is_tag_first_order}
                              THEN ${first_order_tag_derived.customer_id}
                         ELSE null END ;;
+    }
   }
-}
