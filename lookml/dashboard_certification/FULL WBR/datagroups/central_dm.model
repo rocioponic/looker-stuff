@@ -13,3 +13,10 @@ datagroup: order_descriptors_datagroup {
   description: "Triggered when order descriptors v2 ETL is finished. Persists for max 24h"
 }
 
+datagroup: data_product_pna_orders_info {
+  sql_trigger: select max(p_creation_date)
+    from delta.central__pna_orders__odp.pna_orders_info ;;
+  max_cache_age: "6 hours"
+  label: "New p_creation_date added"
+  description: "Triggered when quality score ETL is finished. Persists for max 6h"
+}
