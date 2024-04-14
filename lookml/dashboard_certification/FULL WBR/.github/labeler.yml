@@ -1,0 +1,3 @@
+d/contact_cert:
+  - central_dm_cert/*
+  - central_dm_cert/**/*
