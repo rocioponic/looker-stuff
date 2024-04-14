@@ -1,0 +1,370 @@
+view: stores {
+  sql_table_name: delta.partner_stores_odp.stores_v2 ;;
+
+  dimension: pk2_store_id {
+    description: "pk_store_id"
+    type: number
+    sql: ${TABLE}.store_id ;;
+    hidden: yes
+  }
+
+  dimension: pk2_p_end_date {
+    description: "Foreign key & Partition column: End date.
+      The newest row per store is the one with this field NULL"
+    type: string
+    hidden: yes
+    sql: ${TABLE}.p_end_date ;;
+  }
+
+  dimension: compound_store_id_p_end_date {
+    type: string
+    description: "Primary Key: store id and end date"
+    primary_key: yes
+    hidden: yes
+    sql: CONCAT_WS(' | ', CAST(${TABLE}.store_id AS varchar), CAST(${TABLE}.p_end_date AS varchar)) ;;
+  }
+
+  dimension: p_end_date {
+    description: "Partition column: End date.
+      The newest row per store is the one with this field NULL"
+    type: string
+    sql: ${TABLE}.p_end_date ;;
+  }
+
+  dimension: store_id {
+    description: "ID of the store"
+    type: number
+    sql: ${TABLE}.store_id ;;
+  }
+
+  dimension: store_name {
+    description: "Name of the store"
+    type: string
+    sql: ${TABLE}.store_name ;;
+  }
+
+  dimension: store_is_enabled {
+    description: "Store is enabled"
+    type: yesno
+    sql: ${TABLE}.store_is_enabled ;;
+  }
+
+  dimension: store_is_deleted {
+    description: "Store is deleted"
+    type: yesno
+    sql: ${TABLE}.store_is_deleted ;;
+  }
+
+  dimension: store_is_hidden {
+    description: "Store is hidden"
+    type: yesno
+    sql: ${TABLE}.store_is_hidden ;;
+  }
+
+  dimension: city_code {
+    description: "Store city code"
+    type: string
+    sql: ${TABLE}.city_code ;;
+  }
+
+  dimension: overridden_wall_position {
+    description: "Overridden wall position"
+    type: number
+    sql: ${TABLE}.overridden_wall_position ;;
+  }
+
+  dimension: store_is_exclusive {
+    description: "Store is exclusively in Glovo"
+    type: yesno
+    sql: ${TABLE}.store_is_exclusive_glovo ;;
+  }
+
+  dimension: disable_reason {
+    description: "Disable reason"
+    type: string
+    sql: ${TABLE}.disable_reason ;;
+  }
+
+  dimension: store_scheduling_enabled {
+    description: "Scheduling enabled"
+    type: yesno
+    sql: ${TABLE}.store_scheduling_enabled ;;
+  }
+
+  dimension: self_refund_policy {
+    description: "Self-refund policy"
+    type: string
+    sql: ${TABLE}.self_refund_policy ;;
+  }
+
+  dimension: store_vertical {
+    description: "Store vertical"
+    type: string
+    sql: ${TABLE}.store_vertical ;;
+  }
+
+  dimension: stores_is_enabled_for_management_portal {
+    description: "Establisehd if Store is enabled for Management Portal"
+    type: yesno
+    sql: coalesce(${TABLE}.stores_is_enabled_for_management_portal, true) ;;
+  }
+
+  dimension: store_category_id {
+    description: "Store category id"
+    type: number
+    sql: ${TABLE}.store_category_id ;;
+  }
+
+  dimension: store_category_name {
+    description: "Store category name"
+    type: string
+    sql: ${TABLE}.store_category_name ;;
+  }
+
+  dimension: store_category_type {
+    description: "Store category type"
+    type: string
+    sql: ${TABLE}.store_category_type ;;
+  }
+
+  dimension: mother_store_id {
+    description: "ID of Mother Store"
+    type: number
+    sql: ${TABLE}.mother_store_id ;;
+  }
+
+  dimension: store_is_virtual_brand {
+    description: "Estabblishes if Store is a virtual brand"
+    type: yesno
+    sql: ${TABLE}.store_is_virtual_brand ;;
+  }
+
+  dimension: store_maximum_delivery_distance {
+    description: "Maximum delivery distance of the store"
+    type: number
+    sql: ${TABLE}.store_maximum_delivery_distance ;;
+  }
+
+  dimension_group: start_date {
+    description: "Start"
+    type: time
+    timeframes: [
+      raw,
+      date,
+      week,
+      month,
+      quarter,
+      year
+    ]
+    convert_tz: no
+    sql: ${TABLE}.start_date ;;
+  }
+
+  dimension_group: end_date {
+    description: "End date"
+    type: time
+    timeframes: [
+      raw,
+      date,
+      week,
+      month,
+      quarter,
+      year
+    ]
+    convert_tz: no
+    sql: ${TABLE}.end_date ;;
+  }
+
+  dimension_group: creation_time {
+    description: "Creation time"
+    type: time
+    timeframes: [
+      raw,
+      date,
+      week,
+      month,
+      quarter,
+      year
+    ]
+    convert_tz: no
+    datatype: date
+    sql: ${TABLE}.creation_time ;;
+  }
+
+  dimension_group: go_live_time {
+    description: "Go live time"
+    type: time
+    timeframes: [
+      raw,
+      date,
+      week,
+      month,
+      quarter,
+      year
+    ]
+    convert_tz: no
+    sql: ${TABLE}.go_live_time ;;
+  }
+
+  dimension: store_subvertical {
+    description: "Store Sub-Vertical:
+      'QCPartners', 'MFC', 'Food - Food', 'Food - Other'..."
+    label: "Store Sub-Vertical"
+    type: string
+    sql: ${TABLE}.store_subvertical ;;
+  }
+
+  dimension: store_subvertical2 {
+    description: "Store Sub-Vertical 2:
+      'Groceries', 'Retail', 'Food - Food', 'Food - Other'..."
+    label: "Store Sub-Vertical 2"
+    type: string
+    sql: ${TABLE}.store_subvertical2 ;;
+  }
+
+  dimension: store_subvertical3 {
+    description: "Store Sub-Vertical 3:
+      'Health', 'Groceries', 'Smoking', 'Shops', 'Food - Food', 'Food - Other'..."
+    label: "Store Sub-Vertical 3"
+    type: string
+    sql: ${TABLE}.store_subvertical3 ;;
+  }
+
+  dimension: store_sub_business_unit {
+    description: "Store Sub Business Unit: Supermarket, Flowers, Sex Shop, Beauty and
+      Personal Care, Vapes, Fashion, Pharmacy OTC, Pharapharmacy..."
+    label: "Store Sub-Business Unit"
+    type: string
+    sql: CASE
+             WHEN ${TABLE}.store_sub_business_unit = 'Alcohol' THEN 'ALCOHOL'
+             WHEN ${TABLE}.store_sub_business_unit = 'Automotive' THEN 'AUTOMOTIVE'
+             WHEN ${TABLE}.store_sub_business_unit = 'Bakery & Pastry' THEN 'BAKERY_PASTRY'
+             WHEN ${TABLE}.store_sub_business_unit = 'Beauty and Personal Care' THEN 'BEAUTY_PERSONAL_CARE'
+             WHEN ${TABLE}.store_sub_business_unit = 'Books' THEN 'BOOKS'
+             WHEN ${TABLE}.store_sub_business_unit = 'Butchery & Charcuterie' THEN 'BUTCHERY_CHARCUTERIE'
+             WHEN ${TABLE}.store_sub_business_unit = 'CBD' THEN 'CBD'
+             WHEN ${TABLE}.store_sub_business_unit = 'Coffee & Tea' THEN 'COFFEE_TEA'
+             WHEN ${TABLE}.store_sub_business_unit = 'Convenience' THEN 'CONVENIENCE'
+             WHEN ${TABLE}.store_sub_business_unit = 'Covid Test' THEN 'COVID_TEST'
+             WHEN ${TABLE}.store_sub_business_unit = 'Dairy Products' THEN 'DAIRY_PRODUCTS'
+             WHEN ${TABLE}.store_sub_business_unit = 'Electronics' THEN 'ELECTRONICS'
+             WHEN ${TABLE}.store_sub_business_unit = 'Fashion' THEN 'FASHION'
+             WHEN ${TABLE}.store_sub_business_unit = 'Fishery' THEN 'FISHERY'
+             WHEN ${TABLE}.store_sub_business_unit = 'Flowers' THEN 'FLOWERS'
+             WHEN ${TABLE}.store_sub_business_unit = 'Frozen Food' THEN 'FROZEN_FOOD'
+             WHEN ${TABLE}.store_sub_business_unit = 'Fruits and Vegetables' THEN 'FRUITS_VEGETABLES'
+             WHEN ${TABLE}.store_sub_business_unit = 'Gourmet' THEN 'GOURMET'
+             WHEN ${TABLE}.store_sub_business_unit = 'Home and decoration' THEN 'HOME_DECORATION'
+             WHEN ${TABLE}.store_sub_business_unit = 'Industrial' THEN 'INDUSTRIAL'
+             WHEN ${TABLE}.store_sub_business_unit = 'International' THEN 'INTERNATIONAL'
+             WHEN ${TABLE}.store_sub_business_unit = 'Jewelry' THEN 'JEWELRY'
+             WHEN ${TABLE}.store_sub_business_unit = 'Kids and Babies' THEN 'KIDS_BABIES'
+             WHEN ${TABLE}.store_sub_business_unit = 'Local Market' THEN 'LOCAL_MARKET'
+             WHEN ${TABLE}.store_sub_business_unit = 'Organic & Bio' THEN 'ORGANIC_BIO'
+             WHEN ${TABLE}.store_sub_business_unit = 'Other' THEN 'OTHER'
+             WHEN ${TABLE}.store_sub_business_unit = 'Parapharmacy' THEN 'PARA_PHARMACY'
+             WHEN ${TABLE}.store_sub_business_unit = 'Pets' THEN 'PETS'
+             WHEN ${TABLE}.store_sub_business_unit = 'Pharmacy OTC' THEN 'PHARMACY_OTC'
+             WHEN ${TABLE}.store_sub_business_unit = 'Pharmacy RX' THEN 'PHARMACY_RX'
+             WHEN ${TABLE}.store_sub_business_unit = 'Services' THEN 'SERVICES'
+             WHEN ${TABLE}.store_sub_business_unit = 'Sex shop' THEN 'SEX_SHOP'
+             WHEN ${TABLE}.store_sub_business_unit = 'Sports & Outdoors' THEN 'SPORTS_OUTDOORS'
+             WHEN ${TABLE}.store_sub_business_unit = 'Stationery and DIY' THEN 'STATIONERY_DIY'
+             WHEN ${TABLE}.store_sub_business_unit = 'Supermarket' THEN 'SUPERMARKET'
+             WHEN ${TABLE}.store_sub_business_unit = 'Sweets' THEN 'SWEETS'
+             WHEN ${TABLE}.store_sub_business_unit = 'Tobacco Heated Products' THEN 'TOBACCO_HEATED_PRODUCTS'
+             WHEN ${TABLE}.store_sub_business_unit = 'Toys and Games' THEN 'TOYS_GAMES'
+             WHEN ${TABLE}.store_sub_business_unit = 'Traditional Tobacco' THEN 'TRADITIONAL_TOBACCO'
+             WHEN ${TABLE}.store_sub_business_unit = 'Travel equipment' THEN 'TRAVEL_EQUIPMENT'
+             WHEN ${TABLE}.store_sub_business_unit = 'Vapes' THEN 'VAPES'
+             WHEN ${TABLE}.store_sub_business_unit = 'Vision' THEN 'VISION'
+             WHEN ${TABLE}.store_sub_business_unit = 'Wellness' THEN 'WELLNESS'
+             WHEN ${TABLE}.store_sub_business_unit = 'Fake' THEN 'FAKE'
+             WHEN ${TABLE}.store_sub_business_unit = 'Movies, TV &  and Music' THEN 'MOVIES_TV_MUSIC'
+             WHEN ${TABLE}.store_sub_business_unit = 'Video Games' THEN 'VIDEO_GAMES'
+             WHEN ${TABLE}.store_sub_business_unit = 'Water & Gas' THEN 'WATER_GAS'
+            ELSE ${TABLE}.store_sub_business_unit END ;;
+  }
+
+  dimension: is_specialty {
+    description: "If the store is a Specialties store.
+      (All Groceries stores except 'Convenience', 'Supermarket', and 'Other' Sub-Business units
+      and MFCs)"
+    type: yesno
+    sql: CASE WHEN (${store_subvertical} = 'QCPartners'
+               AND ${store_subvertical2} = 'Groceries'
+               AND ${TABLE}.store_sub_business_unit NOT IN (
+                    'Convenience', 'Supermarket', 'Other', 'Fake',
+                    'CONVENIENCE', 'OTHER', 'SUPERMARKET', 'FAKE'
+                    )
+                  )
+               THEN True ELSE False END ;;
+  }
+
+  dimension: brand_id {
+    description: "Brand id"
+    type: number
+    sql: ${TABLE}.brand_id ;;
+  }
+
+  dimension: is_products_section_enabled {
+    description: "If the manager id has the product section enabled"
+    type: yesno
+    sql: ${TABLE}.is_products_section_enabled ;;
+  }
+
+  dimension: is_invoices_section_enabled {
+    description: "If the manager id has the invoices section enabled"
+    type: yesno
+    sql: ${TABLE}.is_invoices_section_enabled ;;
+  }
+
+  dimension: is_promos_section_enabled {
+    description: "If the manager id has the promos section enabled"
+    type: yesno
+    sql: ${TABLE}.is_promos_section_enabled ;;
+  }
+
+  dimension: store_view_type {
+    description: "View type of the store (LEGACY / GRID / LIST or can be empty when not available)"
+    type: string
+    sql: ${TABLE}.store_view_type ;;
+  }
+
+  dimension: store_image_logo_id {
+    description: "Image ID of the Store Logo"
+    type: string
+    sql: ${TABLE}.store_logo_image_id ;;
+  }
+
+  dimension: store_is_in_store_prices_enabled {
+    description: "Store has in-store pricing enabled"
+    type: yesno
+    sql: ${TABLE}.store_is_in_store_prices_enabled ;;
+  }
+
+  dimension: store_special_requirements_allowed {
+    description: "Indicates if customer is allowed to make special requirements for this store"
+    type: yesno
+    sql: ${TABLE}.store_special_requirements_allowed ;;
+  }
+
+  dimension: store_top_sellers_enabled {
+    description: "Indicates if store is a top seller"
+    type: yesno
+    sql: ${TABLE}.store_top_sellers_enabled ;;
+  }
+
+  measure: number_of_stores {
+    description: "Total number of stores"
+    type: count_distinct
+    sql: ${TABLE}.store_id ;;
+  }
+
+  measure: number_of_enabled_stores {
+    description: "Total number of enabled, not deleted, and not hidden stores"
+    type: count_distinct
+    filters: [store_is_enabled: "Yes", store_is_deleted: "No", store_is_hidden: "No"]
+    sql: ${TABLE}.store_id ;;
+  }
+}
