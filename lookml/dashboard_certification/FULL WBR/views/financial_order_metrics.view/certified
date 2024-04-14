@@ -65,6 +65,7 @@ view: financial_order_metrics {
     type: string
     sql: ${TABLE}.order_final_status ;;
   }
+  
   dimension: order_is_prime {
     description: "Flag indicating if the order is placed by a user with Prime benefits"
     type: yesno
@@ -72,7 +73,7 @@ view: financial_order_metrics {
   }
 
   measure: prime_user {
-    description: "Flag indicating if the order is placed by a user with Prime benefits"
+    description: "Count of orders placed by users with Prime benefits"
     type: count
     filters: {
       field: order_is_prime
@@ -214,68 +215,68 @@ view: financial_order_metrics {
   }
 
   measure: total_cm0_eur {
-    description: "Total revenue for the order minus the total CPO"
+    description: "CM0 = Contribution Margin 0. Total revenue for the order minus the total CPO (Cost per Order)"
     type: sum
     value_format: "€0.00"
     sql: ${TABLE}.cm0_eur ;;
   }
 
   measure: avg_cm0_eur {
-    description: "Average revenue for the order minus the total CPO"
+    description: "CM0 = Contribution Margin 0. Average revenue for the order minus the total CPO (Cost per Order)"
     type: average
     value_format: "€0.00"
     sql: ${TABLE}.cm0_eur ;;
   }
 
   measure: total_cm0_local_currency {
-    description: "Total revenue for the order minus the total CPO, in local currency"
+    description: "CM0 = Contribution Margin 0. Total revenue for the order minus the total CPO (Cost per Order), in local currency"
     type: sum
     sql: ${TABLE}.cm0_local_currency ;;
   }
 
   measure: avg_cm0_local_currency {
-    description: "Average revenue for the order minus the total CPO, in local currency"
+    description: "CM0 = Contribution Margin 0. Average revenue for the order minus the total CPO (Cost per Order), in local currency"
     type: average
     sql: ${TABLE}.cm0_local_currency ;;
   }
 
   measure: GTV {
-    description: "GTV"
+    description: "Gross Transacted Value = GMV + Delivery Fees"
     type: sum
     value_format: "€0.00"
     sql: ${TABLE}.order_transacted_value_eur ;;
   }
 
   measure: avg_GTV {
-    description: "Average GTV"
+    description: "Gross Transacted Value = GMV + Delivery Fees. Average GTV"
     type: average
     value_format: "€0.00"
     sql: ${TABLE}.order_transacted_value_eur ;;
   }
 
   measure: RPO {
-    description: "Revenue earned by Glovo on Delivery fee per order after including promotions (in Euros)"
+    description: "Revenue Per Order. Revenue earned by Glovo on Delivery fee per order after including promotions (in Euros)"
     type: sum
     value_format: "€0.00"
     sql: ${TABLE}.rpo_eur ;;
   }
 
   measure: avg_RPO {
-    description: "Revenue earned by Glovo on Delivery fee per order after including promotions (in Euros)"
+    description: "Average Revenue Per Order. Revenue earned by Glovo on Delivery fee per order after including promotions (in Euros)"
     type: average
     value_format: "€0.00"
     sql: ${TABLE}.rpo_eur ;;
   }
 
   measure: RPO_local_currency {
-    description: "Revenue earned by Glovo on Delivery fee per order after
+    description: "Revenue Per Order. Revenue earned by Glovo on Delivery fee per order after
     including promotions (in local currency)"
     type: sum
     sql: ${TABLE}.rpo_local_currency ;;
   }
 
   measure: avg_RPO_local_currency {
-    description: "Revenue earned by Glovo on Delivery fee per order after
+    description: "Average Revenue Per Order. Average revenue earned by Glovo on Delivery fee per order after
     including promotions (in local currency)"
     type: average
     value_format: "€0.00"
@@ -283,7 +284,7 @@ view: financial_order_metrics {
   }
 
   measure: order_total_purchase_eur {
-    description: "Total price of the products bought for the order in major currency and local currency.
+    description: "Total price of the products bought for the order in eur.
     No fees are included here."
     type: sum
     value_format: "€0.00"
@@ -291,7 +292,7 @@ view: financial_order_metrics {
   }
 
   measure: avg_order_purchase_eur {
-    description: "Average price of the products bought for the order in major currency and local currency.
+    description: "Average price of the products bought for the order in eur.
     No fees are included here."
     type: average
     value_format: "€0.00"
@@ -299,27 +300,27 @@ view: financial_order_metrics {
   }
 
   measure: CPO {
-    description: "Denormalized value, same as in Courier Core CPO"
+    description: "Cost per Order. Denormalized value, same as in Courier Core CPO"
     type: sum
     value_format: "€0.00"
     sql: ${TABLE}.cpo_eur ;;
   }
 
   measure: avg_CPO {
-    description: "Denormalized value, same as in Courier Core CPO"
+    description: "Cost per Order. Denormalized value, same as in Courier Core CPO"
     type: average
     value_format: "€0.00"
     sql: ${TABLE}.cpo_eur ;;
   }
 
   measure: CPO_local_currency {
-    description: "Denormalized value, same as in Courier Core CPO"
+    description: "Cost per Order. Denormalized value, same as in Courier Core CPO"
     type: sum
     sql: ${TABLE}.cpo_local_currency ;;
   }
 
   measure: avg_CPO_local_currency {
-    description: "Denormalized value, same as in Courier Core CPO"
+    description: "Cost per Order. Denormalized value, same as in Courier Core CPO"
     type: average
     value_format: "€0.00"
     sql: ${TABLE}.cpo_local_currency ;;
