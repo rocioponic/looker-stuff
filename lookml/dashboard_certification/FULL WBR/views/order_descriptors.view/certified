@@ -281,24 +281,6 @@ view: order_descriptors {
     sql: ${TABLE}.order_updated_local_at ;;
   }
   
-  dimension_group: delivery_duration {
-    label: "Delivered Order Duration"
-    type: duration
-    description: "Total time from started at to terminated at in minutes"
-    intervals: [day,hour,minute,second]
-    sql_start: ${order_started_local_raw} ;;
-    sql_end: ${order_terminated_local_raw} ;;
-  }
-  
-  dimension_group: order_created_delivery_duration {
-    label: "Order Creation to Delivery Duration"
-    type: duration
-    description: "Total time from order created at to terminated at in minutes"
-    intervals: [day,hour,minute,second]
-    sql_start: ${order_created_local_raw} ;;
-    sql_end: ${order_terminated_local_raw} ;;
-  }
-  
   dimension_group: order_accepted_by_partner {
     description: "Timestamp (UTC) indicating the moment at which an order was accepted by the Partner, if any"
     type: time
@@ -984,6 +966,16 @@ view: order_descriptors {
       value: "DeliveredStatus"
     }
     sql: ${order_total_purchase_eur} ;;
+  }
+  
+  measure: average_waiting_time_pickup {
+    label: "Average Waiting time pickup (min) "
+    description: "Time between courier entering PU point and PU time (min)
+    - using the 100m geofence (old/deprecated definition of WTP).
+    The current definition of WTP uses the 10m geofence and is not computed in this view"
+    type: average_distinct
+    value_format_name: decimal_2
+    sql: ${seconds_waiting_time_pickup} / 60.00 ;;
   }
 
   measure: average_total_purchase_local {
