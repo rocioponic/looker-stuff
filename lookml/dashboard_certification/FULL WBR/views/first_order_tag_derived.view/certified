@@ -17,7 +17,7 @@ view: first_order_tag_derived {
       , od.order_started_local_at AS "first_tagged_order_start_local_at"
       , od.order_activated_at AS "first_tagged_order_activated_at"
       , od.order_activated_local_at  AS "first_tagged_order_activated_local_at"
-      , od.order_careated_local_at AS "first_tagged_order_created_local_at"
+      , od.order_created_local_at AS "first_tagged_order_created_local_at"
       , od.order_terminated_at AS "first_tagged_order_terminated_local_at"
       , od.order_city_code  AS "first_tagged_order_city_code"
       , od.order_country_code AS "first_tagged_order_country_code"
