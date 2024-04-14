@@ -1,6 +1,21 @@
 view: store_addresses {
   sql_table_name: delta.partner_stores_odp.store_addresses_v2 ;;
 
+  dimension: pk2_store_address_id {
+    description: "Foreign key: Store ID"
+    hidden: yes
+    type: number
+    sql: ${TABLE}.store_address_id ;;
+  }
+
+  dimension: pk2_p_end_date {
+    description: "Partition column: End date.
+    The newest row per store address is the one with this field NULL"
+    type: string
+    hidden: yes
+    sql: ${TABLE}.p_end_date ;;
+  }
+
   dimension: compound_store_address_id_p_end_date {
     type: string
     description: "PK for store id and end date"
