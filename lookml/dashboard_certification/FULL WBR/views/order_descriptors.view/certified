@@ -375,7 +375,6 @@ view: order_descriptors {
       week_of_year
     ]
     sql: ${TABLE}.order_scheduled_local_at ;;
-    group_label: "Date Information"
     group_label: "Date / Time Information"
   }
   
@@ -779,14 +778,6 @@ view: order_descriptors {
     type: average
     value_format_name: decimal_2
     sql: ${seconds_delivery_duration} / 60.00 ;;
-  }
-  
-  measure: average_pickup_to_delivery_time {
-    label: "Average Pickup -> Delivery time (min)"
-    description: "Time between pickup and delivery"
-    type: average_distinct
-    value_format_name: decimal_2
-    sql: ${seconds_pickup_to_delivery_time} / 60.00 ;;
   }
   
   measure: number_of_customers_with_orders {
