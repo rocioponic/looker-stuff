@@ -88,7 +88,7 @@ view: order_descriptors {
       "QCommerce"
     ]
     sql: ${TABLE}.order_vertical ;;
-    group_label: "Business Unit (BU)"
+    group_label: "Order Business Unit (BU)"
   }
 
   dimension: order_subvertical {
@@ -106,7 +106,7 @@ view: order_descriptors {
       "On-Demand"
     ]
     sql: ${TABLE}.order_subvertical ;;
-    group_label: "Business Unit (BU)"
+    group_label: "Order Business Unit (BU)"
   }
 
   dimension: order_subvertical2 {
@@ -124,7 +124,7 @@ view: order_descriptors {
       "Retail"
     ]
     sql: ${TABLE}.order_subvertical2 ;;
-    group_label: "Business Unit (BU)"
+    group_label: "Order Business Unit (BU)"
   }
 
   dimension: order_subvertical3 {
@@ -143,13 +143,14 @@ view: order_descriptors {
       "Smoking"
     ]
     sql: ${TABLE}.order_subvertical3 ;;
-    group_label: "Business Unit (BU)"
+    group_label: "Order Business Unit (BU)"
   }
 
   dimension: store_name {
     description: "Identifier for the store name associated with an order."
     type: string
     sql: TRIM(${TABLE}.store_name) ;;
+    group_label: "Order Business Unit (BU)"
   }
 
   dimension: store_address_id {
@@ -157,30 +158,35 @@ view: order_descriptors {
     Takes into account if the order is remade/rescued."
     type: number
     sql: ${TABLE}.store_address_id ;;
+    group_label: "Order Business Unit (BU)"
   }
 
   dimension: store_id {
     description: "Unique identifier for the store associated with an order."
     type: number
     sql: ${TABLE}.store_id ;;
+    group_label: "Order Business Unit (BU)"
   }
 
   dimension: store_category_id {
     description: "Unique identifier for the store category from the store associated with the order."
     type: number
     sql: ${TABLE}.store_category_id ;;
+    group_label: "Order Business Unit (BU)"
   }
 
   dimension: order_is_first_created_order {
     description: "Identifier to see if the order is the first one of the customer"
     type: yesno
     sql: ${TABLE}.order_is_first_created_order ;;
+    group_label: "Order is First"
   }
 
   dimension: order_is_first_delivered_order {
     description: "Identifier to see if the order is the first delivered to the customer"
     type: yesno
     sql: ${TABLE}.order_is_first_delivered_order ;;
+    group_label: "Order is First"
   }
 
   dimension: order_is_partner_order {
@@ -196,14 +202,14 @@ view: order_descriptors {
     description: "3-letter code for the currency that was used to pay the order, such as EUR."
     type: string
     sql: ${TABLE}.order_currency ;;
-    group_label: "Geography"
+    group_label: "Order Location"
   }
 
   dimension: order_city_code {
     description: "3-letter city code (IATA-3) indicating the city where the order was executed."
     type: string
     sql: ${TABLE}.order_city_code ;;
-    group_label: "Geography"
+    group_label: "Order Location"
   }
 
   dimension: order_country_code {
@@ -211,7 +217,7 @@ view: order_descriptors {
     order took place."
     type: string
     sql: ${TABLE}.order_country_code ;;
-    group_label: "Geography"
+    group_label: "Order Location"
   }
 
   dimension: order_country_region {
@@ -219,7 +225,7 @@ view: order_descriptors {
     user_defined_geography_data spreadsheet"
     type: string
     sql: ${TABLE}.order_country_region ;;
-    group_label: "Geography"
+    group_label: "Order Location"
   }
 
   dimension: order_country_subregion {
@@ -227,7 +233,7 @@ view: order_descriptors {
     user_defined_geography_data spreadsheet"
     type: string
     sql: ${TABLE}.order_country_subregion ;;
-    group_label: "Geography"
+    group_label: "Order Location"
   }
 
   dimension: order_global_region {
@@ -235,7 +241,7 @@ view: order_descriptors {
     user_defined_geography_data spreadsheet"
     type: string
     sql: ${TABLE}.order_global_region ;;
-    group_label: "Geography"
+    group_label: "Order Location"
   }
 
   dimension: order_global_subregion {
@@ -243,7 +249,27 @@ view: order_descriptors {
     user_defined_geography_data spreadsheet"
     type: string
     sql: ${TABLE}.order_global_subregion ;;
-    group_label: "Geography"
+    group_label: "Order Location"
+  }
+
+  dimension: order_total_purchase_eur {
+    description: "Total price of the products bought for the order in major currency and euros. No
+    fees are included here."
+    type: number
+    value_format_name: eur
+    sql: ${TABLE}.order_total_purchase_eur ;;
+  }
+
+  dimension: order_total_purchase_local {
+    description: "Total price of the products bought for the order in major currency and local currency. No
+    fees are included here."
+    # LAMS
+    # rule_exemptions: {
+    # F1: "2022-12-19 - We need to reference this view to avoid more joins"
+    # }
+    type: number
+    html: {{order_currency._value}} {{ rendered_value }};;
+    sql: ${TABLE}.order_total_purchase_local ;;
   }
 
   dimension_group: order_updated {
@@ -263,7 +289,7 @@ view: order_descriptors {
     ]
     sql: ${TABLE}.order_updated_at ;;
   }
-  
+
   dimension_group: order_updated_local {
     description: "Conversion of the same field to local time zone for the city"
     type: time
@@ -280,7 +306,7 @@ view: order_descriptors {
     ]
     sql: ${TABLE}.order_updated_local_at ;;
   }
-  
+
   dimension_group: order_accepted_by_partner {
     description: "Timestamp (UTC) indicating the moment at which an order was accepted by the Partner, if any"
     type: time
@@ -297,7 +323,7 @@ view: order_descriptors {
     ]
     sql: ${TABLE}.order_accepted_by_partner_at ;;
   }
-  
+
   dimension_group: order_accepted_by_partner_local {
     description: "Conversion of the same field to local time zone for the city"
     type: time
@@ -314,7 +340,7 @@ view: order_descriptors {
     ]
     sql: ${TABLE}.order_accepted_by_partner_local_at ;;
   }
-  
+
   dimension_group: order_activated {
     description: "Timestamp (UTC) indicating the moment at which the order was activated."
     type: time
@@ -332,7 +358,7 @@ view: order_descriptors {
     ]
     sql: ${TABLE}.order_activated_at ;;
   }
-  
+
   dimension_group: order_activated_local {
     description: "Conversion of the same field to local time zone for the city"
     type: time
@@ -351,7 +377,7 @@ view: order_descriptors {
     ]
     sql: ${TABLE}.order_activated_local_at ;;
   }
-  
+
   dimension_group: order_courier_arrival_to_delivery {
     description: "Timestamp (UTC) indicating the moment at which the courier arrived at the delivery
     location (if multiple locations, uses the first one)"
@@ -369,7 +395,7 @@ view: order_descriptors {
     ]
     sql: ${TABLE}.order_courier_arrival_to_delivery_at ;;
   }
-  
+
   dimension_group: order_courier_arrival_to_delivery_local {
     description: "Conversion of the same field to local time zone for the city"
     type: time
@@ -386,7 +412,7 @@ view: order_descriptors {
     ]
     sql: ${TABLE}.order_courier_arrival_to_delivery_local_at ;;
   }
-  
+
   dimension_group: order_courier_arrival_to_pickup {
     description: "Timestamp (UTC) indicating the moment at which the courier arrived to the pickup
     location (if multiple locations, uses the first one). The pickup location is considered as
@@ -406,7 +432,7 @@ view: order_descriptors {
     ]
     sql: ${TABLE}.order_courier_arrival_to_pickup_at ;;
   }
-  
+
   dimension_group: order_courier_arrival_to_pickup_local {
     description: "Conversion of the same field to local time zone for the city"
     type: time
@@ -423,7 +449,7 @@ view: order_descriptors {
     ]
     sql: ${TABLE}.order_courier_arrival_to_pickup_local_at ;;
   }
-  
+
   dimension_group: order_created {
     description: "Timestamp (UTC) indicating the moment at which the order was created."
     type: time
@@ -442,7 +468,7 @@ view: order_descriptors {
     ]
     sql: ${TABLE}.order_created_at ;;
   }
-  
+
   dimension_group: order_created_local {
     description: "Conversion of the same field to local time zone for the city"
     type: time
@@ -460,7 +486,7 @@ view: order_descriptors {
     ]
     sql: ${TABLE}.order_created_local_at ;;
   }
-  
+
   dimension_group: order_dispatched {
     description: "Timestamp (UTC) indicating the moment at which an order was dispatched to the partner
     (the moment the order was received by the partner), if any"
@@ -478,7 +504,7 @@ view: order_descriptors {
     ]
     sql: ${TABLE}.order_dispatched_at ;;
   }
-  
+
   dimension_group: order_dispatched_local {
     description: "Conversion of the same field to local time zone for the city"
     type: time
@@ -495,7 +521,7 @@ view: order_descriptors {
     ]
     sql: ${TABLE}.order_dispatched_local_at ;;
   }
-  
+
   dimension_group: order_picked_up_by_courier {
     description: "Timestamp (UTC) indicating the moment at which an order was picked up by the
     courier (always null for orders picked up by the customer)"
@@ -513,7 +539,7 @@ view: order_descriptors {
     ]
     sql: ${TABLE}.order_picked_up_by_courier_at ;;
   }
-  
+
   dimension_group: order_picked_up_by_courier_local {
     description: "Conversion of the same field to local time zone for the city"
     type: time
@@ -530,7 +556,7 @@ view: order_descriptors {
     ]
     sql: ${TABLE}.order_picked_up_by_courier_local_at ;;
   }
-  
+
   dimension_group: order_scheduled {
     description: "Timestamp (UTC) indicating the moment at which an order was scheduled, if any"
     type: time
@@ -547,7 +573,7 @@ view: order_descriptors {
     ]
     sql: ${TABLE}.order_scheduled_at ;;
   }
-  
+
   dimension_group: order_scheduled_local {
     description: "Conversion of the same field to local time zone for the city"
     type: time
@@ -564,7 +590,7 @@ view: order_descriptors {
     ]
     sql: ${TABLE}.order_scheduled_local_at ;;
   }
-  
+
   dimension_group: order_started {
     description:
     "Timestamp (UTC) indicating the moment at which an order started from the customer point of view.
@@ -586,7 +612,7 @@ view: order_descriptors {
     ]
     sql: ${TABLE}.order_started_at ;;
   }
-  
+
   dimension_group: order_started_local {
     description: "Conversion of the same field to local time zone for the city"
     type: time
@@ -603,7 +629,7 @@ view: order_descriptors {
     ]
     sql: ${TABLE}.order_started_local_at ;;
   }
-  
+
   dimension_group: order_terminated {
     description: "Timestamp (UTC) indicating the moment at which an order was terminated, that is if it was
     delivered it will be delivery time, if it was cancelled it will be cancelled time. This field
@@ -622,7 +648,7 @@ view: order_descriptors {
     ]
     sql: ${TABLE}.order_terminated_at ;;
   }
-  
+
   dimension_group: order_terminated_local {
     description: "Conversion of the same field to local time zone for the city"
     type: time
@@ -638,7 +664,7 @@ view: order_descriptors {
     ]
     sql: ${TABLE}.order_terminated_local_at ;;
   }
-  
+
   dimension: order_is_terminated_in_5min_or_less {
     description: "Flag indicating if the order was terminated (Delivered) or cancelled in 5min or less"
     type: yesno
@@ -647,7 +673,7 @@ view: order_descriptors {
         AND (${order_activated_local_raw} IS NULL
         OR DATE_DIFF('second', ${order_activated_local_raw}, ${order_terminated_local_raw}) / 60.0 <= 5)) ;;
   }
-  
+
   dimension_group: partner_dispatch_to_pickup_time {
     label: "Partner Dispatch to Pickup Time (Preparation time)"
     type: duration
@@ -656,7 +682,7 @@ view: order_descriptors {
     sql_start: ${order_dispatched_local_raw} ;;
     sql_end: ${order_picked_up_by_courier_local_raw};;
   }
-  
+
   dimension_group: partner_notified_to_accept {
     label: "Partner Notified -> Accept"
     type: duration
@@ -665,7 +691,7 @@ view: order_descriptors {
     sql_start: ${order_dispatched_local_raw} ;;
     sql_end: ${order_accepted_by_partner_local_raw};;
   }
-  
+
   dimension_group: partner_accept_to_pickup {
     label: "Partner Accept -> Pickup"
     type: duration
@@ -674,7 +700,7 @@ view: order_descriptors {
     sql_start: ${order_accepted_by_partner_local_raw} ;;
     sql_end: ${order_picked_up_by_courier_local_raw};;
   }
-  
+
   dimension_group: new_enters_pickup {
     label: "New -> Pickup"
     type: duration
@@ -685,7 +711,7 @@ view: order_descriptors {
     sql_start: ${order_started_local_raw} ;;
     sql_end: ${order_courier_arrival_to_pickup_local_raw};;
   }
-  
+
   dimension_group: waiting_time_pickup {
     label: "Waiting time pickup"
     type: duration
@@ -696,7 +722,7 @@ view: order_descriptors {
     sql_start: ${order_courier_arrival_to_pickup_local_raw} ;;
     sql_end: ${order_picked_up_by_courier_local_raw};;
   }
-  
+
   dimension_group: pickup_to_entering_delivery_zone {
     label: "Pickup -> Entering delivery zone"
     type: duration
@@ -705,7 +731,7 @@ view: order_descriptors {
     sql_start: ${order_picked_up_by_courier_local_raw} ;;
     sql_end: ${order_courier_arrival_to_delivery_local_raw} ;;
   }
-  
+
   dimension_group: pickup_to_delivery_time {
     label: "Pickup -> Delivery time"
     type: duration
@@ -714,9 +740,40 @@ view: order_descriptors {
     sql_start: ${order_picked_up_by_courier_local_raw} ;;
     sql_end: ${order_terminated_local_raw};;
   }
-  
 
-########################################################################################################################################################################
+  dimension_group: delivery_duration {
+    label: "Delivered Order Duration"
+    type: duration
+    description: "Total time from started at to terminated at in minutes"
+    intervals: [day,hour,minute,second]
+    sql_start: ${order_started_local_raw} ;;
+    sql_end: ${order_terminated_local_raw} ;;
+  }
+
+  dimension_group: order_created_delivery_duration {
+    label: "Order Creation to Delivery Duration"
+    type: duration
+    description: "Total time from order created at to terminated at in minutes"
+    intervals: [day,hour,minute,second]
+    sql_start: ${order_created_local_raw} ;;
+    sql_end: ${order_terminated_local_raw} ;;
+  }
+
+  dimension_group: p_creation {
+    description: "Partition key for the table from the order_created_at field, in the form of '2022-06-04'"
+    type: time
+    timeframes: [
+      raw,
+      time,
+      date,
+      day_of_week,
+      week,
+      month,
+      quarter,
+      year
+    ]
+    sql: ${TABLE}.p_creation_date ;;
+  }
 
   filter: filter_bu_vertical {
     type: string
@@ -769,84 +826,6 @@ view: order_descriptors {
         AND
          {% condition filter_bu_store_id %} ${store_id} {% endcondition %}
          ;;
-  }
-
-  measure: bu_number_of_delivered_orders {
-    description: "Total delivered orders"
-    type: count_distinct
-    filters: [order_final_status: "DeliveredStatus", all_BU_filter_satisfied: "yes"]
-    sql: ${TABLE}.order_id ;;
-  }
-
-  measure: bu_number_of_delivered_orders_prime {
-    description: "Total delivered orders"
-    type: count_distinct
-    filters: [order_final_status: "DeliveredStatus", all_BU_filter_satisfied: "yes",  order_is_prime: "yes"]
-    sql: ${TABLE}.order_id ;;
-  }
-
-  measure: bu_number_of_cancelled_orders {
-    can_filter: no
-    description: "Total cancelled orders"
-    type: count_distinct
-    filters: [order_final_status: "CanceledStatus", all_BU_filter_satisfied: "yes"]
-    sql: ${TABLE}.order_id ;;
-  }
-
-  measure: bu_sum_total_purchase_eur {
-    description: "Sum Total Order Purchase Eur"
-    type: sum_distinct
-    value_format_name: eur
-    filters: [order_final_status: "DeliveredStatus", all_BU_filter_satisfied: "yes"]
-    sql: ${TABLE}.order_total_purchase_eur ;;
-  }
-
-  measure: bu_average_total_purchase_eur {
-    description: "Average Total Order Purchase"
-    type: average_distinct
-    value_format_name: eur
-    filters: [order_final_status: "DeliveredStatus", all_BU_filter_satisfied: "yes"]
-    sql: ${TABLE}.order_total_purchase_eur ;;
-  }
-
-########################################################################################################################################################################
-
-  dimension: order_total_purchase_eur {
-    description: "Total price of the products bought for the order in major currency and euros. No
-    fees are included here."
-    type: number
-    value_format_name: eur
-    sql: ${TABLE}.order_total_purchase_eur ;;
-  }
-
-  dimension: order_total_purchase_local {
-    description: "Total price of the products bought for the order in major currency and local currency. No
-    fees are included here."
-    # LAMS
-    # rule_exemptions: {
-    # F1: "2022-12-19 - We need to reference this view to avoid more joins"
-    # }
-    type: number
-    html: {{order_currency._value}} {{ rendered_value }};;
-    sql: ${TABLE}.order_total_purchase_local ;;
-  }
-
-  dimension_group: delivery_duration {
-    label: "Delivered Order Duration"
-    type: duration
-    description: "Total time from started at to terminated at in minutes"
-    intervals: [day,hour,minute,second]
-    sql_start: ${order_started_local_raw} ;;
-    sql_end: ${order_terminated_local_raw} ;;
-  }
-
-  dimension_group: order_created_delivery_duration {
-    label: "Order Creation to Delivery Duration"
-    type: duration
-    description: "Total time from order created at to terminated at in minutes"
-    intervals: [day,hour,minute,second]
-    sql_start: ${order_created_local_raw} ;;
-    sql_end: ${order_terminated_local_raw} ;;
   }
 
   measure: number_of_orders {
@@ -967,16 +946,6 @@ view: order_descriptors {
     }
     sql: ${order_total_purchase_eur} ;;
   }
-  
-  measure: average_waiting_time_pickup {
-    label: "Average Waiting time pickup (min) "
-    description: "Time between courier entering PU point and PU time (min)
-    - using the 100m geofence (old/deprecated definition of WTP).
-    The current definition of WTP uses the 10m geofence and is not computed in this view"
-    type: average_distinct
-    value_format_name: decimal_2
-    sql: ${seconds_waiting_time_pickup} / 60.00 ;;
-  }
 
   measure: average_total_purchase_local {
     description: "Average Total Order Purchase Local"
@@ -992,6 +961,16 @@ view: order_descriptors {
       value: "DeliveredStatus"
     }
     sql: ${order_total_purchase_local} ;;
+  }
+
+  measure: average_waiting_time_pickup {
+    label: "Average Waiting time pickup (min) "
+    description: "Time between courier entering PU point and PU time (min)
+    - using the 100m geofence (old/deprecated definition of WTP).
+    The current definition of WTP uses the 10m geofence and is not computed in this view"
+    type: average_distinct
+    value_format_name: decimal_2
+    sql: ${seconds_waiting_time_pickup} / 60.00 ;;
   }
 
   measure: percentage_of_cancelled_orders {
@@ -1066,19 +1045,52 @@ view: order_descriptors {
     sql: ${customer_id} ;;
   }
 
-  dimension_group: p_creation {
-    description: "Partition key for the table from the order_created_at field, in the form of '2022-06-04'"
-    type: time
-    timeframes: [
-      raw,
-      time,
-      date,
-      day_of_week,
-      week,
-      month,
-      quarter,
-      year
-    ]
-    sql: ${TABLE}.p_creation_date ;;
+  measure: bu_number_of_delivered_orders {
+    description: "Total delivered orders filtered by selected: Filter BU Vertical,
+    Filter BU Subvertical, Filter BU Subvertical2,Filter BU Subvertical, Filter BU Store Name
+    and Filter BU Store ID"
+    type: count_distinct
+    filters: [order_final_status: "DeliveredStatus", all_BU_filter_satisfied: "yes"]
+    sql: ${TABLE}.order_id ;;
   }
+
+  measure: bu_number_of_delivered_orders_prime {
+    description: "Total delivered prime orders filtered by selected: Filter BU Vertical,
+    Filter BU Subvertical, Filter BU Subvertical2,Filter BU Subvertical, Filter BU Store Name
+    and Filter BU Store ID"
+    type: count_distinct
+    filters: [order_final_status: "DeliveredStatus", all_BU_filter_satisfied: "yes",  order_is_prime: "yes"]
+    sql: ${TABLE}.order_id ;;
+  }
+
+  measure: bu_number_of_cancelled_orders {
+    can_filter: no
+    description: "Total cancelled orders filtered by selected: Filter BU Vertical,
+    Filter BU Subvertical, Filter BU Subvertical2,Filter BU Subvertical, Filter BU Store Name
+    and Filter BU Store ID"
+    type: count_distinct
+    filters: [order_final_status: "CanceledStatus", all_BU_filter_satisfied: "yes"]
+    sql: ${TABLE}.order_id ;;
+  }
+
+  measure: bu_sum_total_purchase_eur {
+    description: "Sum Total Order Purchase Eur filtered by selected: Filter BU Vertical,
+    Filter BU Subvertical, Filter BU Subvertical2,Filter BU Subvertical, Filter BU Store Name
+    and Filter BU Store ID"
+    type: sum_distinct
+    value_format_name: eur
+    filters: [order_final_status: "DeliveredStatus", all_BU_filter_satisfied: "yes"]
+    sql: ${TABLE}.order_total_purchase_eur ;;
+  }
+
+  measure: bu_average_total_purchase_eur {
+    description: "Average Total Order Purchase filtered by selected: Filter BU Vertical,
+    Filter BU Subvertical, Filter BU Subvertical2,Filter BU Subvertical, Filter BU Store Name
+    and Filter BU Store ID"
+    type: average_distinct
+    value_format_name: eur
+    filters: [order_final_status: "DeliveredStatus", all_BU_filter_satisfied: "yes"]
+    sql: ${TABLE}.order_total_purchase_eur ;;
+  }
+
 }
