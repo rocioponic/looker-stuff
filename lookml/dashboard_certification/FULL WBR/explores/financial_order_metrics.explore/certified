@@ -1,19 +1,16 @@
 # include all the views
-include: "/finance_dm/views/financial_order_metrics.view.lkml"
-include: "/finance_dm/views/courier_attributes.view.lkml"
-include: "/partners_dm/views/stores.view.lkml"
+include: "/finance_dm_cert/views_cert/financial_order_metrics.view.lkml"
+include: "/partners_dm_cert/views_cert/stores.view.lkml"
 
 explore: financial_order_metrics {
   persist_with: financial_order_metrics_datagroup #cache policy
 
-  description: "FOM table aims to provide all relevant
-    financial metrics and dimensions at order level granularity"
-
-  join: courier_attributes {
-    type: inner
-    sql_on: ${financial_order_metrics.courier_id} = ${courier_attributes.pk1_courier_id};;
-    relationship: many_to_many
+  always_filter: {
+    filters: [financial_order_metrics.p_creation_date: "365 days"] #force filter by partition key
   }
+
+  description: "FOM table aims to provide all relevant
+  financial metrics and dimensions at order id level granularity"
 
   join: stores {
     type: left_outer
