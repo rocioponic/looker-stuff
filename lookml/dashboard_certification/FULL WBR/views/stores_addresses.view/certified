@@ -1,0 +1,273 @@
+view: store_addresses {
+  sql_table_name: delta.partner_stores_odp.store_addresses_v2 ;;
+  
+  dimension: pk2_store_address_id {
+    description: "Foreign key: Store ID"
+    hidden: yes
+    type: number
+    sql: ${TABLE}.store_address_id ;;
+  }
+  
+  dimension: pk2_p_end_date {
+    description: "Partition column: End date.
+    The newest row per store address is the one with this field NULL"
+    type: string
+    hidden: yes
+    sql: ${TABLE}.p_end_date ;;
+  }
+  
+  dimension: compound_store_address_id_p_end_date {
+    type: string
+    description: "PK for store id and end date"
+    hidden: yes
+    primary_key: yes
+    sql: CONCAT_WS(' | ', CAST(${TABLE}.store_address_id AS varchar), CAST(${TABLE}.p_end_date AS varchar)) ;;
+  }
+  
+  dimension: p_end_date {
+    description: "Partition column: End date.
+    The newest row per store is the one with this field NULL"
+    type: string
+    sql: ${TABLE}.p_end_date ;;
+  }
+  
+  dimension_group: creation_time {
+    description: "Creation time"
+    type: time
+    timeframes: [
+      raw,
+      date,
+      week,
+      month,
+      quarter,
+      year
+    ]
+    convert_tz: no
+    datatype: date
+    sql: ${TABLE}.store_address_creation_time ;;
+  }
+  
+  dimension: store_address_id {
+    description: "ID of the store address"
+    type: number
+    sql: ${TABLE}.store_address_id ;;
+  }
+  
+  dimension: store_address_external_id {
+    description: "External ID of the store address"
+    type: string
+    sql: ${TABLE}.store_address_external_id ;;
+  }
+  
+  dimension: store_address_is_deleted {
+    description: "Establishes if the store address is deleted"
+    type: yesno
+    sql: ${TABLE}.store_address_is_deleted ;;
+  }
+  
+  dimension: store_address_address {
+    description: "Store address location"
+    type: string
+    sql: ${TABLE}.store_address_address ;;
+  }
+  
+  dimension: store_address_lat {
+    description: "Latitude of the location of the store address"
+    type: number
+    sql: ${TABLE}.store_address_lat ;;
+  }
+  
+  dimension: store_address_lon {
+    description: "Longitude of the location of the store address"
+    type: number
+    sql: ${TABLE}.store_address_lon ;;
+  }
+  
+  dimension: store_address_location {
+    description: "Combine Latitude and Longitude of the location
+    of the store address."
+    type: location
+    sql_latitude: ${store_address_lat} ;;
+    sql_longitude: ${store_address_lon} ;;
+  }
+  
+  dimension: store_address_details {
+    description: "Details of the store address"
+    type: string
+    sql: ${TABLE}.store_address_details ;;
+  }
+  
+  dimension: store_address_is_partner {
+    description: "Establishes if the store address belongs to a partner"
+    type: yesno
+    sql: ${TABLE}.store_address_is_partner ;;
+  }
+  
+  dimension: store_address_is_marketplace {
+    description: "Establishes if the store address
+    is enabled as a marketplace (marketplace = GEN1)"
+    type: yesno
+    sql: ${TABLE}.store_address_is_marketplace ;;
+  }
+  
+  dimension: store_address_is_integrated {
+    description: "Establishes if the store address is integrated"
+    type: yesno
+    sql: ${TABLE}.store_address_is_integrated ;;
+  }
+  
+  dimension: store_address_integration_id {
+    description: "This identifies the settings through which external
+    systems connect to Glovo to update the store_address"
+    type: string
+    sql: ${TABLE}.store_address_integration_id ;;
+  }
+  
+  dimension: store_address_enabled_for_check_in {
+    description: "Establishes if the store address is enabled for check in"
+    type: yesno
+    sql: ${TABLE}.store_address_enabled_for_check_in ;;
+  }
+  
+  dimension: store_address_enabled_for_order_ready {
+    description: "Establishes if the store address is enabled for order ready"
+    type: yesno
+    sql: ${TABLE}.store_address_enabled_for_order_ready ;;
+  }
+  
+  dimension: store_address_tax_id {
+    description: "Store address tax id"
+    type: string
+    sql: TRIM(${TABLE}.store_address_tax_id) ;;
+  }
+  
+  dimension: store_id {
+    description: "Store ID"
+    type: number
+    sql: ${TABLE}.store_id ;;
+  }
+  
+  dimension: store_address_company_name {
+    description: "Store address company name"
+    type: string
+    sql: ${TABLE}.store_address_company_name ;;
+  }
+  
+  dimension: store_address_maximum_delivery_distance_meters {
+    description: "The maximum delivery distance (in meters)
+    of store address."
+    type: number
+    sql: ${TABLE}.store_address_maximum_delivery_distance_meters ;;
+  }
+  
+  dimension: store_address_product_catalog_source {
+    description: "What source is the store_address catalog coming from?
+    Right now it's either NULL or DH."
+    type: string
+    sql: ${TABLE}.store_address_product_catalog_source ;;
+  }
+  
+  dimension: store_address_percentage_commission {
+    description: "Percentage commission"
+    type: number
+    sql: ${TABLE}.store_address_percentage_commission ;;
+  }
+  
+  dimension_group: start_date {
+    description: "Start date"
+    type: time
+    timeframes: [
+      raw,
+      date,
+      week,
+      month,
+      quarter,
+      year
+    ]
+    convert_tz: no
+    sql: ${TABLE}.start_date ;;
+  }
+  
+  dimension_group: end_date {
+    description: "end_date"
+    type: time
+    timeframes: [
+      raw,
+      date,
+      week,
+      month,
+      quarter,
+      year
+    ]
+    convert_tz: no
+    sql: ${TABLE}.end_date ;;
+  }
+  
+  dimension_group: store_address_product_catalog_created_at {
+    description: "Date when the store address catalog was migrated to DH."
+    type: time
+    timeframes: [
+      raw,
+      date,
+      week,
+      month,
+      quarter,
+      year
+    ]
+    convert_tz: no
+    sql: ${TABLE}.store_address_product_catalog_update_time ;;
+  }
+  
+  dimension_group: store_address_closed_until {
+    description: "Date until when the store address is closed"
+    type: time
+    timeframes: [
+      raw,
+      date,
+      week,
+      month,
+      quarter,
+      year
+    ]
+    convert_tz: no
+    sql: ${TABLE}.store_address_closed_until ;;
+  }
+  
+  dimension: store_address_uuid {
+    description: "UUID of the Store Address"
+    type: string
+    sql: ${TABLE}.store_address_uuid ;;
+  }
+  
+  dimension: store_address_urn {
+    description: "URN of the Store Address"
+    type: string
+    sql: ${TABLE}.store_address_urn ;;
+  }
+  
+  dimension: store_address_is_enabled {
+    description: "Field indicating whether the store address is enabled or not"
+    type: string
+    sql: cast(${TABLE}.store_address_is_enabled as varchar) ;;
+  }
+  
+  dimension: store_address_location_type {
+    description: "Type of Store Address location. NORMAL if the store is a regular,
+    street-level location or MALL if it is located inside a shopping mall / centre."
+    type: string
+    sql: ${TABLE}.store_address_location_type ;;
+  }
+  
+  dimension: store_address_company_registration {
+    description: "Only for RO. Company registration of the store address"
+    type: string
+    sql: ${TABLE}.store_address_company_registration ;;
+  }
+  
+  dimension: store_address_authorization_number {
+    description: "Only for RO. Authorizaiton number of the store address"
+    type: string
+    sql: ${TABLE}.store_address_authorization_number ;;
+  }
+
+}
