@@ -145,14 +145,6 @@ view: order_descriptors {
     sql: ${TABLE}.order_subvertical3 ;;
     group_label: "Business Unit (BU)"
   }
-  dimension: order_is_terminated_in_5min_or_less {
-    description: "Flag indicating if the order was terminated (Delivered) or cancelled in 5min or less"
-    type: yesno
-    sql: DATE_DIFF('second', ${order_created_local_raw}, ${order_terminated_local_raw}) / 60.0 <= 5
-        OR (${order_scheduled_local_raw} IS NOT NULL
-        AND (${order_activated_local_raw} IS NULL
-        OR DATE_DIFF('second', ${order_activated_local_raw}, ${order_terminated_local_raw}) / 60.0 <= 5)) ;;
-  }
 
   dimension: store_name {
     description: "Identifier for the store name associated with an order."
@@ -189,6 +181,15 @@ view: order_descriptors {
     description: "Identifier to see if the order is the first delivered to the customer"
     type: yesno
     sql: ${TABLE}.order_is_first_delivered_order ;;
+  }
+
+  dimension: order_is_partner_order {
+    description: "Flag indicating if an order is a Partner order. If the order was made to a Glovo partner
+    the value will be TRUE, else FALSE, which means the partner is a fake account: we show the store and
+    its menu in the app, but in reality it's like a QUIERO order because the store is not working with us,
+    we make a courier go to the store and buy the products in the customer place."
+    type: yesno
+    sql: ${TABLE}.order_is_partner_order ;;
   }
 
   dimension: order_currency {
@@ -245,6 +246,93 @@ view: order_descriptors {
     group_label: "Geography"
   }
 
+  dimension_group: order_updated {
+    description: "Timestamp (UTC) indicating the moment at which an order’s corresponding entry was last
+    updated."
+    type: time
+    timeframes: [
+      raw,
+      minute,
+      time,
+      date,
+      week,
+      month,
+      quarter,
+      year,
+      week_of_year
+    ]
+    sql: ${TABLE}.order_updated_at ;;
+  }
+  
+  dimension_group: order_updated_local {
+    description: "Conversion of the same field to local time zone for the city"
+    type: time
+    timeframes: [
+      raw,
+      minute,
+      time,
+      date,
+      week,
+      month,
+      quarter,
+      year,
+      week_of_year
+    ]
+    sql: ${TABLE}.order_updated_local_at ;;
+  }
+  
+  dimension_group: delivery_duration {
+    label: "Delivered Order Duration"
+    type: duration
+    description: "Total time from started at to terminated at in minutes"
+    intervals: [day,hour,minute,second]
+    sql_start: ${order_started_local_raw} ;;
+    sql_end: ${order_terminated_local_raw} ;;
+  }
+  
+  dimension_group: order_created_delivery_duration {
+    label: "Order Creation to Delivery Duration"
+    type: duration
+    description: "Total time from order created at to terminated at in minutes"
+    intervals: [day,hour,minute,second]
+    sql_start: ${order_created_local_raw} ;;
+    sql_end: ${order_terminated_local_raw} ;;
+  }
+  
+  dimension_group: order_accepted_by_partner {
+    description: "Timestamp (UTC) indicating the moment at which an order was accepted by the Partner, if any"
+    type: time
+    timeframes: [
+      raw,
+      minute,
+      time,
+      date,
+      week,
+      month,
+      quarter,
+      year,
+      week_of_year
+    ]
+    sql: ${TABLE}.order_accepted_by_partner_at ;;
+  }
+  
+  dimension_group: order_accepted_by_partner_local {
+    description: "Conversion of the same field to local time zone for the city"
+    type: time
+    timeframes: [
+      raw,
+      minute,
+      time,
+      date,
+      week,
+      month,
+      quarter,
+      year,
+      week_of_year
+    ]
+    sql: ${TABLE}.order_accepted_by_partner_local_at ;;
+  }
+  
   dimension_group: order_activated {
     description: "Timestamp (UTC) indicating the moment at which the order was activated."
     type: time
@@ -262,7 +350,7 @@ view: order_descriptors {
     ]
     sql: ${TABLE}.order_activated_at ;;
   }
-
+  
   dimension_group: order_activated_local {
     description: "Conversion of the same field to local time zone for the city"
     type: time
@@ -281,7 +369,7 @@ view: order_descriptors {
     ]
     sql: ${TABLE}.order_activated_local_at ;;
   }
-
+  
   dimension_group: order_courier_arrival_to_delivery {
     description: "Timestamp (UTC) indicating the moment at which the courier arrived at the delivery
     location (if multiple locations, uses the first one)"
@@ -299,7 +387,61 @@ view: order_descriptors {
     ]
     sql: ${TABLE}.order_courier_arrival_to_delivery_at ;;
   }
-
+  
+  dimension_group: order_courier_arrival_to_delivery_local {
+    description: "Conversion of the same field to local time zone for the city"
+    type: time
+    timeframes: [
+      raw,
+      minute,
+      time,
+      date,
+      week,
+      month,
+      quarter,
+      year,
+      week_of_year
+    ]
+    sql: ${TABLE}.order_courier_arrival_to_delivery_local_at ;;
+  }
+  
+  dimension_group: order_courier_arrival_to_pickup {
+    description: "Timestamp (UTC) indicating the moment at which the courier arrived to the pickup
+    location (if multiple locations, uses the first one). The pickup location is considered as
+    the 100m radius around the store. This event is not used to compute the WTP. WTP is calculated
+    using the 10m radius"
+    type: time
+    timeframes: [
+      raw,
+      minute,
+      time,
+      date,
+      week,
+      month,
+      quarter,
+      year,
+      week_of_year
+    ]
+    sql: ${TABLE}.order_courier_arrival_to_pickup_at ;;
+  }
+  
+  dimension_group: order_courier_arrival_to_pickup_local {
+    description: "Conversion of the same field to local time zone for the city"
+    type: time
+    timeframes: [
+      raw,
+      minute,
+      time,
+      date,
+      week,
+      month,
+      quarter,
+      year,
+      week_of_year
+    ]
+    sql: ${TABLE}.order_courier_arrival_to_pickup_local_at ;;
+  }
+  
   dimension_group: order_created {
     description: "Timestamp (UTC) indicating the moment at which the order was created."
     type: time
@@ -318,7 +460,7 @@ view: order_descriptors {
     ]
     sql: ${TABLE}.order_created_at ;;
   }
-
+  
   dimension_group: order_created_local {
     description: "Conversion of the same field to local time zone for the city"
     type: time
@@ -336,7 +478,77 @@ view: order_descriptors {
     ]
     sql: ${TABLE}.order_created_local_at ;;
   }
-
+  
+  dimension_group: order_dispatched {
+    description: "Timestamp (UTC) indicating the moment at which an order was dispatched to the partner
+    (the moment the order was received by the partner), if any"
+    type: time
+    timeframes: [
+      raw,
+      minute,
+      time,
+      date,
+      week,
+      month,
+      quarter,
+      year,
+      week_of_year
+    ]
+    sql: ${TABLE}.order_dispatched_at ;;
+  }
+  
+  dimension_group: order_dispatched_local {
+    description: "Conversion of the same field to local time zone for the city"
+    type: time
+    timeframes: [
+      raw,
+      minute,
+      time,
+      date,
+      week,
+      month,
+      quarter,
+      year,
+      week_of_year
+    ]
+    sql: ${TABLE}.order_dispatched_local_at ;;
+  }
+  
+  dimension_group: order_picked_up_by_courier {
+    description: "Timestamp (UTC) indicating the moment at which an order was picked up by the
+    courier (always null for orders picked up by the customer)"
+    type: time
+    timeframes: [
+      raw,
+      minute,
+      time,
+      date,
+      week,
+      month,
+      quarter,
+      year,
+      week_of_year
+    ]
+    sql: ${TABLE}.order_picked_up_by_courier_at ;;
+  }
+  
+  dimension_group: order_picked_up_by_courier_local {
+    description: "Conversion of the same field to local time zone for the city"
+    type: time
+    timeframes: [
+      raw,
+      minute,
+      time,
+      date,
+      week,
+      month,
+      quarter,
+      year,
+      week_of_year
+    ]
+    sql: ${TABLE}.order_picked_up_by_courier_local_at ;;
+  }
+  
   dimension_group: order_scheduled {
     description: "Timestamp (UTC) indicating the moment at which an order was scheduled, if any"
     type: time
@@ -353,7 +565,7 @@ view: order_descriptors {
     ]
     sql: ${TABLE}.order_scheduled_at ;;
   }
-
+  
   dimension_group: order_scheduled_local {
     description: "Conversion of the same field to local time zone for the city"
     type: time
@@ -370,7 +582,7 @@ view: order_descriptors {
     ]
     sql: ${TABLE}.order_scheduled_local_at ;;
   }
-
+  
   dimension_group: order_started {
     description:
     "Timestamp (UTC) indicating the moment at which an order started from the customer point of view.
@@ -392,7 +604,7 @@ view: order_descriptors {
     ]
     sql: ${TABLE}.order_started_at ;;
   }
-
+  
   dimension_group: order_started_local {
     description: "Conversion of the same field to local time zone for the city"
     type: time
@@ -409,7 +621,7 @@ view: order_descriptors {
     ]
     sql: ${TABLE}.order_started_local_at ;;
   }
-
+  
   dimension_group: order_terminated {
     description: "Timestamp (UTC) indicating the moment at which an order was terminated, that is if it was
     delivered it will be delivery time, if it was cancelled it will be cancelled time. This field
@@ -428,7 +640,7 @@ view: order_descriptors {
     ]
     sql: ${TABLE}.order_terminated_at ;;
   }
-
+  
   dimension_group: order_terminated_local {
     description: "Conversion of the same field to local time zone for the city"
     type: time
@@ -444,6 +656,83 @@ view: order_descriptors {
     ]
     sql: ${TABLE}.order_terminated_local_at ;;
   }
+  
+  dimension: order_is_terminated_in_5min_or_less {
+    description: "Flag indicating if the order was terminated (Delivered) or cancelled in 5min or less"
+    type: yesno
+    sql: DATE_DIFF('second', ${order_created_local_raw}, ${order_terminated_local_raw}) / 60.0 <= 5
+        OR (${order_scheduled_local_raw} IS NOT NULL
+        AND (${order_activated_local_raw} IS NULL
+        OR DATE_DIFF('second', ${order_activated_local_raw}, ${order_terminated_local_raw}) / 60.0 <= 5)) ;;
+  }
+  
+  dimension_group: partner_dispatch_to_pickup_time {
+    label: "Partner Dispatch to Pickup Time (Preparation time)"
+    type: duration
+    description: "Time between partner dispatch and pickup time"
+    intervals: [day,hour,minute,second]
+    sql_start: ${order_dispatched_local_raw} ;;
+    sql_end: ${order_picked_up_by_courier_local_raw};;
+  }
+  
+  dimension_group: partner_notified_to_accept {
+    label: "Partner Notified -> Accept"
+    type: duration
+    description: "Time between Notified to Partner and Accepted in minutes"
+    intervals: [day,hour,minute,second]
+    sql_start: ${order_dispatched_local_raw} ;;
+    sql_end: ${order_accepted_by_partner_local_raw};;
+  }
+  
+  dimension_group: partner_accept_to_pickup {
+    label: "Partner Accept -> Pickup"
+    type: duration
+    description: "Time between Accepted by Partner and Pickup in minutes"
+    intervals: [day,hour,minute,second]
+    sql_start: ${order_accepted_by_partner_local_raw} ;;
+    sql_end: ${order_picked_up_by_courier_local_raw};;
+  }
+  
+  dimension_group: new_enters_pickup {
+    label: "New -> Pickup"
+    type: duration
+    description: "Time between new order and pickup.The pickup location is considered as the
+    100m radius around the store. This event is not used to compute the WTP.
+    WTP is calculated using the 10m radius"
+    intervals: [day,hour,minute,second]
+    sql_start: ${order_started_local_raw} ;;
+    sql_end: ${order_courier_arrival_to_pickup_local_raw};;
+  }
+  
+  dimension_group: waiting_time_pickup {
+    label: "Waiting time pickup"
+    type: duration
+    description: "Time between courier entering PU point and PU time.
+    - using the 100m geofence (old/deprecated definition of WTP).
+    The curent definition of WTP uses the 10m geofence and is not computed in this view"
+    intervals: [day,hour,minute,second]
+    sql_start: ${order_courier_arrival_to_pickup_local_raw} ;;
+    sql_end: ${order_picked_up_by_courier_local_raw};;
+  }
+  
+  dimension_group: pickup_to_entering_delivery_zone {
+    label: "Pickup -> Entering delivery zone"
+    type: duration
+    description: "Time between pickup and entering delivery zone"
+    intervals: [day,hour,minute,second]
+    sql_start: ${order_picked_up_by_courier_local_raw} ;;
+    sql_end: ${order_courier_arrival_to_delivery_local_raw} ;;
+  }
+  
+  dimension_group: pickup_to_delivery_time {
+    label: "Pickup -> Delivery time"
+    type: duration
+    description: "Time between pickup and delivery"
+    intervals: [day,hour,minute,second]
+    sql_start: ${order_picked_up_by_courier_local_raw} ;;
+    sql_end: ${order_terminated_local_raw};;
+  }
+  
 
 ########################################################################################################################################################################
 
@@ -616,7 +905,7 @@ view: order_descriptors {
     sql: ${TABLE}.order_id ;;
     group_label: "Number of Orders"
   }
-  
+
   measure: number_of_delivered_orders_prime {
     description: "Total delivered orders filtered by prime users"
     type: count_distinct
@@ -761,6 +1050,14 @@ view: order_descriptors {
     type: average_distinct
     value_format_name: decimal_2
     sql: ${seconds_delivery_duration} / 60.00 ;;
+  }
+
+  measure: avg_partner_dispatch_pickup {
+    label: "Average Partner Dispatch to Pickup Time (Preparation time)"
+    description: "Average time between partner dispatch and pickup time"
+    type: average_distinct
+    value_format_name: decimal_2
+    sql: ${seconds_partner_dispatch_to_pickup_time} / 60.00 ;;
   }
 
   measure: number_of_customers_with_orders {
