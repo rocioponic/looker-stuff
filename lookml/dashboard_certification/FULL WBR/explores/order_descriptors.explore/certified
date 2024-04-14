@@ -1,12 +1,12 @@
 # include all the views
-include: "/central_dm/views/first_order_tag_derived.view.lkml"
-include: "/central_dm/views/order_descriptors.view.lkml"
-include: "/central_dm/views/ratings.view.lkml"
-include: "/mfc_dm/views/mfc_store_addresses.view.lkml"
-include: "/partners_dm/views/store_addresses.view.lkml"
-include: "/partners_dm/views/stores.view.lkml"
-include: "/central_dm/views/order_pna.view.lkml"
-include: "/central_dm/views/first_orders_levels.view.lkml"
+include: "/central_dm_cert/views_cert/first_order_tag_derived.view.lkml"
+include: "/central_dm_cert/views_cert/order_descriptors.view.lkml"
+include: "/central_dm_cert/views_cert/ratings.view.lkml"
+include: "/mfc_dm_cert/views_cert/mfc_store_addresses.view.lkml"
+include: "/partners_dm_cert/views_cert/store_addresses.view.lkml"
+include: "/partners_dm_cert/views_cert/stores.view.lkml"
+include: "/central_dm_cert/views_cert/order_pna.view.lkml"
+include: "/central_dm_cert/views_cert/first_orders_levels.view.lkml"
 
 explore: order_descriptors {
   persist_with: order_descriptors_datagroup #cache policy - check datagroup definition in the model.
@@ -28,72 +28,71 @@ explore: order_descriptors {
     relationship: many_to_one
   }
 
-    join: stores {
-      type: left_outer
-      sql_on: ${store_addresses.store_id} = ${stores.pk2_store_id}
-        AND ${stores.pk2_p_end_date} is Null ;;
-      # LAMS
-      # rule_exemptions: {
-      # E2: "2023-03-01 -  pk2_p_end_date is not joined to another primary key, but
-      # is needed for only loading the last update for the store."
-      # }
-      relationship: many_to_one
-      fields: [
-        stores.store_vertical,
-        stores.store_subvertical,
-        stores.store_subvertical2,
-        stores.store_subvertical3,
-        stores.store_sub_business_unit,
-        stores.is_specialty,
-        stores.store_is_enabled,
-        stores.store_name,
-        stores.brand_id
-      ]
-    }
+  join: stores {
+    type: left_outer
+    sql_on: ${store_addresses.store_id} = ${stores.pk2_store_id}
+      AND ${stores.pk2_p_end_date} is Null ;;
+    # LAMS
+    # rule_exemptions: {
+    # E2: "2023-03-01 -  pk2_p_end_date is not joined to another primary key, but
+    # is needed for only loading the last update for the store."
+    # }
+    relationship: many_to_one
+    fields: [
+      stores.store_vertical,
+      stores.store_subvertical,
+      stores.store_subvertical2,
+      stores.store_subvertical3,
+      stores.store_sub_business_unit,
+      stores.is_specialty,
+      stores.store_is_enabled,
+      stores.store_name
+    ]
+  }
 
-      join: ratings {
-        type: left_outer
-        sql_on: ${order_descriptors.pk1_order_id} = ${ratings.pk_order_id};;
-        relationship: one_to_one
-      }
+  join: ratings {
+    type: left_outer
+    sql_on: ${order_descriptors.pk1_order_id} = ${ratings.pk_order_id};;
+    relationship: one_to_one
+  }
 
-      join: first_order_tag_derived {
-        # 2022-12-21 This makes the 6th View, but we need it to tag New/Recurrent Customers
-        # in the Q-Commerce BUs/Verticals
-        type: inner
-        sql_on: ${order_descriptors.customer_id} = ${first_order_tag_derived.pk_id} ;;
-        relationship: many_to_one
-      }
+  join: first_order_tag_derived {
+    # 2022-12-21 This makes the 6th View, but we need it to tag New/Recurrent Customers
+    # in the Q-Commerce BUs/Verticals
+    type: inner
+    sql_on: ${order_descriptors.customer_id} = ${first_order_tag_derived.pk_id} ;;
+    relationship: many_to_one
+  }
 
-      join: mfc_store_addresses {
-        # 2022-12-21 This makes the 10th View, but we need it to identify filter MFC stores
-        type: left_outer
-        sql_on: ${order_descriptors.store_address_id} = ${mfc_store_addresses.store_address_id}
-          AND DATE(${mfc_store_addresses.end_date}) >= CURRENT_DATE ;;
-        # LAMS
-        # rule_exemptions: {
-        # E2: "2022-12-21 - We can't add store_address_id as PK"
-        # }
-        fields: [
-          mfc_store_addresses.store_address_is_mfc
-          , mfc_store_addresses.mfc_name
-          , mfc_store_addresses.mfc_danzai_id
-          , mfc_store_addresses.mfc_business_id
-        ]
-        relationship: one_to_many
-      }
+  join: mfc_store_addresses {
+    # 2022-12-21 This makes the 10th View, but we need it to identify filter MFC stores
+    type: left_outer
+    sql_on: ${order_descriptors.store_address_id} = ${mfc_store_addresses.store_address_id}
+      AND DATE(${mfc_store_addresses.end_date}) >= CURRENT_DATE ;;
+    # LAMS
+    # rule_exemptions: {
+    # E2: "2022-12-21 - We can't add store_address_id as PK"
+    # }
+    fields: [
+      mfc_store_addresses.store_address_is_mfc
+      , mfc_store_addresses.mfc_name
+      , mfc_store_addresses.mfc_danzai_id
+      , mfc_store_addresses.mfc_business_id
+    ]
+    relationship: one_to_many
+  }
 
-      join: order_pna {
-        type: left_outer
-        sql_on: ${order_descriptors.pk1_order_id} = ${order_pna.pk1_order_id}
-          and ${order_descriptors.p_creation_date} = ${order_pna.p_creation_date} ;;
-        relationship: one_to_one
-      }
+  join: order_pna {
+    type: left_outer
+    sql_on: ${order_descriptors.pk1_order_id} = ${order_pna.pk1_order_id}
+      and ${order_descriptors.p_creation_date} = ${order_pna.p_creation_date} ;;
+    relationship: one_to_one
+  }
 
-      join: first_orders_levels {
-        type: left_outer
-        sql_on: ${order_descriptors.pk1_order_id} = ${first_orders_levels.pk1_order_id} ;;
-        relationship: one_to_one
-      }
+  join: first_orders_levels {
+    type: left_outer
+    sql_on: ${order_descriptors.pk1_order_id} = ${first_orders_levels.pk1_order_id} ;;
+    relationship: one_to_one
+  }
 
-    }
+}
