@@ -1,6 +1,6 @@
 connection: "starburst"
 
-include: "/finance_dm/explores/*.explore.lkml"
+include: "/finance_dm_cert/explores_cert/*.explore.lkml"
 
 datagroup: financial_order_metrics_datagroup {
   sql_trigger: select max(p_creation_date) from delta.finance_financial_metrics_odp.financial_order_metrics ;;
