@@ -1,0 +1,19 @@
+# CENTRAL_CERT
+/central_dm_cert/ @Glovo/looker-main-admins
+
+# CENTRAL
+
+/central_dm_cert/explores_cert/ @Glovo/looker-main-admins
+/central_dm_cert/explores_cert/financial_order_metrics.explore.lkml @Glovo/looker-main-admins
+/central_dm_cert/explores_cert/order_descriptors.explore.lkml @Glovo/looker-main-admins
+/central_dm_cert/explores_cert/order_feedback_facts.explore.lkml @Glovo/looker-main-admins
+
+
+
+/central_dm_cert/views_cert/ @Glovo/looker-main-admins
+/central_dm_cert/views_cert/financial_order_metrics.view.lkml @Glovo/looker-main-admins
+/central_dm_cert/views_cert/first_order_tag_derived.view.lkml @Glovo/looker-main-admins
+/central_dm_cert/views_cert/first_orders_levels.view.lkml @Glovo/looker-main-admins
+/central_dm_cert/views_cert/order_descriptors.view.lkml @Glovo/looker-main-admins
+/central_dm_cert/views_cert/order_pna.view.lkml @Glovo/looker-main-admins
+/central_dm_cert/views_cert/ratings.view.lkml @Glovo/looker-main-admins
