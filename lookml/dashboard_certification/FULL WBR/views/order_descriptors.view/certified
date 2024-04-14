@@ -616,6 +616,14 @@ view: order_descriptors {
     sql: ${TABLE}.order_id ;;
     group_label: "Number of Orders"
   }
+  
+  measure: number_of_delivered_orders_prime {
+    description: "Total delivered orders filtered by prime users"
+    type: count_distinct
+    filters: [order_final_status: "DeliveredStatus",  order_is_prime: "yes"]
+    sql: ${TABLE}.order_id ;;
+    group_label: "Number of Orders"
+  }
 
   measure: number_of_cancelled_orders_due_to_partner {
     description: "Total cancelled orders due to partner, includes these reasons:
