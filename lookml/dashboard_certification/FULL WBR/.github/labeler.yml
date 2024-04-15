@@ -1,3 +1,15 @@
-d/contact_cert:
+d/central_cert:
   - central_dm_cert/*
   - central_dm_cert/**/*
+
+d/finance_cert:
+  - finance_dm_cert/*
+  - finance_dm_cert/**/*
+
+d/mfc_cert:
+  - mfc_dm_cert/*
+  - mfc_dm_cert/**/*
+
+d/partners_cert:
+  - partners_dm_cert/*
+  - partners_dm_cert/**/*
