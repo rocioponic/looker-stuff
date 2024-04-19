@@ -1,0 +1,26 @@
+  dimension: store_sub_business_unit {
+    description: "BU in which each Store_ID is tagged in Admin"
+    group_label: "Stores"
+    type: string
+    sql: ${TABLE}.store_sub_business_unit ;;
+  }
+
+  dimension: store_name {
+    description: "Store Name of the partner"
+    group_label: "Stores"
+    type: string
+    sql: ${TABLE}.store_name ;;
+  }
+  
+  parameter: all_BU_filter_satisfied_first {
+    type: yesno
+    suggest_dimension: order_descriptors.all_BU_filter_satisfied
+  }
+  
+  dimension: filtered_bu_from_order_descriptors {
+    hidden: yes
+    type: yesno
+    sql:
+      {% if all_BU_filter_satisfied_first._parameter_value == "'true'" %} "'yes'"
+      ;;
+  }
