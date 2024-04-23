@@ -1,4 +1,4 @@
-include: "/central_dm/views/order_descriptors.view"
+include: "/central_dm_cert/views_cert/order_descriptors_qcommerce.view"
 view: first_orders_levels {
   sql_table_name: delta.central__daily_first_orders_levels__odp.daily_first_orders_levels ;;
   suggestions: no
@@ -6,31 +6,31 @@ view: first_orders_levels {
   dimension: test_vertical_bu_filter_satisfied_filter {
     type: yesno
     hidden: no
-    sql: ${order_descriptors.vertical_bu_filter_satisfied} = ${store_vertical};;
+    sql: ${order_descriptors_qcommerce.vertical_bu_filter_satisfied} = ${store_vertical};;
   }
 
   dimension: test_subvertical_bu_filter_satisfied_filter {
     type: yesno
     hidden: no
-    sql:  ${order_descriptors.subvertical_bu_filter_satisfied} ;;
+    sql:  ${order_descriptors_qcommerce.subvertical_bu_filter_satisfied} ;;
   }
 
   dimension: test_subvertical2_bu_filter_satisfied_filter {
     type: yesno
     hidden: no
-    sql:  ${order_descriptors.subvertical2_bu_filter_satisfied} ;;
+    sql:  ${order_descriptors_qcommerce.subvertical2_bu_filter_satisfied} ;;
   }
 
   dimension: test_subvertical3_bu_filter_satisfied_filter {
     type: yesno
     hidden: no
-    sql:  ${order_descriptors.subvertical3_bu_filter_satisfied} ;;
+    sql:  ${order_descriptors_qcommerce.subvertical3_bu_filter_satisfied} ;;
   }
 
   dimension: test_store_name_bu_filter_satisfied_filter {
     type: yesno
     hidden: no
-    sql:  ${order_descriptors.store_name_bu_filter_satisfied} ;;
+    sql:  ${order_descriptors_qcommerce.store_name_bu_filter_satisfied} ;;
   }
 
   dimension: pk1_order_id {
@@ -295,7 +295,7 @@ view: first_orders_levels {
 
   dimension: first_order_in_glovo_app_is_prime {
     description: "Is Prime Customer at the moment
-      of the first order in Glovo"
+    of the first order in Glovo"
     group_label: "Is Prime Customers Levels"
     type: yesno
     sql: ${TABLE}.first_order_in_glovo_app_is_prime ;;
@@ -453,7 +453,7 @@ view: first_orders_levels {
 
   dimension: first_order_in_vertical_is_prime {
     description: "Is Prime Customer at the moment
-      of the first order in Vertical"
+    of the first order in Vertical"
     group_label: "Is Prime Customers Levels"
     type: yesno
     sql: ${TABLE}.first_order_in_vertical_is_prime ;;
@@ -472,7 +472,7 @@ view: first_orders_levels {
   measure: number_of_non_prime_new_customers_vertical {
     description: "Number of prime new customers in the Vertical"
     group_label: "Prime Customers and Orders Levels"
-     type: count_distinct
+    type: count_distinct
     filters: [is_prime_customer: "no", test_vertical_bu_filter_satisfied_filter: "yes"]
     sql: case when ${activated_local_at_dynamic}
       = ${first_order_in_vertical_at_dynamic}
@@ -502,7 +502,7 @@ view: first_orders_levels {
   measure: number_of_prime_recurrent_customers_vertical {
     description: "Number of prime Recurrent customers in the Vertical"
     group_label: "Prime Customers and Orders Levels"
-     type: count_distinct
+    type: count_distinct
     filters: [is_prime_customer: "yes", test_vertical_bu_filter_satisfied_filter: "yes"]
     sql: case when ${activated_local_at_dynamic}
       <> ${first_order_in_vertical_at_dynamic}
