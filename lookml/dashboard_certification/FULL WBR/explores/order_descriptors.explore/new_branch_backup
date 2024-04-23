@@ -1,26 +1,26 @@
 # include all the views
-include: "/central_dm_cert/views_cert/order_descriptors_qcommerce.view.lkml"
-include: "/central_dm_cert/views_cert/ratings.view.lkml"
-include: "/mfc_dm_cert/views_cert/mfc_store_addresses.view.lkml"
-include: "/partners_dm_cert/views_cert/store_addresses.view.lkml"
-include: "/partners_dm_cert/views_cert/stores.view.lkml"
-include: "/central_dm_cert/views_cert/order_pna.view.lkml"
-include: "/central_dm_cert/views_cert/first_orders_levels.view.lkml"
-include: "/central_dm_cert/views_cert/order_feedback_facts.view.lkml"
+include: "/central_dm_cert/views_cert/order_descriptors_qcommerce_cert.view.lkml"
+include: "/central_dm_cert/views_cert/ratings_cert.view.lkml"
+include: "/mfc_dm_cert/views_cert/mfc_store_addresses_cert.view.lkml"
+include: "/partners_dm_cert/views_cert/store_addresses_cert.view.lkml"
+include: "/partners_dm_cert/views_cert/stores_cert.view.lkml"
+include: "/central_dm_cert/views_cert/order_pna_cert.view.lkml"
+include: "/central_dm_cert/views_cert/first_orders_levels_cert.view.lkml"
+include: "/central_dm_cert/views_cert/order_feedback_facts_cert.view.lkml"
 
-explore: order_descriptors_qcommerce {
+explore: order_descriptors_qcommerce_cert {
   persist_with: order_descriptors_datagroup #cache policy - check datagroup definition in the model.
 
   always_filter: {
-    filters: [order_descriptors_qcommerce.p_creation_date: "365 days"] #force filter by partition key
+    filters: [order_descriptors_qcommerce_cert.p_creation_date: "365 days"] #force filter by partition key
   }
 
   description: "Order Descriptors table wants to have all relevant order dimensions per order_id granularity"
 
-  join: store_addresses {
+  join: store_addresses_cert {
     type: left_outer
-    sql_on: ${order_descriptors_qcommerce.store_address_id} = ${store_addresses.pk2_store_address_id}
-      AND ${store_addresses.pk2_p_end_date} is Null ;;
+    sql_on: ${order_descriptors_qcommerce_cert.store_address_id} = ${store_addresses_cert.pk2_store_address_id}
+      AND ${store_addresses_cert.pk2_p_end_date} is Null ;;
     # LAMS
     # rule_exemptions: {
     # E2: "2022-11-14 - We can't add store_address_id as PK"
@@ -28,10 +28,10 @@ explore: order_descriptors_qcommerce {
     relationship: many_to_one
   }
 
-  join: stores {
+  join: stores_cert {
     type: left_outer
-    sql_on: ${store_addresses.store_id} = ${stores.pk2_store_id}
-      AND ${stores.pk2_p_end_date} is Null ;;
+    sql_on: ${store_addresses_cert.store_id} = ${stores_cert.pk2_store_id}
+      AND ${stores_cert.pk2_p_end_date} is Null ;;
     # LAMS
     # rule_exemptions: {
     # E2: "2023-03-01 -  pk2_p_end_date is not joined to another primary key, but
@@ -39,57 +39,57 @@ explore: order_descriptors_qcommerce {
     # }
     relationship: many_to_one
     fields: [
-      stores.store_vertical,
-      stores.store_subvertical,
-      stores.store_subvertical2,
-      stores.store_subvertical3,
-      stores.store_sub_business_unit,
-      stores.is_specialty,
-      stores.store_is_enabled,
-      stores.store_name
+      stores_cert.store_vertical,
+      stores_cert.store_subvertical,
+      stores_cert.store_subvertical2,
+      stores_cert.store_subvertical3,
+      stores_cert.store_sub_business_unit,
+      stores_cert.is_specialty,
+      stores_cert.store_is_enabled,
+      stores_cert.store_name
     ]
   }
 
-  join: ratings {
+  join: ratings_cert {
     type: left_outer
-    sql_on: ${order_descriptors_qcommerce.pk1_order_id} = ${ratings.pk_order_id};;
+    sql_on: ${order_descriptors_qcommerce_cert.pk1_order_id} = ${ratings_cert.pk_order_id};;
     relationship: one_to_one
   }
 
-  join: mfc_store_addresses {
+  join: mfc_store_addresses_cert {
     # 2022-12-21 This makes the 10th View, but we need it to identify filter MFC stores
     type: left_outer
-    sql_on: ${order_descriptors_qcommerce.store_address_id} = ${mfc_store_addresses.store_address_id}
-      AND DATE(${mfc_store_addresses.end_date}) >= CURRENT_DATE ;;
+    sql_on: ${order_descriptors_qcommerce_cert.store_address_id} = ${mfc_store_addresses_cert.store_address_id}
+      AND DATE(${mfc_store_addresses_cert.end_date}) >= CURRENT_DATE ;;
     # LAMS
     # rule_exemptions: {
     # E2: "2022-12-21 - We can't add store_address_id as PK"
     # }
     fields: [
-      mfc_store_addresses.store_address_is_mfc
-      , mfc_store_addresses.mfc_name
-      , mfc_store_addresses.mfc_danzai_id
-      , mfc_store_addresses.mfc_business_id
+      mfc_store_addresses_cert.store_address_is_mfc
+      , mfc_store_addresses_cert.mfc_name
+      , mfc_store_addresses_cert.mfc_danzai_id
+      , mfc_store_addresses_cert.mfc_business_id
     ]
     relationship: one_to_many
   }
 
-  join: order_pna {
+  join: order_pna_cert {
     type: left_outer
-    sql_on: ${order_descriptors_qcommerce.pk1_order_id} = ${order_pna.pk1_order_id}
-      and ${order_descriptors_qcommerce.p_creation_date} = ${order_pna.p_creation_date} ;;
+    sql_on: ${order_descriptors_qcommerce_cert.pk1_order_id} = ${order_pna_cert.pk1_order_id}
+      and ${order_descriptors_qcommerce_cert.p_creation_date} = ${order_pna_cert.p_creation_date} ;;
     relationship: one_to_one
   }
 
-  join: first_orders_levels {
+  join: first_orders_levels_cert {
     type: left_outer
-    sql_on: ${order_descriptors_qcommerce.pk1_order_id} = ${first_orders_levels.pk1_order_id} ;;
+    sql_on: ${order_descriptors_qcommerce_cert.pk1_order_id} = ${first_orders_levels_cert.pk1_order_id} ;;
     relationship: one_to_one
   }
 
-  join: order_feedback_facts {
+  join: order_feedback_facts_cert {
     type: left_outer
-    sql_on: ${order_descriptors_qcommerce.pk1_order_id} = ${order_feedback_facts.order_id};;
+    sql_on: ${order_descriptors_qcommerce_cert.pk1_order_id} = ${order_feedback_facts_cert.order_id};;
     # LAMS
     # rule_exemptions: {
     # E2: "2024-03-25 - order_id is not the points_postal_codes PK"
