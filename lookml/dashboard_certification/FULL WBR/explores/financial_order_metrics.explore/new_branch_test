@@ -1,0 +1,34 @@
+# include all the views
+include: "/finance_dm_cert/views_cert/financial_order_metrics.view.lkml"
+include: "/partners_dm_cert/views_cert/stores.view.lkml"
+
+explore: financial_order_metrics {
+  persist_with: financial_order_metrics_datagroup #cache policy
+
+  always_filter: {
+    filters: [financial_order_metrics.p_creation_date: "365 days"] #force filter by partition key
+  }
+
+  description: "FOM table aims to provide all relevant
+  financial metrics and dimensions at order id level granularity"
+
+  join: stores {
+    type: left_outer
+    sql_on: ${financial_order_metrics.store_id} = ${stores.pk2_store_id}
+      AND ${stores.pk2_p_end_date} is Null ;;
+    # LAMS
+    # rule_exemptions: {
+    # E2: "2023-11-13 -  pk2_p_end_date is not joined to another primary key, but
+    # is needed for only loading the last update for the store."
+    # }
+    relationship: many_to_one
+    fields: [
+      stores.store_vertical,
+      stores.store_subvertical,
+      stores.store_subvertical2,
+      stores.store_subvertical3,
+      stores.store_sub_business_unit,
+      stores.is_specialty,
+    ]
+  }
+}
