@@ -1,0 +1,312 @@
+view: order_feedback_facts {
+
+  sql_table_name: contact_contact_intent_odp.fct_contact_intent ;;
+
+  dimension: pk1_order_feedback_facts_id {
+    description: "Compound PK field, enables symmetric aggregates"
+    hidden: yes
+    primary_key: yes
+    type: string
+    sql: CONCAT_WS(
+        '_',
+        COALESCE(CAST(${TABLE}.feedback_id AS varchar), ''),
+        COALESCE(CAST(${TABLE}.feedback_option_id AS varchar), ''),
+        COALESCE(CAST(${TABLE}.bought_product_id AS varchar), '')
+         ) ;;
+  }
+
+  dimension: customer_id {
+    type: number
+    description: "Glovo's unique identifier for a customer"
+    sql: ${TABLE}.customer_id ;;
+  }
+
+  dimension: order_id {
+    type: number
+    description: "Glovo's unique identifier for an order"
+    sql: ${TABLE}.order_id ;;
+  }
+
+  dimension: feedback_id {
+    type: number
+    description: "Unique identifier for the order feedback"
+    sql: ${TABLE}.feedback_id ;;
+  }
+
+  dimension: bought_product_id {
+    type: number
+    description: "Unique identifier of the bought product related to the paid attribute ID"
+    sql: ${TABLE}.bought_product_id ;;
+  }
+
+  dimension: feedback_option_id {
+    type: number
+    description: "Unique identifier of the feedback option related to the paid attribute ID"
+    sql: ${TABLE}.feedback_option_id ;;
+  }
+
+  dimension_group: created_at {
+    description: "Timestamp indicating when the feedback was created (UTC)"
+    type: time
+    timeframes: [
+      raw,
+      day_of_week,
+      date,
+      week,
+      month,
+      quarter,
+      year
+    ]
+    sql: ${TABLE}.created_at ;;
+  }
+
+  dimension_group: p_created_date {
+    description: "Partition key indicating when the feedback was created (UTC)"
+    type: time
+    timeframes: [
+      raw,
+      day_of_week,
+      date,
+      week,
+      month,
+      quarter,
+      year
+    ]
+    sql: ${TABLE}.p_created_date ;;
+  }
+
+  dimension: origin {
+    type: string
+    description: "The origin of the feedback.
+    It can come from help, ongoing, ratings, support, profile, fraud_popup"
+    sql: ${TABLE}.origin ;;
+  }
+
+  dimension: selected_option {
+    type: string
+    description: "The feedback option/reason that the user selects to start the rating"
+    sql: ${TABLE}.feedback_selected_option ;;
+  }
+
+  dimension: feedback_outcome {
+    type: string
+    description: "The different results of the feedback.
+    The outcome of the feedback. Possible values are: CALL_COURIER, CALL_PARTNER, CANCEL_AND_REORDER,
+    CANCEL_ORDER, CHAT_COURIER, CHAT_SUPPORT, CLOSE_CONTACT_TREE, EMAIL, FAQ, FORM, REDIRECT_WEB, REORDER,
+    SELF_REFUND,and TIMELINE"
+    sql: ${TABLE}.feedback_outcome ;;
+  }
+
+  dimension: contact_tree_variation {
+    type: string
+    description: "Type of contact of the feedback. Possible values are:
+    NOT_RELATED_TO_ORDER, ONGOING, PAST_ORDER"
+    sql: ${TABLE}.contact_tree_variation ;;
+  }
+
+  dimension: csat_score {
+    type: number
+    label: "CSAT Score"
+    description: "The score given in the Customer Satisfaction (CSAT) Survey triggered to customers after
+    using in-app solutions"
+    sql: ${TABLE}.csat_score ;;
+  }
+
+  dimension: csat_rating {
+    type: number
+    label: "CSAT Rating"
+    description: "The 1 to 5 star-rating given in the Customer Satisfaction (CSAT)
+    Survey triggered to customers after using in-app solutions"
+    sql: ${TABLE}.csat_rating ;;
+  }
+
+  dimension: csat_score_type {
+    type: string
+    label: "CSAT Score Type"
+    description: "The sentiment of the score given in the Customer Satisfaction (CSAT) Survey triggered
+    to customers after using in-app solutions. Possible values are: Positive, Negative, Neutral"
+    sql: ${TABLE}.csat_score_type ;;
+  }
+
+  dimension: csat_side {
+    type: string
+    label: "CSAT Side"
+    description: "The side where thumbs up appear in the CSAT Survey showed to the customer.
+    Possible values are: Right, Left"
+    sql: ${TABLE}.csat_side ;;
+  }
+
+  dimension: csat_reason {
+    type: string
+    label: "CSAT Reason"
+    description: "The reason given by the customer in the CSAT Survey.
+    Possible values are: NoAgent, NotRelevant, TooManySteps"
+    sql: ${TABLE}.csat_reason ;;
+  }
+
+  measure: number_of_feedbacks {
+    description: "Total number of feedbacks"
+    type: count_distinct
+    sql: ${feedback_option_id} ;;
+  }
+
+  measure: number_of_orders_with_feedback {
+    description: "Total orders that received at least 1 feedback"
+    type: count_distinct
+    sql: ${order_id} ;;
+  }
+
+  measure: number_of_feedbacks_with_csat_score {
+    type: count_distinct
+    label: "Total feedbacks for which a CSAT Score was provided"
+    description: "Number of scores given"
+    filters: [csat_score: "1, 0, -1"]
+    sql: ${TABLE}.feedback_id ;;
+  }
+
+  measure: csat_score_thumbs_up_count {
+    type: count_distinct
+    description: "Number of scores given"
+    group_label: "CSAT Score Thumbs Breakdown"
+    group_item_label: "Number of Thumbs Up CSAT Scores"
+    filters: [csat_score: "1"]
+    sql: ${TABLE}.feedback_id ;;
+  }
+
+  measure: csat_score_thumbs_down_count {
+    type: count_distinct
+    description: "Number of scores given"
+    group_label: "CSAT Score Thumbs Breakdown"
+    group_item_label: "Number of Thumbs Down CSAT Scores"
+    filters: [csat_score: "-1"]
+    sql: ${TABLE}.feedback_id ;;
+  }
+
+  measure: percentage_of_csat_score_thumbs_up {
+    type: number
+    description: "Percentage of thumbs up CSAT scores given"
+    group_label: "% of CSAT Scores Thumbs Breakdown"
+    group_item_label: "% of CSAT Scores with Thumbs Up"
+    value_format_name: percent_2
+    sql: CAST(${csat_score_thumbs_up_count} as DOUBLE)/NULLIF(${number_of_feedbacks_with_csat_score}, 0) ;;
+  }
+
+  measure: percentage_of_csat_score_thumbs_down {
+    type: number
+    description: "Percentage of thumbs down CSAT scores given"
+    group_label:  "% of CSAT Scores Thumbs Breakdown"
+    group_item_label: "% of CSAT Scores with Thumbs Down"
+    value_format_name: percent_2
+    sql: CAST(${csat_score_thumbs_down_count} as DOUBLE)/NULLIF(${number_of_feedbacks_with_csat_score}, 0) ;;
+  }
+
+  measure: number_of_order_feedback_submitted_due_to_store_missing_products {
+    description: "Feedback due to reason missing products (store)."
+    group_label: "Number of Orders with Feedback due to Store Related Reasons (Past Order)"
+    group_item_label: "Missing Products"
+    type: count_distinct
+    filters: [selected_option: "MISSING_PRODUCTS"]
+    sql: ${TABLE}.order_id ;;
+  }
+
+  measure: number_of_order_store_wrong_or_missing_products {
+    description: "Feedback due to reasons 'Wrong Products', 'Missing Products' or 'Missing Extras'"
+    group_label: "Number of Orders with Feedback due to Store Related Reasons (Past Order)"
+    group_item_label: "Wrong or Missing Products"
+    type: count_distinct
+    filters: [
+      selected_option: "MISSING_PRODUCTS,MISSING_WRONG_PRODUCTS,WRONG_PRODUCTS,MISSING_EXTRAS"
+    ]
+    sql: ${TABLE}.order_id ;;
+  }
+
+  measure: number_of_order_feedback_submitted_due_to_store_wrong_products {
+    description: "Feedback due to reason wrong products (store)."
+    group_label: "Number of Orders with Feedback due to Store Related Reasons (Past Order)"
+    group_item_label: "Wrong Products"
+    type: count_distinct
+    filters: [selected_option: "WRONG_PRODUCTS"]
+    sql: ${TABLE}.order_id ;;
+  }
+
+  measure: feedback_all_store {
+    description: "Total number of orders with feedback due to store reasons."
+    group_label: "Number of Orders with Feedback due to Store Related Reasons (Past Order)"
+    group_item_label: "All Store Related Reasons"
+    type: count_distinct
+    # LAMS
+    # rule_exemptions: {
+    # F1: "2023-06-09 - Field references another veiw as in order feedbacks"
+    # }
+    sql:
+        CASE
+          WHEN (${TABLE}.feedback_selected_option in (
+            'ALLERGY_NOT_CONSIDERED',
+            'CHARGED_WRONG_AMOUNT',
+            'MISSING_EXTRAS',
+            'MISSING_PRODUCTS',
+            'MISSING_WRONG_PRODUCTS',
+            'PACKAGING_ISSUES',
+            'DAMAGED_ITEMS',
+            'TRANSPORTED_IMPROPERLY',
+            'POOR_QUALITY',
+            'SPECIAL_STORE_PROMOS',
+            'PROMO_CODE_CHECK_BALANCE',
+            'PROMO_CODE_NOT_VALID',
+            'TASTED_BAD',
+            'WRONG_PRODUCTS'
+            ))
+            OR (
+              ${TABLE}.feedback_selected_option='ORDER_LATE'
+              and ${order_descriptors_qcommerce.seconds_partner_dispatch_to_pickup_time}>1500
+              and ${order_descriptors_qcommerce.seconds_waiting_time_pickup}>420
+            )
+          THEN ${TABLE}.order_id
+          ELSE NULL
+        END ;;
+  }
+
+  measure: percentage_of_order_feedback_submitted_due_to_store {
+    description: "Percentage of order feedback submitted over orders due to store reasons"
+    group_label: "Percentage of Orders with Feedback due to Store Related Reasons (Past Order)"
+    group_item_label: "All Store Related Reasons"
+    type: number
+    value_format_name: percent_2
+    # LAMS
+    # rule_exemptions: {
+    # F1: "2023-08-23 - Field references another view as in order feedbacks"
+    # }
+    sql: 1.0000* ${feedback_all_store}
+      / nullif(${order_descriptors_qcommerce.number_of_delivered_orders}, 0) ;;
+  }
+
+  measure: percentage_of_order_feedback_submitted_due_to_store_wrong_or_missing_products {
+    description: "Percentage of order feedback submitted over orders due to reasons 'Wrong Products',
+    'Missing Products' or 'Missing Extras'"
+    group_label: "Percentage of Orders with Feedback due to Store Related Reasons (Past Order)"
+    group_item_label: "Wrong or Missing Products"
+    type: number
+    value_format_name: percent_2
+    # LAMS
+    # rule_exemptions: {
+    # F1: "2023-08-23 - Field references another view as in order feedbacks"
+    # }
+    sql: 1.0000* ${number_of_order_store_wrong_or_missing_products}
+      / nullif(${order_descriptors_qcommerce.number_of_delivered_orders}, 0) ;;
+  }
+
+  measure: percentage_of_order_feedback_submitted_due_to_store_wrong_products {
+    description: "Percentage of order feedback submitted over orders due to reason 'Wrong Products'"
+    group_label: "Percentage of Orders with Feedback due to Store Related Reasons (Past Order)"
+    group_item_label: "Wrong Products"
+    type: number
+    value_format_name: percent_2
+    # LAMS
+    # rule_exemptions: {
+    # F1: "2023-08-23 - Field references another view as in order feedbacks"
+    # }
+    sql: 1.0000* ${number_of_order_feedback_submitted_due_to_store_wrong_products}
+      / nullif(${order_descriptors_qcommerce.number_of_delivered_orders}, 0) ;;
+  }
+
+}
