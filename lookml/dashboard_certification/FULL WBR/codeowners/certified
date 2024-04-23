@@ -4,14 +4,13 @@
 # CENTRAL
 
 /central_dm_cert/explores_cert/ @Glovo/looker-main-admins
-/central_dm_cert/explores_cert/order_descriptors.explore.lkml @Glovo/looker-main-admins
-/central_dm_cert/explores_cert/order_feedback_facts.explore.lkml @Glovo/looker-main-admins
+/central_dm_cert/explores_cert/order_descriptors_qcommerce.explore.lkml @Glovo/looker-main-admins
 
 
 /central_dm_cert/views_cert/ @Glovo/looker-main-admins
-/central_dm_cert/views_cert/financial_order_metrics.view.lkml @Glovo/looker-main-admins
 /central_dm_cert/views_cert/first_orders_levels.view.lkml @Glovo/looker-main-admins
-/central_dm_cert/views_cert/order_descriptors.view.lkml @Glovo/looker-main-admins
+/central_dm_cert/views_cert/order_descriptors_qcommerce.view.lkml @Glovo/looker-main-admins
+/central_dm_cert/views_cert/order_feedback_facts.view.lkml @Glovo/looker-main-admins
 /central_dm_cert/views_cert/order_pna.view.lkml @Glovo/looker-main-admins
 /central_dm_cert/views_cert/ratings.view.lkml @Glovo/looker-main-admins
 
@@ -51,5 +50,5 @@
 
 
 /partners_dm_cert/views_cert/ @Glovo/looker-main-admins
-/partners_dm_cert/views_cert/stores.view.lkml @Glovo/looker-main-admins
 /partners_dm_cert/views_cert/store_addresses.view.lkml @Glovo/looker-main-admins
+/partners_dm_cert/views_cert/stores.view.lkml @Glovo/looker-main-admins
