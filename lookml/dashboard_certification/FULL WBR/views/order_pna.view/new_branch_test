@@ -1,0 +1,198 @@
+view: order_pna {
+  sql_table_name: delta.mfc__pna__odp.pna_orders_info ;;
+
+  dimension: pk1_order_id {
+    description: "Primary key"
+    primary_key: yes
+    hidden: yes
+    type: number
+    sql: ${TABLE}.order_id ;;
+  }
+
+  dimension_group: p_creation {
+    description: "Partition key for the table from the order_created_at field"
+    type: time
+    timeframes: [
+      date,
+      day_of_week,
+      week,
+      month,
+      quarter,
+      year
+    ]
+    sql: ${TABLE}.p_creation_date ;;
+  }
+
+  dimension: order_id {
+    description: "Unique identifier for the order"
+    type: number
+    hidden: yes
+    sql: ${TABLE}.order_id ;;
+  }
+
+  dimension: order_is_pna_cancellation {
+    description: "Boolean yes/no. Indicates if the order was cancelled due to PNA"
+    type: yesno
+    sql: ${TABLE}.order_is_pna_cancellation ;;
+  }
+
+  dimension: order_is_pna_wm_feedback {
+    description: "Boolean yes/no. Indicates if the order had wrong or missing items
+    feedback"
+    type: yesno
+    sql: ${TABLE}.order_is_pna_wm_feedback ;;
+  }
+
+  dimension: order_is_pna_refund {
+    description:  "Boolean yes/no. Indicates if the order had a refund due to PNA"
+    type: yesno
+    sql: ${TABLE}.order_is_pna_refund ;;
+  }
+
+  dimension: order_is_pna_replacement {
+    description: "Boolean yes/no. Indicates if the order had a replacement"
+    type: yesno
+    sql: ${TABLE}.order_is_pna_replacement ;;
+  }
+  dimension: order_is_pna_partial_removal {
+    description: "Boolean yes/no. Indicates if the order had a partial removal"
+    type: yesno
+    sql: ${TABLE}.order_is_pna_partial_removal ;;
+  }
+
+  dimension: order_is_pna_total_removal {
+    description: "Boolean yes/no. Indicates if the order had a total removal"
+    type: yesno
+    sql: ${TABLE}.order_is_pna_total_removal ;;
+  }
+
+  dimension: order_is_pna_partial_or_total_removal {
+    description: "Boolean yes/no. Indicates if the order had partially or totally removed"
+    type: yesno
+    sql: ${order_is_pna_partial_removal} OR ${order_is_pna_total_removal} ;;
+  }
+
+  dimension: order_is_pna_removed_or_replaced {
+    description: "Boolean yes/no. Indicates if the order had a replacement or removal"
+    type: yesno
+    sql: ${order_is_pna_partial_or_total_removal} OR ${order_is_pna_replacement} ;;
+  }
+
+  dimension: order_is_pna {
+    description: "Boolean yes/no. Indicates if the order had any type of PNA"
+    type: yesno
+    sql: ${TABLE}.order_is_pna ;;
+  }
+
+  measure: number_of_orders {
+    description: "Total orders"
+    type: count_distinct
+    sql: ${order_id} ;;
+  }
+
+  measure: number_of_orders_with_pna_cancellations {
+    description: "Number of orders with cancellations due to PNA"
+    type: count_distinct
+    filters: [order_is_pna_cancellation: "yes"]
+    sql: ${order_id} ;;
+  }
+
+  measure: number_of_orders_with_pna_wm_feedback {
+    description: "Number of orders with wrong or missing items feedback"
+    type: count_distinct
+    filters: [order_is_pna_wm_feedback: "yes"]
+    sql: ${order_id} ;;
+  }
+
+  measure: number_of_orders_with_pna_refund {
+    description: "Number of orders with refund due to PNA"
+    type: count_distinct
+    filters: [order_is_pna_refund: "yes"]
+    sql: ${order_id} ;;
+  }
+
+  measure: number_of_orders_with_pna_replacement {
+    description: "Number of orders with replacement"
+    type: count_distinct
+    filters: [order_is_pna_replacement: "yes"]
+    sql: ${order_id} ;;
+  }
+
+  measure: number_of_orders_with_pna_partial_removal {
+    description: "Number of orders with partial removal"
+    type: count_distinct
+    filters: [order_is_pna_partial_removal: "yes"]
+    sql: ${order_id} ;;
+  }
+
+  measure: number_of_orders_with_pna_total_removal {
+    description: "Number of orders with total removal"
+    type: count_distinct
+    filters: [order_is_pna_total_removal: "yes"]
+    sql: ${order_id} ;;
+  }
+
+  measure: number_of_orders_with_pna_replacement_or_removal {
+    description: "Number of orders with total replacements or removal"
+    type: count_distinct
+    filters: [order_is_pna_removed_or_replaced: "yes"]
+    sql: ${order_id} ;;
+  }
+
+  measure: number_of_orders_with_pna {
+    description: "Number of orders with pna"
+    type: count_distinct
+    filters: [order_is_pna: "yes"]
+    sql: ${order_id} ;;
+  }
+
+  measure: percentage_of_orders_with_pna_cancellations {
+    description: "Percentage of orders with cancellations due to PNA"
+    type: number
+    value_format_name: percent_2
+    sql: 1.0000 * ${number_of_orders_with_pna_cancellations} / nullif(${number_of_orders}, 0) ;;
+  }
+
+  measure: percentage_of_orders_with_pna_wm_feedback {
+    description: "Percentage of orders with wrong or missing items feedback"
+    type: number
+    value_format_name: percent_2
+    sql: 1.0000 * ${number_of_orders_with_pna_wm_feedback} / nullif(${number_of_orders}, 0) ;;
+  }
+
+  measure: percentage_of_orders_with_pna_refund {
+    description: "Percentage of orders with refund due to PNA"
+    type: number
+    value_format_name: percent_2
+    sql: 1.0000 * ${number_of_orders_with_pna_refund} / nullif(${number_of_orders}, 0) ;;
+  }
+
+  measure: percentage_of_orders_with_pna_replacement {
+    description: "Percentage of orders with replacement"
+    type: number
+    value_format_name: percent_2
+    sql: 1.0000 * ${number_of_orders_with_pna_replacement} / nullif(${number_of_orders}, 0) ;;
+  }
+
+  measure: percentage_of_orders_with_pna_partial_removal {
+    description: "Percentage of orders  with partial removal"
+    type: number
+    value_format_name: percent_2
+    sql: 1.0000 * ${number_of_orders_with_pna_partial_removal} / nullif(${number_of_orders}, 0) ;;
+  }
+
+  measure: percentage_of_orders_with_pna_total_removal {
+    description: "Percentage of orders with total removal"
+    type: number
+    value_format_name: percent_2
+    sql: 1.0000 * ${number_of_orders_with_pna_total_removal} / nullif(${number_of_orders}, 0) ;;
+  }
+
+  measure: percentage_of_orders_with_pna {
+    description: "Percentage of orders with pna"
+    type: number
+    value_format_name: percent_2
+    sql: 1.0000 * ${number_of_orders_with_pna} / nullif(${number_of_orders}, 0) ;;
+  }
+
+}
