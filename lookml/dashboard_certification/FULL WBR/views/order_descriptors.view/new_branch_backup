@@ -1,4 +1,4 @@
-view: order_descriptors {
+view: order_descriptors_qcommerce {
   sql_table_name: delta.central_order_descriptors_odp.order_descriptors_v2 ;;
   suggestions: no
 
@@ -820,32 +820,32 @@ view: order_descriptors {
   dimension: subvertical_bu_filter_satisfied {
     type: string
     hidden: yes
-      sql: {{ filter_bu_subvertical._parameter_value }} ;;
+    sql: {{ filter_bu_subvertical._parameter_value }} ;;
   }
 
   dimension: subvertical2_bu_filter_satisfied {
     type: string
     hidden: yes
-      sql: {{ filter_bu_subvertical2._parameter_value }} ;;
+    sql: {{ filter_bu_subvertical2._parameter_value }} ;;
   }
 
   dimension: subvertical3_bu_filter_satisfied {
     type: string
     hidden: yes
-      sql: {{ filter_bu_subvertical3._parameter_value }} ;;
+    sql: {{ filter_bu_subvertical3._parameter_value }} ;;
   }
 
   dimension: store_name_bu_filter_satisfied {
     type: string
     hidden: yes
-    sql: {{ filter_store_name._parameter_value }} ;;
+    sql: {{ filter_bu_store_name._parameter_value }} ;;
   }
 
   dimension: all_BU_filter_satisfied {
     type: yesno
     hidden: yes
     sql: {% condition filter_bu_vertical %} ${order_vertical} {% endcondition %}
-         ;;
+      ;;
   }
 
   measure: number_of_orders {
