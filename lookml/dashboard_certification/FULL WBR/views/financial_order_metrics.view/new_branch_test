@@ -1,0 +1,329 @@
+view: financial_order_metrics {
+  sql_table_name: finance_financial_metrics_odp.financial_order_metrics ;;
+  suggestions: yes
+
+  dimension: pk1_order_id {
+    description: "Primary key"
+    primary_key: yes
+    hidden: yes
+    type: number
+    sql: ${TABLE}.order_id ;;
+  }
+
+  dimension: order_id {
+    description: "Order ID"
+    type: number
+    sql: ${TABLE}.order_id ;;
+  }
+
+  dimension: courier_id {
+    description: "Identifier for the Courier person delivering an order"
+    type: number
+    sql: ${TABLE}.courier_id ;;
+  }
+
+  dimension: customer_id {
+    description: "Identifier for the customer associated with an order"
+    type: number
+    sql: ${TABLE}.customer_id ;;
+  }
+
+  dimension: order_vertical {
+    description: "Vertical to which the order was assigned to (LaaS, Food and Q-Commerce)"
+    type: string
+    sql: ${TABLE}.order_vertical ;;
+    group_label: "Order vertical info"
+  }
+
+  dimension: order_subvertical {
+    description: "Subvertical for the vertical to be able to categorize the order even further. It can take
+    values: eLogistics, On-Demand, Courier (Laas), Quiero, MFC, QCPartners (QCommerce) and
+    Food - Food and Food - Other (Food)"
+    type: string
+    sql: ${TABLE}.order_subvertical ;;
+    group_label: "Order vertical info"
+  }
+
+  dimension: order_subvertical2 {
+    description: "Used to classify even further On-Demand subvertical in Food and Other and QCPartners
+    in Retail and Groceries"
+    type: string
+    sql: ${TABLE}.order_subvertical2 ;;
+    group_label: "Order vertical info"
+  }
+
+  dimension: order_handling_strategy {
+    description: "Whether the order is delivered and is GEN1 (marketplace),
+    or GEN2 (delivered by Glovo),
+    or the order was picked by the customer at the store (IN_STORE or PICKUP)"
+    type: string
+    sql: ${TABLE}.order_handling_strategy ;;
+  }
+
+  dimension: order_final_status {
+    description: "Final status of the order (DeliveredStatus or CanceledStatus)"
+    type: string
+    sql: ${TABLE}.order_final_status ;;
+  }
+
+  dimension: order_is_prime {
+    description: "Flag indicating if the order is placed by a user with Prime benefits"
+    type: yesno
+    sql: ${TABLE}.order_is_prime ;;
+  }
+
+  measure: prime_user {
+    description: "Count of orders placed by users with Prime benefits"
+    type: count
+    filters: {
+      field: order_is_prime
+      value: "Yes"
+    }
+  }
+
+  dimension: order_parent_relationship_type {
+    description: "Possible values: REMAKE, RESCUE, SPLIT, null.
+    Orders can have child orders that operationally look the same as regular orders, but some of
+    the fields are not correct. These child orders in Order Descriptors have already the sanitized
+    fields from the parent order so no need to recompute anything.
+    - REMAKE orders are orders created by liveops when some item is missing in the customer order.
+    - RESCUE orders are also created by liveops. If for some reason the courier for the parent order
+    cannot deliver the order, then liveops creates a rescue order and sends another courier to pick up
+    the original order from the original courier, in order to finally deliver it.
+    - SPLIT orders are created by backend or liveops whenever an order is too big for one courier to take,
+    for example on QCommerce orders, if the user buys a lot of drinks."
+    type: string
+    sql: ${TABLE}.order_parent_relationship_type ;;
+  }
+
+  dimension: order_is_first_delivered_order {
+    description: "Identifier to see if the order is the first delivered order of a customer"
+    type: yesno
+    sql: ${TABLE}.order_is_first_delivered_order ;;
+  }
+
+  dimension: store_address_id {
+    description: "Unique identifier for the store address associated with an order.
+    Takes into account if the order is remade/rescued"
+    type: number
+    sql: ${TABLE}.store_address_id ;;
+    group_label: "Store info"
+  }
+
+  dimension: store_id {
+    description: "Unique identifier for the store associated with an order"
+    type: number
+    sql: ${TABLE}.store_id ;;
+    group_label: "Store info"
+  }
+
+  dimension: store_name {
+    description: "Identifier for the store name associated with an order"
+    type: string
+    sql: ${TABLE}.store_name ;;
+    group_label: "Store info"
+  }
+
+  dimension: payment_status {
+    description: "Payment status for payment"
+    type: string
+    sql:  ${TABLE}.payment_1_payment_status ;;
+  }
+
+  dimension: payment_method {
+    description: "Payment method used for payment"
+    type: string
+    sql:  ${TABLE}.payment_1_payment_method ;;
+  }
+
+  dimension: order_courier_payment_method {
+    description: "Payment method used by courier to pay in store"
+    type: string
+    sql:  ${TABLE}.order_courier_payment_method ;;
+  }
+
+  dimension_group: p_creation {
+    description: "Partition key for the table, in the form of '2022-06'"
+    type: time
+    timeframes: [
+      raw,
+      date,
+      day_of_week,
+      week,
+      month,
+      quarter,
+      year
+    ]
+    convert_tz: no
+    datatype: date
+    sql: ${TABLE}.p_creation_date ;;
+  }
+
+  dimension_group: order_started_local_at {
+    description: "Conversion of the same field to local time zone of the city"
+    type: time
+    timeframes: [
+      raw,
+      time,
+      hour_of_day,
+      day_of_week,
+      date,
+      week,
+      month,
+      quarter,
+      year
+    ]
+    sql: ${TABLE}.order_started_local_at ;;
+  }
+
+  dimension: order_city_code {
+    description: "3-letter city code (IATA-3) indicating the city where the order was placed"
+    type: string
+    sql: ${TABLE}.order_city_code ;;
+    group_label: "Geography"
+  }
+
+  dimension: order_country_code {
+    description: "2-letter code (ISO 3166-1 alpha-2) indicating the country where the order was placed"
+    type: string
+    sql: ${TABLE}.order_country_code ;;
+    group_label: "Geography"
+  }
+
+  measure: number_of_orders {
+    type: count_distinct
+    description: "Total number of orders"
+    sql: ${TABLE}.order_id ;;
+  }
+
+  measure: total_delivered_orders {
+    type: count
+    description: "Total number of delivered orders"
+    filters: {
+      field: order_final_status
+      value: "DeliveredStatus"
+    }
+  }
+
+  measure: total_cancelled_orders {
+    type: count
+    description: "Total number of cancelled orders"
+    filters: {
+      field: order_final_status
+      value: "CanceledStatus"
+    }
+  }
+
+  measure: total_cm0_eur {
+    description: "CM0 = Contribution Margin 0. Total revenue for the order minus the total CPO (Cost per Order)"
+    type: sum
+    value_format: "€0.00"
+    sql: ${TABLE}.cm0_eur ;;
+  }
+
+  measure: avg_cm0_eur {
+    description: "CM0 = Contribution Margin 0. Average revenue for the order minus the total CPO (Cost per Order)"
+    type: average
+    value_format: "€0.00"
+    sql: ${TABLE}.cm0_eur ;;
+  }
+
+  measure: total_cm0_local_currency {
+    description: "CM0 = Contribution Margin 0. Total revenue for the order minus the total CPO (Cost per Order), in local currency"
+    type: sum
+    sql: ${TABLE}.cm0_local_currency ;;
+  }
+
+  measure: avg_cm0_local_currency {
+    description: "CM0 = Contribution Margin 0. Average revenue for the order minus the total CPO (Cost per Order), in local currency"
+    type: average
+    sql: ${TABLE}.cm0_local_currency ;;
+  }
+
+  measure: GTV {
+    description: "Gross Transacted Value = GMV + Delivery Fees"
+    type: sum
+    value_format: "€0.00"
+    sql: ${TABLE}.order_transacted_value_eur ;;
+  }
+
+  measure: avg_GTV {
+    description: "Gross Transacted Value = GMV + Delivery Fees. Average GTV"
+    type: average
+    value_format: "€0.00"
+    sql: ${TABLE}.order_transacted_value_eur ;;
+  }
+
+  measure: RPO {
+    description: "Revenue Per Order. Revenue earned by Glovo on Delivery fee per order after including promotions (in Euros)"
+    type: sum
+    value_format: "€0.00"
+    sql: ${TABLE}.rpo_eur ;;
+  }
+
+  measure: avg_RPO {
+    description: "Average Revenue Per Order. Revenue earned by Glovo on Delivery fee per order after including promotions (in Euros)"
+    type: average
+    value_format: "€0.00"
+    sql: ${TABLE}.rpo_eur ;;
+  }
+
+  measure: RPO_local_currency {
+    description: "Revenue Per Order. Revenue earned by Glovo on Delivery fee per order after
+    including promotions (in local currency)"
+    type: sum
+    sql: ${TABLE}.rpo_local_currency ;;
+  }
+
+  measure: avg_RPO_local_currency {
+    description: "Average Revenue Per Order. Average revenue earned by Glovo on Delivery fee per order after
+    including promotions (in local currency)"
+    type: average
+    value_format: "€0.00"
+    sql: ${TABLE}.rpo_local_currency ;;
+  }
+
+  measure: order_total_purchase_eur {
+    description: "Total price of the products bought for the order in eur.
+    No fees are included here."
+    type: sum
+    value_format: "€0.00"
+    sql: ${TABLE}.order_total_purchase_eur ;;
+  }
+
+  measure: avg_order_purchase_eur {
+    description: "Average price of the products bought for the order in eur.
+    No fees are included here."
+    type: average
+    value_format: "€0.00"
+    sql: ${TABLE}.order_total_purchase_eur ;;
+  }
+
+  measure: CPO {
+    description: "Cost per Order. Denormalized value, same as in Courier Core CPO"
+    type: sum
+    value_format: "€0.00"
+    sql: ${TABLE}.cpo_eur ;;
+  }
+
+  measure: avg_CPO {
+    description: "Cost per Order. Denormalized value, same as in Courier Core CPO"
+    type: average
+    value_format: "€0.00"
+    sql: ${TABLE}.cpo_eur ;;
+  }
+
+  measure: CPO_local_currency {
+    description: "Cost per Order. Denormalized value, same as in Courier Core CPO"
+    type: sum
+    sql: ${TABLE}.cpo_local_currency ;;
+  }
+
+  measure: avg_CPO_local_currency {
+    description: "Cost per Order. Denormalized value, same as in Courier Core CPO"
+    type: average
+    value_format: "€0.00"
+    sql: ${TABLE}.cpo_local_currency ;;
+  }
+
+}
