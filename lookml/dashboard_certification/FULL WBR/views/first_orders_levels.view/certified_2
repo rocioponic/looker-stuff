@@ -9,40 +9,45 @@ view: first_orders_levels_cert {
   sql_table_name: delta.central__daily_first_orders_levels__odp.daily_first_orders_levels ;;
   suggestions: no
 
-  ########################## PARAMETERS ##########################
+  ########################## FILTERS ##########################
 
   filter: filter_bu_vertical {
     type: string
-    description: "BU Filters (only affects '(BU)' dimensions/measures) - Vertical"
-    suggest_dimension: store_vertical
+    description: "BU Filters (only affects '(BU)' dimensions/measures) 
+      - Vertical"
     group_label: "BU Filters (only affects '(BU)' dimensions/measures)"
+    suggest_dimension: store_vertical
   }
 
   filter: filter_bu_subvertical {
-    group_label: "BU Filters (only affects '(BU)' dimensions/measures)"
-    description: "BU Filters (only affects '(BU)' dimensions/measures) - Subvertical"
     type: string
+    description: "BU Filters (only affects '(BU)' dimensions/measures) 
+      - Subvertical"
+    group_label: "BU Filters (only affects '(BU)' dimensions/measures)"
     suggest_dimension: store_subvertical
   }
 
   filter: filter_bu_subvertical2 {
-    group_label: "BU Filters (only affects '(BU)' dimensions/measures)"
-    description: "BU Filters (only affects '(BU)' dimensions/measures) - Subvertical2"
     type: string
+    description: "BU Filters (only affects '(BU)' dimensions/measures) 
+      - Subertical2"
+    group_label: "BU Filters (only affects '(BU)' dimensions/measures)"
     suggest_dimension: store_subvertical2
   }
 
   filter: filter_bu_subvertical3 {
-    group_label: "BU Filters (only affects '(BU)' dimensions/measures)"
-    description: "BU Filters (only affects '(BU)' dimensions/measures) - Subvertical3"
     type: string
+    description: "BU Filters (only affects '(BU)' dimensions/measures) 
+      - Subvertical2"
+    group_label: "BU Filters (only affects '(BU)' dimensions/measures)"
     suggest_dimension: store_subvertical3
   }
 
   filter: filter_bu_store_name {
-    group_label: "BU Filters (only affects '(BU)' dimensions/measures)"
-    description: "BU Filters (only affects '(BU)' dimensions/measures) - Store Name"
     type: string
+    description: "BU Filters (only affects '(BU)' dimensions/measures) 
+      - Store Name"
+    group_label: "BU Filters (only affects '(BU)' dimensions/measures)"
     suggest_dimension: store_name
   }
 
