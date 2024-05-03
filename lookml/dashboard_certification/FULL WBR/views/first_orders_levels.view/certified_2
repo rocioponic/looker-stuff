@@ -1,0 +1,1143 @@
+########################## VIEW INFORMATION ##########################
+
+# This view aims to have the flags at order_id granularity for the first orders
+# at different granularity levels (glovo app, vertical, store...).
+# It uses the first order date to make further calculations at
+# order or customer level.
+
+view: first_orders_levels_cert {
+  sql_table_name: delta.central__daily_first_orders_levels__odp.daily_first_orders_levels ;;
+  suggestions: no
+
+  ########################## PARAMETERS ##########################
+
+  filter: filter_bu_vertical {
+    type: string
+    description: "BU Filters (only affects '(BU)' dimensions/measures) - Vertical"
+    suggest_dimension: store_vertical
+    group_label: "BU Filters (only affects '(BU)' dimensions/measures)"
+  }
+
+  filter: filter_bu_subvertical {
+    group_label: "BU Filters (only affects '(BU)' dimensions/measures)"
+    description: "BU Filters (only affects '(BU)' dimensions/measures) - Subvertical"
+    type: string
+    suggest_dimension: store_subvertical
+  }
+
+  filter: filter_bu_subvertical2 {
+    group_label: "BU Filters (only affects '(BU)' dimensions/measures)"
+    description: "BU Filters (only affects '(BU)' dimensions/measures) - Subvertical2"
+    type: string
+    suggest_dimension: store_subvertical2
+  }
+
+  filter: filter_bu_subvertical3 {
+    group_label: "BU Filters (only affects '(BU)' dimensions/measures)"
+    description: "BU Filters (only affects '(BU)' dimensions/measures) - Subvertical3"
+    type: string
+    suggest_dimension: store_subvertical3
+  }
+
+  filter: filter_bu_store_name {
+    group_label: "BU Filters (only affects '(BU)' dimensions/measures)"
+    description: "BU Filters (only affects '(BU)' dimensions/measures) - Store Name"
+    type: string
+    suggest_dimension: store_name
+  }
+
+  ########################## PARAMETERS ##########################
+
+  parameter: date_granularity {
+    description: "Parameter to set date granularity. Use same date granularity as selected in the table"
+    group_label: "Granularity Filters"
+    type: unquoted
+    allowed_value: { value: "day" }
+    allowed_value: { value: "week" }
+    allowed_value: { value: "month" }
+    allowed_value: { value: "year" }
+  }
+
+  parameter: business_unit_granularity {
+    description: "Parameter to set vertical level granularity. Use granularity taking
+      into account in which level you want to do the counts"
+    group_label: "Granularity Filters"
+    type: unquoted
+    allowed_value: { value: "Glovo_App" }
+    allowed_value: { value: "Store_Vertical" }
+    allowed_value: { value: "Store_Subvertical" }
+    allowed_value: { value: "Store_Subvertical2" }
+    allowed_value: { value: "Store_Subvertical3" }
+    allowed_value: { value: "Store_Sub_Business_Unit" }
+    allowed_value: { value: "Store_Name" }
+  }
+
+  ########################## GENERAL DIMENSIONS ##########################
+
+  dimension: pk1_order_id {
+    description: "Primary Key"
+    hidden: yes
+    primary_key: yes
+    type: string
+    sql: ${TABLE}.pk ;;
+  }
+
+  dimension: country_code {
+    description: "Country Code where the order was made"
+    group_label: "Order Location"
+    type: string
+    sql: ${TABLE}.order_country_code ;;
+  }
+
+  dimension: order_id {
+    description: "ID of the Order"
+    type: number
+    sql: ${TABLE}.order_id ;;
+  }
+
+  dimension: customer_id {
+    description: "ID of the Customer"
+    type: number
+    sql: ${TABLE}.customer_id ;;
+  }
+
+  dimension: p_activated_local_date {
+    description: "Partition Key. Activated Local Date"
+    type: date
+    hidden: yes
+    sql: ${TABLE}.p_order_activated_local_at_date ;;
+  }
+
+  dimension_group: activated_local_at {
+    description: "Time of activation"
+    type: time
+    convert_tz: no
+    timeframes: [
+      date,
+      week,
+      month,
+      year
+    ]
+    datatype: date
+    sql: ${TABLE}.p_order_activated_local_at_date ;;
+    label: "Order Date/Time - Activated Local at"
+  }
+
+  dimension: store_vertical {
+    description: "- Qcommerce
+      - Food"
+    group_label: "Business Unit Detail"
+    type: string
+    sql: ${TABLE}.store_vertical ;;
+  }
+
+  dimension: store_subvertical {
+    description: "- QCPartners
+      - MFC
+      - Food - Food
+      - Food - Other"
+    group_label: "Business Unit Detail"
+    type: string
+    sql: ${TABLE}.store_subvertical ;;
+  }
+
+  dimension: store_subvertical2 {
+    description: "- Groceries
+      - Retail
+      - Food - Food
+      - Food - Other"
+    group_label: "Business Unit Detail"
+    type: string
+    sql: ${TABLE}.store_subvertical2 ;;
+  }
+
+  dimension: store_subvertical3 {
+    description: "- Groceries
+      - Health
+      - Shops
+      - Smoking
+      - Food - Food
+      - Food - Other"
+    group_label: "Business Unit Detail"
+    type: string
+    sql: ${TABLE}.store_subvertical3 ;;
+  }
+
+  dimension: store_sub_business_unit {
+    description: "BU in which each Store_ID is tagged in Admin"
+    group_label: "Business Unit Detail"
+    type: string
+    sql: ${TABLE}.store_sub_business_unit ;;
+  }
+
+  dimension: store_name {
+    description: "Store Name of the partner"
+    group_label: "Business Unit Detail"
+    type: string
+    sql: ${TABLE}.store_name ;;
+  }
+
+  dimension_group: first_order_in_glovo_app_at {
+    description: "First order in glovo date"
+    group_label: "Date First Orders Levels at"
+    type: time
+    convert_tz: no
+    timeframes: [
+      date,
+      week,
+      month,
+      year
+    ]
+    datatype: date
+    sql: ${TABLE}.first_order_in_glovo_app_date ;;
+  }
+
+  dimension_group: first_order_in_vertical_at {
+    description: "First order in vertical date"
+    group_label: "Date First Orders Levels at"
+    type: time
+    convert_tz: no
+    timeframes: [
+      date,
+      week,
+      month,
+      year
+    ]
+    datatype: date
+    sql: ${TABLE}.first_order_in_vertical_date ;;
+  }
+
+  dimension_group: first_order_in_subvertical_at {
+    description: "First order in sub-vertical date"
+    group_label: "Date First Orders Levels at"
+    type: time
+    convert_tz: no
+    timeframes: [
+      date,
+      week,
+      month,
+      year
+    ]
+    datatype: date
+    sql: ${TABLE}.first_order_in_subvertical_date ;;
+  }
+
+  dimension_group: first_order_in_subvertical2_at {
+    description: "First order in sub-vertical2 date"
+    group_label: "Date First Orders Levels at"
+    type: time
+    convert_tz: no
+    timeframes: [
+      date,
+      week,
+      month,
+      year
+    ]
+    datatype: date
+    sql: ${TABLE}.first_order_in_subvertical2_date ;;
+  }
+
+  dimension_group: first_order_in_subvertical3_at {
+    description: "First order in sub-vertical3 date"
+    group_label: "Date First Orders Levels at"
+    type: time
+    convert_tz: no
+    timeframes: [
+      date,
+      week,
+      month,
+      year
+    ]
+    datatype: date
+    sql: ${TABLE}.first_order_in_subvertical3_date ;;
+  }
+
+  dimension_group: first_order_in_store_sub_business_unit_at {
+    description: "First order in Sub BU date"
+    group_label: "Date First Orders Levels at"
+    type: time
+    convert_tz: no
+    timeframes: [
+      date,
+      week,
+      month,
+      year
+    ]
+    datatype: date
+    sql: ${TABLE}.first_order_in_store_sub_business_unit_date ;;
+  }
+
+  dimension_group: first_order_in_store_name_at {
+    description: "First order in Store Name date"
+    group_label: "Date First Orders Levels at"
+    type: time
+    convert_tz: no
+    timeframes: [
+      date,
+      week,
+      month,
+      year
+    ]
+    datatype: date
+    sql: ${TABLE}.first_order_in_store_name_date ;;
+  }
+
+  dimension: first_order_in_glovo_app_is_prime {
+    description: "Is Prime Customer at the moment
+      of the first order in Glovo"
+    label: "Is Prime Customer - Glovo App (at moment of First Order)"
+    group_label: "Is Prime Customers Levels"
+    type: yesno
+    sql: ${TABLE}.first_order_in_glovo_app_is_prime ;;
+  }
+
+  dimension: first_order_in_vertical_is_prime {
+    description: "Is Prime Customer at the moment
+      of the first order in Vertical"
+    label: "Is Prime Customer - Vertical (at moment of First Order)"
+    group_label: "Is Prime Customers Levels"
+    type: yesno
+    sql: ${TABLE}.first_order_in_vertical_is_prime ;;
+  }
+
+  dimension: first_order_in_subvertical_is_prime {
+    description: "Is Prime Customer at the moment
+      of the first order in the SubVertical"
+    label: "Is Prime Customer - Subvertical (at moment of First Order)"
+    group_label: "Is Prime Customers Levels"
+    type: yesno
+    sql: ${TABLE}.first_order_in_subvertical_is_prime ;;
+  }
+
+  dimension: first_order_in_subvertical2_is_prime {
+    description: "Is Prime Customer at the moment
+      of the first order in the SubVertical2"
+    label: "Is Prime Customer - Subvertical2 (at moment of First Order)"
+    group_label: "Is Prime Customers Levels"
+    type: yesno
+    sql: ${TABLE}.first_order_in_subvertical2_is_prime ;;
+  }
+
+  dimension: first_order_in_subvertical3_is_prime {
+    description: "Is Prime Customer at the moment
+      of the first order in the SubVertical3"
+    label: "Is Prime Customer - Subvertical3 (at moment of First Order)"
+    group_label: "Is Prime Customers Levels"
+    type: yesno
+    sql: ${TABLE}.first_order_in_subvertical3_is_prime ;;
+  }
+
+  dimension: first_order_in_store_sub_business_unit_is_prime {
+    description: "Is Prime Customer at the moment
+      of the first order in the Store Sub Business Unit"
+    label: "Is Prime Customer - Store Sub BU (at moment of First Order)"
+    group_label: "Is Prime Customers Levels"
+    type: yesno
+    sql: ${TABLE}.first_order_in_store_sub_business_unit_is_prime ;;
+  }
+
+  dimension: first_order_in_store_name_is_prime {
+    description: "Is Prime Customer at the moment
+      of the first order in Store Name"
+    label: "Is Prime Customer - Store Name (at moment of First Order)"
+    group_label: "Is Prime Customers Levels"
+    type: yesno
+    sql: ${TABLE}.first_order_in_store_name_is_prime ;;
+  }
+
+  dimension: is_prime_customer {
+    description: "Is Prime Customer"
+    group_label: "Is Prime Customers Levels"
+    type: yesno
+    sql: ${TABLE}.customer_is_prime ;;
+  }
+
+  dimension: is_new_customers_vertical {
+    description: "Is new customers in the vertical"
+    group_label: "Is New Customers Levels"
+    type: yesno
+    sql: case when ${activated_local_at_dynamic}
+      = ${first_order_in_vertical_at_dynamic}
+        then True else False end ;;
+  }
+
+  dimension: is_new_customers_subvertical {
+    description: "Is new customers in the subvertical"
+    group_label: "Is New Customers Levels"
+    type: yesno
+    sql: case when ${activated_local_at_dynamic}
+      = ${first_order_in_subvertical_at_dynamic}
+        then True else False end ;;
+  }
+
+  dimension: is_new_customers_subvertical2 {
+    description: "Is new customers in the subvertical2"
+    group_label: "Is New Customers Levels"
+    type: yesno
+    sql: case when ${activated_local_at_dynamic}
+      = ${first_order_in_subvertical2_at_dynamic}
+        then True else False end ;;
+  }
+
+  dimension: is_new_customers_subvertical3 {
+    description: "Is new customers in the subvertical3"
+    group_label: "Is New Customers Levels"
+    type: yesno
+    sql: case when ${activated_local_at_dynamic}
+      = ${first_order_in_subvertical3_at_dynamic}
+        then True else False end ;;
+  }
+
+  dimension: is_new_customers_sub_business_unit {
+    description: "Is new customers in the sub business unit"
+    group_label: "Is New Customers Levels"
+    type: yesno
+    sql: case when ${activated_local_at_dynamic}
+      = ${first_order_in_sub_business_unit_at_dynamic}
+        then True else False end ;;
+  }
+
+  dimension: is_new_customers_store_name {
+    description: "Is new customers in the store name"
+    group_label: "Is New Customers Levels"
+    type: yesno
+    sql: case when ${activated_local_at_dynamic}
+        = ${first_order_in_store_name_at_dynamic}
+          then True else False end ;;
+  }
+
+  ########################## USE CASE DIMENSIONS ##########################
+
+  # DESCRIPTION: these dimensions reference dimensions from another view
+  # (order_descriptors_qcommerce_cert.view)
+  # USAGE: filter measures of this view by those dimensions at a BU level
+  # (without affecting "Glovo Level" measures) in the same chart
+
+  dimension: vertical_bu_filter_satisfied {
+    type: yesno
+    group_label: "BU Filters"
+    description: "BU Filter from order_descriptors_cert.view to filter measures from this view"
+    hidden: no
+    # LAMS
+    # rule_exemptions: {
+    # F1: "2022-12-19 - We need to reference this view to avoid more joins"
+    # }
+    sql: {% condition filter_bu_vertical %}
+        ${store_vertical}
+        {% endcondition %}
+       ;;
+  }
+
+  dimension: subvertical_bu_filter_satisfied {
+    type: yesno
+    group_label: "BU Filters"
+    description: "BU Filter from order_descriptors_cert.view to filter measures from this view"
+    hidden: no
+    # LAMS
+    # rule_exemptions: {
+    # F1: "2022-12-19 - We need to reference this view to avoid more joins"
+    # }
+    sql:  {% condition filter_bu_subvertical %}
+        ${store_subvertical}
+        {% endcondition %}
+       ;;
+  }
+
+  dimension: subvertical2_bu_filter_satisfied {
+    type: yesno
+    group_label: "BU Filters"
+    description: "BU Filter from order_descriptors_cert.view to filter measures from this view"
+    hidden: no
+    # LAMS
+    # rule_exemptions: {
+    # F1: "2022-12-19 - We need to reference this view to avoid more joins"
+    # }
+    sql:   {% condition filter_bu_subvertical2 %}
+        ${store_subvertical2}
+        {% endcondition %}
+       ;;
+  }
+
+  dimension: subvertical3_bu_filter_satisfied {
+    type: yesno
+    group_label: "BU Filters"
+    description: "BU Filter from order_descriptors_cert.view to filter measures from this view"
+    hidden: no
+    # LAMS
+    # rule_exemptions: {
+    # F1: "2022-12-19 - We need to reference this view to avoid more joins"
+    # }
+    sql:   {% condition filter_bu_subvertical3 %}
+        ${store_subvertical3}
+        {% endcondition %}
+       ;;
+  }
+
+  dimension: store_name_bu_filter_satisfied {
+    type: yesno
+    group_label: "BU Filters"
+    description: "BU Filter from order_descriptors_cert.view to filter measures from this view"
+    hidden: no
+    # LAMS
+    # rule_exemptions: {
+    # F1: "2022-12-19 - We need to reference this view to avoid more joins"
+    # }
+    sql:   {% condition filter_bu_store_name %}
+        ${store_name}
+        {% endcondition %}
+       ;;
+  }
+
+  ########################## PARAMETERED DIMENSIONS ##########################
+
+  dimension: activated_local_at_dynamic {
+    description: "Dynamic date of an aggregate (date, week or month).
+      Requires the filter 'Date Granularity'"
+    group_label: "Activation Time"
+    type: date
+    # LAMS
+    # rule_exemptions: {
+    # F1: "2022-11-07 - Field does not reference another view but the value of a parameter of the view"
+    # }
+    sql:
+      {% if date_granularity._parameter_value == 'week' %}
+        date_trunc('week', ${TABLE}.p_order_activated_local_at_date)
+      {% elsif date_granularity._parameter_value == 'month' %}
+        date_trunc('month', ${TABLE}.p_order_activated_local_at_date)
+      {% elsif date_granularity._parameter_value == 'year' %}
+        date_trunc('year', ${TABLE}.p_order_activated_local_at_date)
+      {% else %}
+        date_trunc('day', ${TABLE}.p_order_activated_local_at_date)
+      {% endif %} ;;
+  }
+
+  dimension: first_order_in_glovo_app_at_dynamic {
+    description: "Dynamic date of an aggregate (date, week or month).
+      Requires the filter 'Date Granularity'"
+    group_label: "Date Granularity - Compulsory Filter"
+    hidden: yes
+    type: date
+    # LAMS
+    # rule_exemptions: {
+    # F1: "2022-11-07 - Field does not reference another view but the value of a parameter of the view"
+    # }
+    sql:
+      {% if date_granularity._parameter_value == 'week' %}
+        date_trunc('week', ${TABLE}.first_order_in_glovo_app_at)
+      {% elsif date_granularity._parameter_value == 'month' %}
+        date_trunc('month', ${TABLE}.first_order_in_glovo_app_at)
+      {% elsif date_granularity._parameter_value == 'year' %}
+        date_trunc('year', ${TABLE}.first_order_in_glovo_app_at)
+      {% else %}
+        date_trunc('day', ${TABLE}.first_order_in_glovo_app_at)
+      {% endif %} ;;
+  }
+
+  dimension: first_order_in_vertical_at_dynamic {
+    description: "Dynamic date of an aggregate (date, week or month).
+      Requires the filter 'Date Granularity'"
+    hidden: yes
+    type: date
+    # LAMS
+    # rule_exemptions: {
+    # F1: "2022-11-07 - Field does not reference another view but the value of a parameter of the view"
+    # }
+    sql:
+      {% if date_granularity._parameter_value == 'week' %}
+        date_trunc('week', ${TABLE}.first_order_in_vertical_date)
+      {% elsif date_granularity._parameter_value == 'month' %}
+        date_trunc('month', ${TABLE}.first_order_in_vertical_date)
+      {% elsif date_granularity._parameter_value == 'year' %}
+        date_trunc('year', ${TABLE}.first_order_in_vertical_date)
+      {% else %}
+        date_trunc('day', ${TABLE}.first_order_in_vertical_date)
+      {% endif %} ;;
+  }
+
+  dimension: first_order_in_subvertical_at_dynamic {
+    description: "Dynamic date of an aggregate (date, week or month).
+      Requires the filter 'Date Granularity'"
+    hidden: yes
+    type: date
+    # LAMS
+    # rule_exemptions: {
+    # F1: "2022-11-07 - Field does not reference another view but the value of a parameter of the view"
+    # }
+    sql:
+      {% if date_granularity._parameter_value == 'week' %}
+        date_trunc('week', ${TABLE}.first_order_in_subvertical_date)
+      {% elsif date_granularity._parameter_value == 'month' %}
+        date_trunc('month', ${TABLE}.first_order_in_subvertical_date)
+      {% elsif date_granularity._parameter_value == 'year' %}
+        date_trunc('year', ${TABLE}.first_order_in_subvertical_date)
+      {% else %}
+        date_trunc('day', ${TABLE}.first_order_in_subvertical_date)
+      {% endif %} ;;
+  }
+
+  dimension: first_order_in_subvertical2_at_dynamic {
+    description: "Dynamic date of an aggregate (date, week or month).
+      Requires the filter 'Date Granularity')"
+    hidden: yes
+    type: date
+    # LAMS
+    # rule_exemptions: {
+    # F1: "2022-11-07 - Field does not reference another view but the value of a parameter of the view"
+    # }
+    sql:
+      {% if date_granularity._parameter_value == 'week' %}
+        date_trunc('week', ${TABLE}.first_order_in_subvertical2_date)
+      {% elsif date_granularity._parameter_value == 'month' %}
+        date_trunc('month', ${TABLE}.first_order_in_subvertical2_date)
+      {% elsif date_granularity._parameter_value == 'year' %}
+        date_trunc('year', ${TABLE}.first_order_in_subvertical2_date)
+      {% else %}
+        date_trunc('day', ${TABLE}.first_order_in_subvertical2_date)
+      {% endif %} ;;
+  }
+
+  dimension: first_order_in_subvertical3_at_dynamic {
+    description: "Dynamic date of an aggregate (date, week or month).
+      Requires the filter 'Date Granularity'"
+    hidden: yes
+    type: date
+    # LAMS
+    # rule_exemptions: {
+    # F1: "2022-11-07 - Field does not reference another view but the value of a parameter of the view"
+    # }
+    sql:
+      {% if date_granularity._parameter_value == 'week' %}
+        date_trunc('week', ${TABLE}.first_order_in_subvertical3_date)
+      {% elsif date_granularity._parameter_value == 'month' %}
+        date_trunc('month', ${TABLE}.first_order_in_subvertical3_date)
+      {% elsif date_granularity._parameter_value == 'year' %}
+        date_trunc('year', ${TABLE}.first_order_in_subvertical3_date)
+      {% else %}
+        date_trunc('day', ${TABLE}.first_order_in_subvertical3_date)
+      {% endif %} ;;
+  }
+
+  dimension: first_order_in_sub_business_unit_at_dynamic {
+    description: "Dynamic date of an aggregate (date, week or month).
+      Requires the filter 'Date Granularity'"
+    hidden: yes
+    type: date
+    # LAMS
+    # rule_exemptions: {
+    # F1: "2022-11-07 - Field does not reference another view but the value of a parameter of the view"
+    # }
+    sql:
+      {% if date_granularity._parameter_value == 'week' %}
+        date_trunc('week', ${TABLE}.first_order_in_store_sub_business_unit_date)
+      {% elsif date_granularity._parameter_value == 'month' %}
+        date_trunc('month', ${TABLE}.first_order_in_store_sub_business_unit_date)
+      {% elsif date_granularity._parameter_value == 'year' %}
+        date_trunc('year', ${TABLE}.first_order_in_store_sub_business_unit_date)
+      {% else %}
+        date_trunc('day', ${TABLE}.first_order_in_store_sub_business_unit_date)
+      {% endif %} ;;
+  }
+
+  dimension: first_order_in_store_name_at_dynamic {
+    description: "Dynamic date of an aggregate (date, week or month).
+      Requires the filter 'Date Granularity'"
+    hidden: yes
+    type: date
+    # LAMS
+    # rule_exemptions: {
+    # F1: "2022-11-07 - Field does not reference another view but the value of a parameter of the view"
+    # }
+    sql:
+      {% if date_granularity._parameter_value == 'week' %}
+        date_trunc('week', ${TABLE}.first_order_in_store_name_date)
+      {% elsif date_granularity._parameter_value == 'month' %}
+        date_trunc('month', ${TABLE}.first_order_in_store_name_date)
+      {% elsif date_granularity._parameter_value == 'year' %}
+        date_trunc('year', ${TABLE}.first_order_in_store_name_date)
+      {% else %}
+        date_trunc('day', ${TABLE}.first_order_in_store_name_date)
+      {% endif %} ;;
+  }
+
+  ########################## GENERAL MEASURES ##########################
+
+  measure: number_of_prime_new_customers_glovo_app {
+    description: "Number of prime new customers in the app"
+    group_label: "Prime Customers and Orders Levels"
+    type: count_distinct
+    filters: [is_prime_customer: "yes"]
+    sql: case when ${activated_local_at_dynamic}
+      = ${first_order_in_glovo_app_at_dynamic}
+          then ${customer_id} else null end ;;
+  }
+
+  measure: number_of_non_prime_new_customers_glovo_app {
+    description: "Number of non prime new customers in the app"
+    group_label: "Prime Customers and Orders Levels"
+    type: count_distinct
+    filters: [is_prime_customer: "no"]
+    sql: case when ${activated_local_at_dynamic}
+      = ${first_order_in_glovo_app_at_dynamic}
+          then ${customer_id} else null end ;;
+  }
+
+  measure: number_of_prime_recurrent_customers_glovo_app {
+    description: "Number of prime Recurrent customers in the app"
+    group_label: "Prime Customers and Orders Levels"
+    type: count_distinct
+    filters: [is_prime_customer: "yes"]
+    sql: case when ${activated_local_at_dynamic}
+      <> ${first_order_in_glovo_app_at_dynamic}
+          then ${customer_id} else null end ;;
+  }
+
+  measure: number_of_non_prime_recurrent_customers_glovo_app {
+    description: "Number of non prime recurrent customers in the app"
+    group_label: "Prime Customers and Orders Levels"
+    type: count_distinct
+    filters: [is_prime_customer: "no"]
+    sql: case when ${activated_local_at_dynamic}
+      <> ${first_order_in_glovo_app_at_dynamic}
+          then ${customer_id} else null end ;;
+  }
+
+  measure: number_of_new_customers_glovo_app {
+    description: "Number of new customers in the app"
+    group_label: "New Customers Levels"
+    type: number
+    sql: ${number_of_prime_new_customers_glovo_app}
+      + ${number_of_non_prime_new_customers_glovo_app};;
+  }
+
+  dimension: is_new_customer_glovo_app {
+    description: "Is new customers in the app"
+    group_label: "Is New Customers Levels"
+    type: yesno
+    sql: case when ${activated_local_at_dynamic}
+      = ${first_order_in_glovo_app_at_dynamic}
+        then True else False end ;;
+  }
+
+  measure: number_of_recurrent_customers_glovo_app {
+    description: "Number of recurrent customers in the app"
+    group_label: "Recurrent Customers Levels"
+    type: number
+    sql: ${number_of_prime_recurrent_customers_glovo_app}
+      + ${number_of_non_prime_recurrent_customers_glovo_app} ;;
+  }
+
+  measure: number_of_prime_new_customers_vertical {
+    description: "Number of prime new customers in the Vertical"
+    group_label: "Prime Customers and Orders Levels"
+    type: count_distinct
+    filters: [is_prime_customer: "yes", vertical_bu_filter_satisfied: "yes"]
+    sql: case when ${activated_local_at_dynamic}
+      = ${first_order_in_vertical_at_dynamic}
+          then ${customer_id} else null end ;;
+  }
+
+  measure: number_of_non_prime_new_customers_vertical {
+    description: "Number of non prime new customers in the Vertical"
+    group_label: "Prime Customers and Orders Levels"
+    type: count_distinct
+    filters: [is_prime_customer: "no", vertical_bu_filter_satisfied: "yes"]
+    sql: case when ${activated_local_at_dynamic}
+      = ${first_order_in_vertical_at_dynamic}
+          then ${customer_id} else null end ;;
+  }
+
+  measure: number_of_prime_recurrent_customers_vertical {
+    description: "Number of prime Recurrent customers in the Vertical"
+    group_label: "Prime Customers and Orders Levels"
+    type: count_distinct
+    filters: [is_prime_customer: "yes", vertical_bu_filter_satisfied: "yes"]
+    sql: case when ${activated_local_at_dynamic}
+      <> ${first_order_in_vertical_at_dynamic}
+          then ${customer_id} else null end ;;
+  }
+
+  measure: number_of_non_prime_recurrent_customers_vertical {
+    description: "Number of non prime recurrent customers in the Vertical"
+    group_label: "Prime Customers and Orders Levels"
+    type: count_distinct
+    filters: [is_prime_customer: "no", vertical_bu_filter_satisfied: "yes"]
+    sql: case when ${activated_local_at_dynamic}
+      <> ${first_order_in_vertical_at_dynamic}
+          then ${customer_id} else null end ;;
+  }
+
+  measure: number_of_new_customers_vertical {
+    description: "Number of new customers in the vertical"
+    group_label: "New Customers Levels"
+    type: number
+    sql: ${number_of_prime_new_customers_vertical}
+      + ${number_of_non_prime_new_customers_vertical} ;;
+  }
+
+  measure: number_of_recurrent_customers_vertical {
+    description: "Number of recurrent customers in the vertical"
+    group_label: "Recurrent Customers Levels"
+    type: number
+    sql: ${number_of_prime_recurrent_customers_vertical}
+      + ${number_of_non_prime_recurrent_customers_vertical} ;;
+  }
+
+  measure: number_of_first_orders_vertical {
+    description: "Number of first orders in the vertical"
+    group_label: "First Orders Levels"
+    type: count_distinct
+    sql: case when ${activated_local_at_date}
+      = ${first_order_in_vertical_at_date}
+        then ${order_id} else null end ;;
+  }
+
+  measure: number_of_prime_new_customers_subvertical {
+    description: "Number of prime new customers in the subVertical"
+    group_label: "Prime Customers and Orders Levels"
+    type: number
+    sql: count(distinct case when ${activated_local_at_dynamic}
+      = ${first_order_in_subvertical_at_dynamic}
+        and ${is_prime_customer} = True
+        and ${subvertical_bu_filter_satisfied} = True
+          then ${customer_id} else null end) ;;
+  }
+
+  measure: number_of_non_prime_new_customers_subvertical {
+    description: "Number of prime new customers in the subVertical"
+    group_label: "Prime Customers and Orders Levels"
+    type: number
+    sql: count(distinct case when ${activated_local_at_dynamic}
+      = ${first_order_in_subvertical_at_dynamic}
+        and ${is_prime_customer} = False
+        and ${subvertical_bu_filter_satisfied} = True
+          then ${customer_id} else null end) ;;
+  }
+
+  measure: number_of_prime_recurrent_customers_subvertical {
+    description: "Number of prime Recurrent customers in the subVertical"
+    group_label: "Prime Customers and Orders Levels"
+    type: number
+    sql: count(distinct case when ${activated_local_at_dynamic}
+      <> ${first_order_in_subvertical_at_dynamic}
+        and ${is_prime_customer} = True
+        and ${subvertical_bu_filter_satisfied} = True
+          then ${customer_id} else null end) ;;
+  }
+
+  measure: number_of_non_prime_recurrent_customers_subvertical {
+    description: "Number of prime recurrent customers in the subVertical"
+    group_label: "Prime Customers and Orders Levels"
+    type: number
+    sql: count(distinct case when ${activated_local_at_dynamic}
+      <> ${first_order_in_subvertical_at_dynamic}
+        and ${is_prime_customer} = False
+        and ${subvertical_bu_filter_satisfied} = True
+          then ${customer_id} else null end) ;;
+  }
+
+  measure: number_of_new_customers_subvertical {
+    description: "Number of new customers in the subvertical"
+    group_label: "New Customers Levels"
+    type: number
+    sql: ${number_of_prime_new_customers_subvertical}
+      + ${number_of_non_prime_new_customers_subvertical};;
+  }
+
+  measure: number_of_recurrent_customers_subvertical {
+    description: "Number of recurrent customers in the subvertical"
+    group_label: "Recurrent Customers Levels"
+    type: number
+    sql: ${number_of_prime_recurrent_customers_subvertical}
+      + ${number_of_non_prime_recurrent_customers_subvertical} ;;
+  }
+
+  measure: number_of_prime_new_customers_subvertical2 {
+    description: "Number of prime new customers in the subVertical2"
+    group_label: "Prime Customers and Orders Levels"
+    type: number
+    sql: count(distinct case when ${activated_local_at_dynamic}
+      = ${first_order_in_subvertical2_at_dynamic}
+        and ${is_prime_customer} = True
+        and ${subvertical2_bu_filter_satisfied} = True
+          then ${customer_id} else null end) ;;
+  }
+
+  measure: number_of_non_prime_new_customers_subvertical2 {
+    description: "Number of prime new customers in the subVertical2"
+    group_label: "Prime Customers and Orders Levels"
+    type: number
+    sql: count(distinct case when ${activated_local_at_dynamic}
+      = ${first_order_in_subvertical2_at_dynamic}
+        and ${is_prime_customer} = False
+        and ${subvertical2_bu_filter_satisfied} = True
+          then ${customer_id} else null end) ;;
+  }
+
+  measure: number_of_prime_recurrent_customers_subvertical2 {
+    description: "Number of prime Recurrent customers in the subVertical2"
+    group_label: "Prime Customers and Orders Levels"
+    type: number
+    sql: count(distinct case when ${activated_local_at_dynamic}
+      <> ${first_order_in_subvertical2_at_dynamic}
+        and ${is_prime_customer} = True
+        and ${subvertical2_bu_filter_satisfied} = True
+          then ${customer_id} else null end) ;;
+  }
+
+  measure: number_of_non_prime_recurrent_customers_subvertical2 {
+    description: "Number of prime recurrent customers in the subVertical2"
+    group_label: "Prime Customers and Orders Levels"
+    type: number
+    sql: count(distinct case when ${activated_local_at_dynamic}
+      <> ${first_order_in_subvertical2_at_dynamic}
+        and ${is_prime_customer} = False
+        and ${subvertical2_bu_filter_satisfied} = True
+          then ${customer_id} else null end) ;;
+  }
+
+  measure: number_of_new_customers_subvertical2 {
+    description: "Number of new customers in the subvertical2"
+    group_label: "New Customers Levels"
+    type: number
+    sql: ${number_of_prime_new_customers_subvertical2}
+      + ${number_of_non_prime_new_customers_subvertical2};;
+  }
+
+  measure: number_of_recurrent_customers_subvertical2 {
+    description: "Number of recurrent customers in the subvertical2"
+    group_label: "Recurrent Customers Levels"
+    type: number
+    sql: ${number_of_prime_recurrent_customers_subvertical2}
+      + ${number_of_non_prime_recurrent_customers_subvertical2} ;;
+  }
+
+  measure: number_of_prime_new_customers_subvertical3 {
+    description: "Number of prime new customers in the subVertical3"
+    group_label: "Prime Customers and Orders Levels"
+    type: number
+    sql: count(distinct case when ${activated_local_at_dynamic}
+      = ${first_order_in_subvertical3_at_dynamic}
+        and ${is_prime_customer} = True
+        and ${subvertical3_bu_filter_satisfied} = True
+          then ${customer_id} else null end) ;;
+  }
+
+  measure: number_of_non_prime_new_customers_subvertical3 {
+    description: "Number of prime new customers in the subVertical3"
+    group_label: "Prime Customers and Orders Levels"
+    type: number
+    sql: count(distinct case when ${activated_local_at_dynamic}
+      = ${first_order_in_subvertical3_at_dynamic}
+        and ${is_prime_customer} = False
+        and ${subvertical3_bu_filter_satisfied} = True
+          then ${customer_id} else null end) ;;
+  }
+
+  measure: number_of_prime_recurrent_customers_subvertical3 {
+    description: "Number of prime Recurrent customers in the subVertical3"
+    group_label: "Prime Customers and Orders Levels"
+    type: number
+    sql: count(distinct case when ${activated_local_at_dynamic}
+      <> ${first_order_in_subvertical3_at_dynamic}
+        and ${is_prime_customer} = True
+        and ${subvertical3_bu_filter_satisfied} = True
+          then ${customer_id} else null end) ;;
+  }
+
+  measure: number_of_non_prime_recurrent_customers_subvertical3 {
+    description: "Number of prime recurrent customers in the subVertical3"
+    group_label: "Prime Customers and Orders Levels"
+    type: number
+    sql: count(distinct case when ${activated_local_at_dynamic}
+      <> ${first_order_in_subvertical3_at_dynamic}
+        and ${is_prime_customer} = False
+        and ${subvertical3_bu_filter_satisfied} = True
+          then ${customer_id} else null end) ;;
+  }
+
+  measure: number_of_new_customers_subvertical3 {
+    description: "Number of new customers in the subvertical3"
+    group_label: "New Customers Levels"
+    type: number
+    sql: ${number_of_prime_new_customers_subvertical3}
+      + ${number_of_non_prime_new_customers_subvertical3} ;;
+  }
+
+  measure: number_of_recurrent_customers_subvertical3 {
+    description: "Number of recurrent customers in the subvertical3"
+    group_label: "Recurrent Customers Levels"
+    type: number
+    sql: ${number_of_prime_recurrent_customers_subvertical3}
+      + ${number_of_non_prime_recurrent_customers_subvertical3} ;;
+  }
+
+  measure: number_of_prime_new_customers_store_sub_business_unit {
+    description: "Number of prime new customers in the Store Sub BU"
+    group_label: "Prime Customers and Orders Levels"
+    type: number
+    sql: count(distinct case when ${activated_local_at_dynamic}
+      = ${first_order_in_sub_business_unit_at_dynamic}
+        and ${is_prime_customer} = True
+          then ${customer_id} else null end) ;;
+  }
+
+  measure: number_of_non_prime_new_customers_store_sub_business_unit {
+    description: "Number of non prime new customers in the store Sub BU"
+    group_label: "Prime Customers and Orders Levels"
+    type: number
+    sql: count(distinct case when ${activated_local_at_dynamic}
+      = ${first_order_in_sub_business_unit_at_dynamic}
+        and ${is_prime_customer} = False
+          then ${customer_id} else null end) ;;
+  }
+
+  measure: number_of_prime_recurrent_customers_store_sub_business_unit {
+    description: "Number of prime Recurrent customers in the store Sub BU"
+    group_label: "Prime Customers and Orders Levels"
+    type: number
+    sql: count(distinct case when ${activated_local_at_dynamic}
+      <> ${first_order_in_sub_business_unit_at_dynamic}
+        and ${is_prime_customer} = True
+          then ${customer_id} else null end) ;;
+  }
+
+  measure: number_of_non_prime_recurrent_customers_store_sub_business_unit {
+    description: "Number of non prime recurrent customers in the store Sub BU"
+    group_label: "Prime Customers and Orders Levels"
+    type: number
+    sql: count(distinct case when ${activated_local_at_dynamic}
+      <> ${first_order_in_sub_business_unit_at_dynamic}
+        and ${is_prime_customer} = False
+          then ${customer_id} else null end) ;;
+  }
+
+  measure: number_of_new_customers_sub_business_unit {
+    description: "Number of new customers in the sub BU"
+    group_label: "New Customers Levels"
+    type: number
+    sql: ${number_of_prime_new_customers_store_sub_business_unit}
+      + ${number_of_non_prime_new_customers_store_sub_business_unit} ;;
+  }
+
+  measure: number_of_recurrent_customers_sub_business_unit {
+    description: "Number of recurrent customers in the sub BU"
+    group_label: "Recurrent Customers Levels"
+    type: number
+    sql: ${number_of_prime_recurrent_customers_store_sub_business_unit}
+      + ${number_of_non_prime_recurrent_customers_store_sub_business_unit} ;;
+  }
+
+  measure: number_of_prime_new_customers_store_name {
+    description: "Number of prime new customers in the Store Name"
+    group_label: "Prime Customers and Orders Levels"
+    type: number
+    sql: count(distinct case when ${activated_local_at_dynamic}
+      = ${first_order_in_store_name_at_dynamic}
+        and ${is_prime_customer} = True
+        and ${store_name_bu_filter_satisfied} = True
+          then ${customer_id} else null end) ;;
+  }
+
+  measure: number_of_non_prime_new_customers_store_name {
+    description: "Number of non prime new customers in the Store Name"
+    group_label: "Prime Customers and Orders Levels"
+    type: number
+    sql: count(distinct case when ${activated_local_at_dynamic}
+      = ${first_order_in_store_name_at_dynamic}
+        and ${is_prime_customer} = False
+        and ${store_name_bu_filter_satisfied} = True
+          then ${customer_id} else null end) ;;
+  }
+
+  measure: number_of_prime_recurrent_customers_store_name {
+    description: "Number of prime Recurrent customers in the Store Name"
+    group_label: "Prime Customers and Orders Levels"
+    type: number
+    sql: count(distinct case when ${activated_local_at_dynamic}
+      <> ${first_order_in_store_name_at_dynamic}
+        and ${is_prime_customer} = True
+        and ${store_name_bu_filter_satisfied} = True
+          then ${customer_id} else null end) ;;
+  }
+
+  measure: number_of_non_prime_recurrent_customers_store_name {
+    description: "Number of non prime recurrent customers in the Store Name"
+    group_label: "Prime Customers and Orders Levels"
+    type: number
+    sql: count(distinct case when ${activated_local_at_dynamic}
+      <> ${first_order_in_store_name_at_dynamic}
+        and ${is_prime_customer} = False
+        and ${store_name_bu_filter_satisfied} = True
+          then ${customer_id} else null end) ;;
+  }
+
+  measure: number_of_new_customers_store_name {
+    description: "Number of new customers in the store name"
+    group_label: "New Customers Levels"
+    type: number
+    sql: ${number_of_prime_new_customers_store_name}
+      + ${number_of_non_prime_new_customers_store_name} ;;
+  }
+
+  measure: number_of_recurrent_customers_store_name {
+    description: "Number of recurrent customers in the store name"
+    group_label: "Recurrent Customers Levels"
+    type: number
+    sql: ${number_of_prime_recurrent_customers_store_name}
+      + ${number_of_non_prime_recurrent_customers_store_name} ;;
+  }
+
+  measure: number_of_total_prime_customers {
+    description: "Number of total prime customers"
+    group_label: "Prime Customers and Orders Levels"
+    type: count_distinct
+    sql: ${customer_id} ;;
+    filters: [is_prime_customer: "yes"]
+  }
+
+  measure: number_of_total_non_prime_customers {
+    description: "Number of total non prime customers"
+    group_label: "Prime Customers and Orders Levels"
+    type: count_distinct
+    sql: ${customer_id} ;;
+    filters: [is_prime_customer: "no"]
+  }
+
+  measure: number_of_total_customers {
+    description: "Number of total customers"
+    type: number
+    sql: ${number_of_total_prime_customers}
+      + ${number_of_total_non_prime_customers} ;;
+  }
+
+  ########################## PARAMETERED MEASURES ##########################
+
+  measure: number_of_new_customers_bu_selected_level {
+    description: "New Customers in the BU Selected Level. Requires Granularity Filters"
+    group_label: "Dynamic Metrics BU Selected Level"
+    type: number
+    # LAMS
+    # rule_exemptions: {
+    # F1: "2024-01-08 - Field does not reference another view but the value of a parameter of the view"
+    # }
+    sql:
+      {% if business_unit_granularity._parameter_value == 'Glovo_App' %}
+        ${number_of_new_customers_glovo_app}
+      {% elsif business_unit_granularity._parameter_value == 'Store_Vertical' %}
+        ${number_of_new_customers_vertical}
+      {% elsif business_unit_granularity._parameter_value == 'Store_Subvertical' %}
+        ${number_of_new_customers_subvertical}
+      {% elsif business_unit_granularity._parameter_value == 'Store_Subvertical2' %}
+        ${number_of_new_customers_subvertical2}
+      {% elsif business_unit_granularity._parameter_value == 'Store_Subvertical3' %}
+        ${number_of_new_customers_subvertical3}
+      {% elsif business_unit_granularity._parameter_value == 'Store_Sub_Business_Unit' %}
+        ${number_of_new_customers_sub_business_unit}
+      {% elsif business_unit_granularity._parameter_value == 'Store_Name' %}
+        ${number_of_new_customers_store_name}
+      {% else %}
+        ${number_of_new_customers_glovo_app}
+      {% endif %} ;;
+  }
+
+}
