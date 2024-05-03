@@ -12,43 +12,49 @@ view: order_descriptors_qcommerce_cert {
 
   filter: filter_bu_vertical {
     type: string
-    description: "BU Filters (only affects '(BU)' dimensions/measures) - Vertical"
-    suggest_dimension: order_vertical
+    description: "BU Filters (only affects '(BU)' dimensions/measures) 
+      - Vertical"
     group_label: "BU Filters (only affects '(BU)' dimensions/measures)"
+    suggest_dimension: order_vertical
     }
 
   filter: filter_bu_subvertical {
-    group_label: "BU Filters (only affects '(BU)' dimensions/measures)"
-    description: "BU Filters (only affects '(BU)' dimensions/measures) - Subvertical"
     type: string
+    description: "BU Filters (only affects '(BU)' dimensions/measures) 
+      - Subvertical"
+    group_label: "BU Filters (only affects '(BU)' dimensions/measures)"
     suggest_dimension: order_subvertical
   }
 
   filter: filter_bu_subvertical2 {
-    group_label: "BU Filters (only affects '(BU)' dimensions/measures)"
-    description: "BU Filters (only affects '(BU)' dimensions/measures) - Subvertical2"
     type: string
+    description: "BU Filters (only affects '(BU)' dimensions/measures) 
+      - Subvertical2"
+    group_label: "BU Filters (only affects '(BU)' dimensions/measures)"
     suggest_dimension: order_subvertical2
   }
 
   filter: filter_bu_subvertical3 {
-    group_label: "BU Filters (only affects '(BU)' dimensions/measures)"
-    description: "BU Filters (only affects '(BU)' dimensions/measures) - Subvertical3"
     type: string
+    description: "BU Filters (only affects '(BU)' dimensions/measures) 
+      - Subvertical3"
+    group_label: "BU Filters (only affects '(BU)' dimensions/measures)"
     suggest_dimension: order_subvertical3
   }
 
   filter: filter_bu_store_name {
-    group_label: "BU Filters (only affects '(BU)' dimensions/measures)"
-    description: "BU Filters (only affects '(BU)' dimensions/measures) - Store Name"
     type: string
+    description: "BU Filters (only affects '(BU)' dimensions/measures) 
+      - Store Name"
+    group_label: "BU Filters (only affects '(BU)' dimensions/measures)"
     suggest_dimension: store_name
   }
 
   filter: filter_bu_store_id {
-    group_label: "BU Filters (only affects '(BU)' dimensions/measures)"
-    description: "BU Filters (only affects '(BU)' dimensions/measures) - Store ID"
     type: string
+    description: "BU Filters (only affects '(BU)' dimensions/measures) 
+      - Store ID"
+    group_label: "BU Filters (only affects '(BU)' dimensions/measures)"
     suggest_dimension: store_id
   }
 
@@ -842,72 +848,6 @@ view: order_descriptors_qcommerce_cert {
   }
 
   ########################## USE CASE DIMENSIONS ##########################
-
-  dimension: vertical_bu_filter_satisfied {
-    type: string
-    hidden: yes
-    description: "Dimensions to be referenced in other views. for cross filtering with 'BU Filters' selected"
-    sql:  CASE
-      WHEN {% condition filter_bu_vertical %}
-        ${order_vertical}
-        {% endcondition %}
-      THEN ${order_vertical}
-      ELSE NULL
-      END
-      ;;
-  }
-  # LAMS
-  # rule_exemptions: {
-  # F1: "2022-12-19 - We need to reference this view to avoid more joins"
-  # }
-
-  dimension: subvertical_bu_filter_satisfied {
-    type: string
-    hidden: yes
-    description: "Dimensions to be referenced in other views. for cross filtering with 'BU Filters' selected"
-    sql:  {% condition filter_bu_subvertical %}
-        ${order_subvertical}
-        {% endcondition %}
-      THEN ${order_subvertical}
-      ELSE NULL
-      END ;;
-  }
-
-  dimension: subvertical2_bu_filter_satisfied {
-    type: string
-    hidden: yes
-    description: "Dimensions to be referenced in other views. for cross filtering with 'BU Filters' selected"
-    sql:  {% condition filter_bu_subvertical2 %}
-        ${order_subvertical2}
-        {% endcondition %}
-      THEN ${order_subvertical2}
-      ELSE NULL
-      END ;;
-  }
-
-  dimension: subvertical3_bu_filter_satisfied {
-    type: string
-    hidden: yes
-    description: "Dimensions to be referenced in other views. for cross filtering with 'BU Filters' selected"
-    sql:  {% condition filter_bu_subvertical3 %}
-        ${order_subvertical3}
-        {% endcondition %}
-      THEN ${order_subvertical3}
-      ELSE NULL
-      END ;;
-  }
-
-  dimension: store_name_bu_filter_satisfied {
-    type: string
-    hidden: yes
-    description: "Dimensions to be referenced in other views. for cross filtering with 'BU Filters' selected"
-    sql:   {% condition filter_bu_store_name %}
-        ${store_name}
-        {% endcondition %}
-      THEN ${store_name}
-      ELSE NULL
-      END ;;
-  }
 
   dimension: all_BU_filter_satisfied {
     type: yesno
